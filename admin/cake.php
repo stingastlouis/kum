@@ -1,22 +1,22 @@
 <?php include 'includes/header.php'; ?>
 
 <?php
-// Fetch products and categories from the database
 include '../configs/db.php';
 
-$success = isset($_GET["success"]) ? $_GET["success"] : null;
-
-// Fetch products
-$stmt = $conn->prepare("SELECT e.*, s.Name AS LatestStatus FROM Products e
-LEFT JOIN (
-    SELECT es.ProductId, MAX(es.Id) AS LatestStatusId
-    FROM ProductStatus es
-    GROUP BY es.ProductId
-) latest_es ON e.Id = latest_es.ProductId
-LEFT JOIN ProductStatus es ON latest_es.LatestStatusId = es.Id
-LEFT JOIN Status s ON es.StatusId = s.Id;");
+$success = $_GET["success"] ?? null;
+$stmt = $conn->prepare("
+    SELECT e.*, s.StatusName AS LatestStatus 
+    FROM Cakes e
+    LEFT JOIN (
+        SELECT es.CakeId, MAX(es.Id) AS LatestStatusId
+        FROM CakeStatus es
+        GROUP BY es.CakeId
+    ) latest_es ON e.Id = latest_es.CakeId
+    LEFT JOIN CakeStatus es ON latest_es.LatestStatusId = es.Id
+    LEFT JOIN Status s ON es.StatusId = s.Id;
+");
 $stmt->execute();
-$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch statuses
 $stmt2 = $conn->prepare("SELECT * FROM Status");
@@ -24,23 +24,21 @@ $stmt2->execute();
 $statuses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch categories
-$stmt3 = $conn->prepare("SELECT * FROM Categories");
+$stmt3 = $conn->prepare("SELECT * FROM Category");
 $stmt3->execute();
 $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-    <h3 class="text-dark mb-4">Products</h3>
+    <h3 class="text-dark mb-4">Cakes</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Product List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                Add Product
-            </button>
+            <p class="text-primary m-0 fw-bold">Cake List</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCakeModal">Add Cake</button>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
-                <table class="table my-0" id="dataTable">
+                <table class="table my-0">
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -57,32 +55,32 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($products as $product): ?>
+                        <?php foreach ($cakes as $cake): ?>
                             <tr>
-                                <td><?= htmlspecialchars($product['Id']) ?></td>
-                                <td><?= htmlspecialchars($product['Name']) ?></td>
-                                <td><?= htmlspecialchars($product['CategoryId']) ?></td>
-                                <td><?= htmlspecialchars($product['Description']) ?></td>
-                                <td><?= htmlspecialchars($product['Price']) ?></td>
-                                <td><?= htmlspecialchars($product['DiscountPrice']) ?></td>
-                                <td><?= htmlspecialchars($product['Stock']) ?></td>
+                                <td><?= htmlspecialchars($cake['Id']) ?></td>
+                                <td><?= htmlspecialchars($cake['Name']) ?></td>
+                                <td><?= htmlspecialchars($cake['CategoryId']) ?></td>
+                                <td><?= htmlspecialchars($cake['Description']) ?></td>
+                                <td><?= htmlspecialchars($cake['Price']) ?></td>
+                                <td><?= htmlspecialchars($cake['DiscountPrice']) ?></td>
+                                <td><?= htmlspecialchars($cake['StockCount']) ?></td>
                                 <td>
-                                    <img src="../assets/uploads/<?= htmlspecialchars($product['ImagePath']) ?>" alt="<?= htmlspecialchars($product['Name']) ?>" style="width: 100px; height: auto;">
+                                    <img src="../assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" alt="<?= htmlspecialchars($cake['Name']) ?>" style="width: 100px; height: auto;">
                                 </td>
-                                <td><?= htmlspecialchars($product['LatestStatus']) ?: 'No Status' ?></td>
-                                <td><?= htmlspecialchars($product['DateCreated']) ?></td>
-                                <td style="padding:10px">
-                                    <button class='btn btn-warning btn-sm edit-product-btn' 
-                                        data-id='<?= $product['Id'] ?>' 
-                                        data-name='<?= $product['Name'] ?>' 
-                                        data-category-id='<?= $product['CategoryId'] ?>' 
-                                        data-description='<?= $product['Description'] ?>' 
-                                        data-price='<?= $product['Price'] ?>'
-                                        data-discount='<?= $product['DiscountPrice'] ?>' 
-                                        data-stock='<?= $product['Stock'] ?>'>Edit</button>
-                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteProductModal" data-id="<?= $product['Id'] ?>">Delete</button>
-                                    <form method="POST" action="status/add_productStatus.php" style="display: inline;">
-                                        <input type="hidden" name="product_id" value="<?= $product['Id'] ?>">
+                                <td><?= htmlspecialchars($cake['LatestStatus']) ?: 'No Status' ?></td>
+                                <td><?= htmlspecialchars($cake['DateCreated']) ?></td>
+                                <td>
+                                    <button class='btn btn-warning btn-sm edit-cake-btn' 
+                                        data-id='<?= $cake['Id'] ?>' 
+                                        data-name='<?= $cake['Name'] ?>' 
+                                        data-category-id='<?= $cake['CategoryId'] ?>' 
+                                        data-description='<?= $cake['Description'] ?>' 
+                                        data-price='<?= $cake['Price'] ?>' 
+                                        data-discount='<?= $cake['DiscountPrice'] ?>' 
+                                        data-stock='<?= $cake['StockCount'] ?>'>Edit</button>
+                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteCakeModal" data-id="<?= $cake['Id'] ?>">Delete</button>
+                                    <form method="POST" action="status/add_cakeStatus.php" style="display: inline;">
+                                        <input type="hidden" name="cake_id" value="<?= $cake['Id'] ?>">
                                         <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
                                             <option value="" disabled selected>Change Status</option>
                                             <?php foreach ($statuses as $status): ?>
@@ -100,23 +98,24 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Add Product Modal -->
-<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+
+<!-- Add Cake Modal -->
+<div class="modal fade" id="addCakeModal" tabindex="-1" aria-labelledby="addCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                <h5 class="modal-title" id="addCakeModalLabel">Add Cake</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="product/add_product.php" method="POST" enctype="multipart/form-data">
+                <form action="cake/add_cake.php" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label for="productName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="productName" name="product_name" required>
+                        <label for="cakeName" class="form-label">Cake Name</label>
+                        <input type="text" class="form-control" id="cakeName" name="cake_name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productCategory" class="form-label">Category</label>
-                        <select class="form-select" id="productCategory" name="product_category_id" required>
+                        <label for="cakeCategory" class="form-label">Category</label>
+                        <select class="form-select" id="cakeCategory" name="cake_category_id" required>
                             <option value="" disabled selected>Select Category</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?= $category['Id'] ?>"><?= htmlspecialchars($category['Name']) ?></option>
@@ -124,47 +123,47 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="productDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="productDescription" name="product_description" rows="3" required></textarea>
+                        <label for="cakeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="cakeDescription" name="cake_description" rows="3" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="productPrice" class="form-label">Price</label>
-                        <input type="number" step="0.01" class="form-control" id="productPrice" name="product_price" required>
+                        <label for="cakePrice" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="cakePrice" name="cake_price" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productDiscountPrice" class="form-label">Discount Price</label>
-                        <input type="number" step="0.01" class="form-control" id="productDiscountPrice" name="product_discount">
+                        <label for="cakeDiscountPrice" class="form-label">Discount Price</label>
+                        <input type="number" step="0.01" class="form-control" id="cakeDiscountPrice" name="cake_discount">
                     </div>
                     <div class="mb-3">
-                        <label for="productStock" class="form-label">Stock</label>
-                        <input type="number" class="form-control" id="productStock" name="product_stock" required>
+                        <label for="cakeStock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="cakeStock" name="cake_stock" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productImage" class="form-label">Product Image</label>
-                        <input type="file" class="form-control" id="productImage" name="product_image" accept="image/*" required>
+                        <label for="cakeImage" class="form-label">Cake Image</label>
+                        <input type="file" class="form-control" id="cakeImage" name="cake_image" accept="image/*" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Product</button>
+                    <button type="submit" class="btn btn-primary">Add Cake</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Product Modal -->
-<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+<!-- Delete Cake Modal -->
+<div class="modal fade" id="deleteCakeModal" tabindex="-1" aria-labelledby="deleteCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteProductModalLabel">Delete Product</h5>
+                <h5 class="modal-title" id="deleteCakeModalLabel">Delete Cake</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete this product?
+                Are you sure you want to delete this cake?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="product/delete_product.php" method="POST">
-                    <input type="hidden" id="productIdToDelete" name="product_id">
+                <form action="cake/delete_cake.php" method="POST">
+                    <input type="hidden" id="cakeIdToDelete" name="cake_id">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
@@ -174,26 +173,26 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/footer.php'; ?>
 
-<!-- Edit Product Modal -->
-<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+<!-- Edit Cake Modal -->
+<div class="modal fade" id="editCakeModal" tabindex="-1" aria-labelledby="editCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="editProductForm" method="POST" action="product/modify.php" enctype="multipart/form-data">
+            <form id="editCakeForm" method="POST" action="cake/modify_cake.php" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+                    <h5 class="modal-title" id="editCakeModalLabel">Edit Cake</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="product_id" id="editProductId">
+                    <input type="hidden" name="cake_id" id="editCakeId">
                     
                     <div class="mb-3">
-                        <label for="editProductName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="editProductName" name="product_name">
+                        <label for="editCakeName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="editCakeName" name="cake_name">
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductCategory" class="form-label">Category</label>
-                        <select class="form-select" id="editProductCategory" name="product_category_id">
+                        <label for="editCakeCategory" class="form-label">Category</label>
+                        <select class="form-select" id="editCakeCategory" name="cake_category_id">
                             <option value="" disabled>Select Category</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?= $category['Id'] ?>"><?= htmlspecialchars($category['Name']) ?></option>
@@ -202,28 +201,28 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="editProductDescription" name="product_description" rows="3"></textarea>
+                        <label for="editCakeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editCakeDescription" name="cake_description" rows="3"></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductPrice" class="form-label">Price</label>
-                        <input type="number" step="0.01" class="form-control" id="editProductPrice" name="product_price">
+                        <label for="editCakePrice" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="editCakePrice" name="cake_price">
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductDiscount" class="form-label">Discount Price</label>
-                        <input type="number" step="0.01" class="form-control" id="editProductDiscount" name="product_discount">
+                        <label for="editCakeDiscount" class="form-label">Discount Price</label>
+                        <input type="number" step="0.01" class="form-control" id="editCakeDiscount" name="cake_discount">
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductStock" class="form-label">Stock</label>
-                        <input type="number" class="form-control" id="editProductStock" name="product_stock">
+                        <label for="editCakeStock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="editCakeStock" name="cake_stock">
                     </div>
 
                     <div class="mb-3">
-                        <label for="editProductImage" class="form-label">Product Image</label>
-                        <input type="file" class="form-control" id="editProductImage" name="product_image" accept="image/*">
+                        <label for="editCakeImage" class="form-label">Cake Image</label>
+                        <input type="file" class="form-control" id="editCakeImage" name="cake_image" accept="image/*">
                         <small class="form-text text-muted">Leave empty to keep current image</small>
                     </div>
                 </div>
@@ -236,21 +235,21 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Delete Product Modal -->
-<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+<!-- Delete Cake Modal -->
+<div class="modal fade" id="deleteCakeModal" tabindex="-1" aria-labelledby="deleteCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteProductModalLabel">Delete Product</h5>
+                <h5 class="modal-title" id="deleteCakeModalLabel">Delete Cake</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete this product?
+                Are you sure you want to delete this cake?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="product/delete_product.php" method="POST">
-                    <input type="hidden" id="productIdToDelete" name="product_id">
+                <form action="cake/delete_cake.php" method="POST">
+                    <input type="hidden" id="cakeIdToDelete" name="cake_id">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
@@ -259,16 +258,16 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-    // Delete product event listener
+    // Delete cake event listener
     document.querySelectorAll('.btn-del').forEach(function(button) {
         button.addEventListener('click', function() {
-            var productId = this.getAttribute('data-id');
-            document.getElementById('productIdToDelete').value = productId;
+            var cakeId = this.getAttribute('data-id');
+            document.getElementById('cakeIdToDelete').value = cakeId;
         });
     });
 
-    // Edit product event listener
-    document.querySelectorAll('.edit-product-btn').forEach(button => {
+    // Edit cake event listener
+    document.querySelectorAll('.edit-cake-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const name = this.getAttribute('data-name');
@@ -279,16 +278,16 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             const stock = this.getAttribute('data-stock');
 
             // Populate the edit form
-            document.getElementById('editProductId').value = id;
-            document.getElementById('editProductName').value = name;
-            document.getElementById('editProductCategory').value = categoryId;
-            document.getElementById('editProductDescription').value = description;
-            document.getElementById('editProductPrice').value = price;
-            document.getElementById('editProductDiscount').value = discount;
-            document.getElementById('editProductStock').value = stock;
+            document.getElementById('editCakeId').value = id;
+            document.getElementById('editCakeName').value = name;
+            document.getElementById('editCakeCategory').value = categoryId;
+            document.getElementById('editCakeDescription').value = description;
+            document.getElementById('editCakePrice').value = price;
+            document.getElementById('editCakeDiscount').value = discount;
+            document.getElementById('editCakeStock').value = stock;
 
             // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            const modal = new bootstrap.Modal(document.getElementById('editCakeModal'));
             modal.show();
         });
     });
