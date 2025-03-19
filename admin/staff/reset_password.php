@@ -2,70 +2,50 @@
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['staff_id']) && !empty($_POST['staff_password'])) {
     $staffId = $_POST['staff_id'];
     $newPassword = $_POST['staff_password'];
 
     try {
-        // Start transaction
         $conn->beginTransaction();
 
-        // Validate staff ID
-        if (empty($staffId)) {
-            throw new Exception("Staff ID is required");
+        if (!filter_var($staffId, FILTER_VALIDATE_INT)) {
+            throw new Exception("Invalid staff ID");
         }
 
-        // Validate password strength (adjust regex as needed)
         if (!preg_match("/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W_]).{8,}$/", $newPassword)) {
-            throw new Exception("Password must be at least 8 characters long and include a mix of uppercase, lowercase, numbers, and special characters");
+            throw new Exception("Weak password: Minimum 8 characters, including uppercase, lowercase, number, and special character");
         }
 
-        // Check if staff exists
-        $checkStaff = $conn->prepare("SELECT COUNT(*) FROM Staff WHERE Id = ?");
-        $checkStaff->execute([$staffId]);
-        if ($checkStaff->fetchColumn() == 0) {
+        $stmt = $conn->prepare("SELECT 1 FROM Staff WHERE Id = :staffId");
+        $stmt->execute(['staffId' => $staffId]);
+        if (!$stmt->fetch()) {
             throw new Exception("Staff member not found");
         }
 
-        // Hash the new password securely
         $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
 
-        // Update the password in the database
-        $stmt = $conn->prepare("UPDATE Staff SET PasswordHash = ? WHERE Id = ?");
-        $stmt->execute([$passwordHash, $staffId]);
+        $updateStmt = $conn->prepare("UPDATE Staff SET Password = :passwordHash WHERE Id = :staffId");
+        $updateStmt->execute([
+            'passwordHash' => $passwordHash,
+            'staffId' => $staffId
+        ]);
 
-        // Check if the update was successful
-        if ($stmt->rowCount() > 0) {
-            // Commit transaction
+        if ($updateStmt->rowCount() > 0) {
             $conn->commit();
-
-            // Redirect to the staff list page with success message
             header('Location: ../staff.php?success=1');
             exit;
         } else {
-            throw new Exception("Error: Unable to reset the password. No changes were made.");
+            throw new Exception("Password reset failed: No changes made");
         }
 
     } catch (Exception $e) {
-        // Rollback transaction on error
         $conn->rollBack();
-
-        // Handle specific error messages
-        $errorMessage = $e->getMessage();
-        if (strpos($errorMessage, "Password must be") !== false) {
-            header('Location: ../staff.php?error=weak_password');
-        } else if (strpos($errorMessage, "Staff member not found") !== false) {
-            header('Location: ../staff.php?error=staff_not_found');
-        } else {
-            // Generic error
-            header('Location: ../staff.php?error=general&message=' . urlencode($errorMessage));
-        }
+        header("Location: ../staff.php?error=" . urlencode($e->getMessage()));
         exit;
     }
 } else {
-    // If not POST request, redirect to staff page
-    header('Location: ../staff.php');
+    header('Location: ../staff.php?error=invalid_request');
     exit;
 }
 ?>

@@ -1,16 +1,21 @@
 <?php 
 include '../../configs/db.php';
 
-if (isset($_POST['customer_id'])) {
-    $productId = $_POST['customer_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['staff_id'])) {
+    $staff_id = $_POST['staff_id'];
+    
+    try {
+        $stmt = $conn->prepare("DELETE FROM Staff WHERE Id = :id");
+        $stmt->bindParam(':id', $staff_id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        header("Location: ../staff.php?success=1");
+        exit();
+    } catch (Exception $e) {
+        header("Location: ../staff.php?error=1&message=" . urlencode($e->getMessage()));
+        exit();
+    }
+} 
 
-    $stmt = $conn->prepare("DELETE FROM Customer WHERE Id = :id");
-    $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
-    $stmt->execute();
-
-    header("Location: ../customer.php?success=1");
-    exit();
-} else {
-    header("Location: ../customer.php?error=1");
-    exit();
-}
+header("Location: ../staff.php?error=1");
+exit();
