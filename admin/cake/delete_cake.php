@@ -10,7 +10,7 @@ if (isset($_POST['cake_id'])) {
 
     header("Location: ../cake.php?success=1");
     exit();
-} else {
-    header("Location: ../cake.php?error=1");
-    exit();
 }
+
+header("Location: ../cake.php?error=1");
+exit();
