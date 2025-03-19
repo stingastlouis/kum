@@ -1,27 +1,26 @@
 <?php include 'includes/header.php'; ?>
 
 <?php
-// Fetch categories from the database
 include '../configs/db.php';
 
-$success = isset($_GET["success"]) ? $_GET["success"] : null;
-$stmt = $conn->prepare("SELECT * FROM categories");
+$isSuccess = isset($_GET["success"]) ? $_GET["success"] : null;
+$stmt = $conn->prepare("SELECT * FROM category");
 $stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-    <h3 class="text-dark mb-4">Categories</h3>
+    <h3 class="text-dark mb-4">Cake Categories</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Category List</p>
+            <p class="text-primary m-0 fw-bold">Cake Category List</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 Add Category
             </button>
         </div>
         <div class="card-body">
             <div class="row">
-            <div class="col-md-6">
+                <div class="col-md-6">
                     <div class="text-md-end dataTables_filter" id="dataTable_filter">
                         <label class="form-label">
                             <input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search" id="searchInput">
@@ -29,11 +28,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <div class="col-md-6 text-nowrap">
-                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
-                        
-                    </div>
+                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"></div>
                 </div>
-                
             </div>
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
                 <table class="table my-0" id="dataTable">
@@ -46,13 +42,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($categories as $category): ?>
+                        <?php foreach ($cake_categories as $category): ?>
                             <tr>
                                 <td><?= htmlspecialchars($category['Id']) ?></td>
                                 <td><?= htmlspecialchars($category['Name']) ?></td>
                                 <td><?= htmlspecialchars($category['DateCreated']) ?></td>
                                 <td>
-                                    <!-- <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modifyCategoryModal">Edit</button> -->
                                     <button class="btn btn-danger btn-del" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="<?= $category['Id'] ?>">Delete</button>
                                 </td>
                             </tr>
@@ -64,12 +59,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Add Category Modal -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
+                <h5 class="modal-title" id="addCategoryModalLabel">Add a new Cake Category</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -78,14 +72,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <label for="categoryName" class="form-label">Category Name</label>
                         <input type="text" class="form-control" id="categoryName" name="category_name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Category</button>
+                    <button type="submit" class="btn btn-primary">Add new Category</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modify Category Modal -->
 <div class="modal fade" id="modifyCategoryModal" tabindex="-1" aria-labelledby="modifyCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -107,7 +100,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Success Message -->
 <div class="modal fade" id="SuccessMessage" tabindex="-1" aria-labelledby="successMessgeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -122,9 +114,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-
-
-<!-- Delete Category Modal -->
 <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -146,20 +135,15 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    // If success=1 is passed in the URL, show the SuccessMessage modal
-    
-    <?php if ($success): ?>
+    <?php if ($isSuccess): ?>
         var myModal = new bootstrap.Modal(document.getElementById('SuccessMessage'));
         myModal.show();
-
-        // Hide the modal after 3 seconds
         setTimeout(function() {
             myModal.hide();
-        }, 3000); // 3000 milliseconds = 3 seconds
+        }, 3000);
     <?php endif; ?>
 </script>
 
@@ -168,26 +152,18 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     deleteButtons.forEach(function(button) {
         button.addEventListener('click', function() {
             var categoryId = this.getAttribute('data-id');
-            console.log(categoryId)
-            let x = document.getElementById('categoryIdToDelete').value = categoryId;
-            console.log(x,"object");
+            document.getElementById('categoryIdToDelete').value = categoryId;
         });
     });
 </script>
 
 <script>
     document.getElementById('searchInput').addEventListener('input', function () {
-    var query = this.value.toLowerCase(); // Get the search query in lowercase
-    var rows = document.querySelectorAll('#dataTable tbody tr'); // Get all table rows
-    rows.forEach(function (row) {
-        var categoryName = row.querySelector('td:nth-child(2)').textContent.toLowerCase(); // Get the category name (2nd column)
-
-        // Check if the category name matches the query
-        if (categoryName.includes(query)) {
-            row.style.display = ''; // Show the row
-        } else {
-            row.style.display = 'none'; // Hide the row
-        }
+        var query = this.value.toLowerCase();
+        var rows = document.querySelectorAll('#dataTable tbody tr');
+        rows.forEach(function (row) {
+            var categoryName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            row.style.display = categoryName.includes(query) ? '' : 'none';
+        });
     });
-});
 </script>
