@@ -1,13 +1,12 @@
 <?php include 'includes/header.php'; ?>
 
 <?php
-// Fetch categories from the database
 include '../configs/db.php';
 
 $success = isset($_GET["success"]) ? $_GET["success"] : null;
-$stmt = $conn->prepare("SELECT * FROM role");
+$stmt = $conn->prepare("SELECT * FROM roles ORDER BY Id DESC");
 $stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
@@ -20,24 +19,18 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </button>
         </div>
         <div class="card-body">
-            <div class="row">
-            <div class="col-md-6">
+            <div class="row mb-3">
+                <div class="col-md-6">
                     <div class="text-md-end dataTables_filter" id="dataTable_filter">
                         <label class="form-label">
-                            <input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search" id="searchInput">
+                            <input type="search" class="form-control" aria-controls="dataTable" placeholder="Search roles" id="searchInput">
                         </label>
                     </div>
                 </div>
-                <div class="col-md-6 text-nowrap">
-                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable">
-                        
-                    </div>
-                </div>
-                
             </div>
-            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
-                <table class="table my-0" id="dataTable">
-                    <thead>
+            <div class="table-responsive">
+                <table class="table table-striped" id="dataTable">
+                    <thead class="table-dark">
                         <tr>
                             <th>Id</th>
                             <th>Role Name</th>
@@ -46,14 +39,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($categories as $role): ?>
+                        <?php foreach ($roles as $role): ?>
                             <tr>
                                 <td><?= htmlspecialchars($role['Id']) ?></td>
                                 <td><?= htmlspecialchars($role['Name']) ?></td>
-                                <td><?= htmlspecialchars($role['DateCreated']) ?></td>
+                                <td><?= htmlspecialchars(date('d M Y, H:i', strtotime($role['DateCreated']))) ?></td>
                                 <td>
-                                    <!-- <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modifyRoleModal">Edit</button> -->
-                                    <button class="btn btn-danger btn-del" data-bs-toggle="modal" data-bs-target="#deleteRoleModal" data-id="<?= $role['Id'] ?>">Delete</button>
+                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteRoleModal" data-id="<?= $role['Id'] ?>">Delete</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -64,7 +56,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Add Role Modal -->
 <div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -85,46 +76,19 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Modify Role Modal -->
-<div class="modal fade" id="modifyRoleModal" tabindex="-1" aria-labelledby="modifyRoleModalLabel" aria-hidden="true">
+<div class="modal fade" id="SuccessMessage" tabindex="-1" aria-labelledby="successMessageModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modifyRoleModalLabel">Modify Role</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="successMessageModalLabel">Message</h5>
             </div>
             <div class="modal-body">
-                <form action="role/modify_role.php" method="POST">
-                    <div class="mb-3">
-                        <label for="modifyRoleName" class="form-label">Role Name</label>
-                        <input type="text" class="form-control" id="modifyRoleName" name="role_name" required>
-                        <input type="hidden" name="role_id" id="modifyRoleId">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
+                Created Successfully
             </div>
         </div>
     </div>
 </div>
 
-<!-- Success Message -->
-<div class="modal fade" id="SuccessMessage" tabindex="-1" aria-labelledby="successMessgeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modifyRoleModalLabel">Message</h5>
-            </div>
-            <div class="modal-body">
-                <form action="role/modify_role.php" method="POST">
-                    Created Successfully
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Delete Role Modal -->
 <div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -146,48 +110,27 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    // If success=1 is passed in the URL, show the SuccessMessage modal
-    
     <?php if ($success): ?>
-        var myModal = new bootstrap.Modal(document.getElementById('SuccessMessage'));
-        myModal.show();
+        const successModal = new bootstrap.Modal(document.getElementById('SuccessMessage'));
+        successModal.show();
 
-        // Hide the modal after 3 seconds
-        setTimeout(function() {
-            myModal.hide();
-        }, 3000); // 3000 milliseconds = 3 seconds
+        setTimeout(() => successModal.hide(), 3000);
     <?php endif; ?>
-</script>
 
-<script>
-    var deleteButtons = document.querySelectorAll('.btn-del');
-    deleteButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            var roleId = this.getAttribute('data-id');
-            console.log(roleId)
-            let x = document.getElementById('roleIdToDelete').value = roleId;
-            console.log(x,"object");
+    document.querySelectorAll('.btn-del').forEach(button => {
+        button.addEventListener('click', function () {
+            document.getElementById('roleIdToDelete').value = this.getAttribute('data-id');
         });
     });
-</script>
 
-<script>
     document.getElementById('searchInput').addEventListener('input', function () {
-    var query = this.value.toLowerCase(); // Get the search query in lowercase
-    var rows = document.querySelectorAll('#dataTable tbody tr'); // Get all table rows
-    rows.forEach(function (row) {
-        var roleName = row.querySelector('td:nth-child(2)').textContent.toLowerCase(); // Get the role name (2nd column)
-
-        // Check if the role name matches the query
-        if (roleName.includes(query)) {
-            row.style.display = ''; // Show the row
-        } else {
-            row.style.display = 'none'; // Hide the row
-        }
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('#dataTable tbody tr').forEach(row => {
+            const roleName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            row.style.display = roleName.includes(query) ? '' : 'none';
+        });
     });
-});
 </script>
