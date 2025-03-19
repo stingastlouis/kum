@@ -6,17 +6,17 @@ include '../configs/db.php';
 
 $success = isset($_GET["success"]) ? $_GET["success"] : null;
 $stmt = $conn->prepare("
-    SELECT e.*, 
+   SELECT gb.*, 
        s.Name AS LatestStatus 
-FROM Event e
+FROM GiftBox gb
 LEFT JOIN (
-    SELECT es.EventId, 
-           MAX(es.Id) AS LatestStatusId
-    FROM EventStatus es
-    GROUP BY es.EventId
-) latest_es ON e.Id = latest_es.EventId
-LEFT JOIN EventStatus es ON latest_es.LatestStatusId = es.Id
-LEFT JOIN Status s ON es.StatusId = s.Id;
+    SELECT gbs.GiftBoxId, 
+           MAX(gbs.Id) AS LatestStatusId
+    FROM GiftBoxStatus gbs
+    GROUP BY gbs.GiftBoxId
+) latest_gbs ON gb.Id = latest_gbs.GiftBoxId
+LEFT JOIN GiftBoxStatus gbs ON latest_gbs.LatestStatusId = gbs.Id
+LEFT JOIN Status s ON gbs.StatusId = s.Id;
 ");
 $stmt->execute();
 $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
