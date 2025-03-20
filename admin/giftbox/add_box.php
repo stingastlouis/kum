@@ -2,78 +2,62 @@
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
-    $name = $_POST['event_name'];
-    $description = $_POST['event_description'];
-    $price = $_POST['event_price'];
-    $discount_price = $_POST['event_discount_price'];
-
-    // File upload handling
-    if (!empty($_FILES['event_image']['name'])) {
-        $upload_dir = '../../assets/uploads/';
-        $file_name = basename($_FILES['event_image']['name']);
-        $target_file = $upload_dir . $file_name;
-
-        // Validate file type
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        $file_type = mime_content_type($_FILES['event_image']['tmp_name']);
-
-        if (in_array($file_type, $allowed_types)) {
-            // Move the file to the uploads directory
-            if (move_uploaded_file($_FILES['event_image']['tmp_name'], $target_file)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $giftboxName = $_POST['giftbox_name'];
+    $giftboxDescription = $_POST['giftbox_description'];
+    $giftboxPrice = $_POST['giftbox_price'];
+    $giftboxMaxCakes = $_POST['max_cakes'];
+    
+    if (!empty($_FILES['giftbox_image']['name'])) {
+        $uploadDirectory = '../../assets/uploads/';
+        $fileName = basename($_FILES['giftbox_image']['name']);
+        $filePath = $uploadDirectory . $fileName;
+        
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $fileMimeType = mime_content_type($_FILES['giftbox_image']['tmp_name']);
+        
+        if (in_array($fileMimeType, $allowedMimeTypes)) {
+            if (move_uploaded_file($_FILES['giftbox_image']['tmp_name'], $filePath)) {
                 try {
-                    // Start transaction
                     $conn->beginTransaction();
-
-                    // Insert event into the database
-                    $stmt = $conn->prepare("INSERT INTO Giftbox (Name, Description, Price, DiscountPrice, ImagePath, DateCreated) 
-                                            VALUES (?, ?, ?, ?, ?, NOW())");
-                    $stmt->execute([$name, $description, $price, $discount_price, $file_name]);
-
-                    // Check if the insertion was successful
-                    if ($stmt->rowCount() > 0) {
-                        // Get the ID of the newly created event
-                        $eventId = $conn->lastInsertId();
-
-                        // Fetch the ID of the "ACTIVE" status
-                        $statusStmt = $conn->prepare("SELECT Id FROM Status WHERE Name = 'ACTIVE' LIMIT 1");
-                        $statusStmt->execute();
-                        $statusRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
-
-                        if ($statusRow) {
-                            $statusId = $statusRow['Id'];
-
-                            // Insert into eventstatus table
-                            $statusInsertStmt = $conn->prepare("INSERT INTO eventstatus (eventid, statusid, datecreated) 
-                                                                VALUES (?, ?, NOW())");
-                            $statusInsertStmt->execute([$eventId, $statusId]);
-
-                            // Commit transaction
+                    
+                    $insertGiftbox = $conn->prepare("INSERT INTO Giftbox (Name, Description, Price, MaxCakes, ImagePath, DateCreated) 
+                                                   VALUES (?, ?, ?, ?, ?, NOW())");
+                    $insertGiftbox->execute([$giftboxName, $giftboxDescription, $giftboxPrice, $giftboxMaxCakes, $fileName]);
+                    
+                    if ($insertGiftbox->rowCount() > 0) {
+                        $giftboxId = $conn->lastInsertId();
+                        
+                        $statusQuery = $conn->prepare("SELECT Id FROM Status WHERE StatusName = 'ACTIVE' LIMIT 1");
+                        $statusQuery->execute();
+                        $status = $statusQuery->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($status) {
+                            $statusId = $status['Id'];
+                            
+                            $insertStatus = $conn->prepare("INSERT INTO giftboxstatus (giftboxid, statusid, datecreated) 
+                                                           VALUES (?, ?, NOW())");
+                            $insertStatus->execute([$giftboxId, $statusId]);
+                            
                             $conn->commit();
-
-                            // Redirect to the event list page with success message
-                            header('Location: ../event.php?success=1');
+                            header('Location: ../giftbox.php?success=1');
                             exit;
-                        } else {
-                            throw new Exception("Error: 'ACTIVE' status not found.");
                         }
-                    } else {
-                        throw new Exception("Error: Unable to insert the event into the database.");
+                        throw new Exception("'ACTIVE' status not found.");
                     }
+                    throw new Exception("Failed to insert giftbox.");
                 } catch (Exception $e) {
-                    // Rollback transaction on error
                     $conn->rollBack();
                     echo "Error: " . $e->getMessage();
                 }
             } else {
-                echo "Error: Unable to upload the file.";
+                echo "Error: File upload failed.";
             }
         } else {
-            echo "Error: Only JPEG, PNG, and GIF files are allowed.";
+            echo "Error: Invalid file format. Allowed types: JPEG, PNG, GIF.";
         }
     } else {
-        echo "Error: Please upload an image.";
+        echo "Error: Image upload required.";
     }
 }
 ?>
