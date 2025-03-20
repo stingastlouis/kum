@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $conn->beginTransaction();
 
                     // Insert event into the database
-                    $stmt = $conn->prepare("INSERT INTO Event (Name, Description, Price, DiscountPrice, ImagePath, DateCreated) 
+                    $stmt = $conn->prepare("INSERT INTO Giftbox (Name, Description, Price, DiscountPrice, ImagePath, DateCreated) 
                                             VALUES (?, ?, ?, ?, ?, NOW())");
                     $stmt->execute([$name, $description, $price, $discount_price, $file_name]);
 
