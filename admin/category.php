@@ -13,8 +13,8 @@ $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h3 class="text-dark mb-4">Cake Categories</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Cake Category List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <p class="text-secondary m-0 fw-bold">Cake Category List</p>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                 Add Category
             </button>
         </div>
@@ -72,7 +72,7 @@ $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <label for="categoryName" class="form-label">Category Name</label>
                         <input type="text" class="form-control" id="categoryName" name="category_name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add new Category</button>
+                    <button type="submit" class="btn btn-secondary">Add new Category</button>
                 </form>
             </div>
         </div>
@@ -93,7 +93,7 @@ $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="text" class="form-control" id="modifyCategoryName" name="category_name" required>
                         <input type="hidden" name="category_id" id="modifyCategoryId">
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-secondary">Save Changes</button>
                 </form>
             </div>
         </div>

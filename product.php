@@ -55,7 +55,7 @@ try {
                             </p>
                             <div class="d-flex align-items-center mt-auto">
                                 <input type="number" class="form-control me-2 quantity-input" min="1" max="' . intval($product['Stock']) . '" value="1" style="width: 70px;" ' . ($isOutOfStock ? 'disabled' : '') . '>
-                                <button class="btn btn-primary add-to-cart" 
+                                <button class="btn btn-secondary add-to-cart" 
                                     data-id="' . htmlspecialchars($product['Id']) . '" 
                                     data-name="' . htmlspecialchars($product['Name']) . '" 
                                     data-price="' . number_format($hasDiscount ? $product['DiscountPrice'] : $product['Price'], 2) . '" 

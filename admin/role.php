@@ -13,8 +13,8 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h3 class="text-dark mb-4">Roles</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Role List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+            <p class="text-secondary m-0 fw-bold">Role List</p>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
                 Add Role
             </button>
         </div>
@@ -69,7 +69,7 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <label for="roleName" class="form-label">Role Name</label>
                         <input type="text" class="form-control" id="roleName" name="role_name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Role</button>
+                    <button type="submit" class="btn btn-secondary">Add Role</button>
                 </form>
             </div>
         </div>

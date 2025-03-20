@@ -56,7 +56,7 @@ $grandTotal = $totalAmount + $tax;
                 <input type="hidden" name="customerId" value="<?= $customerId ?>">
                 <input type="hidden" name="paymentMethodId" value="<?= $paymentMethodId ?>">
                 <input type="hidden" name="cartItems" value='<?= json_encode($cartItems) ?>'>
-                <button type="button" id="complete-process" class="btn btn-primary btn-lg">Complete Process</button>
+                <button type="button" id="complete-process" class="btn btn-secondary btn-lg">Complete Process</button>
             </form>
         <?php else: ?>
             <p class="alert alert-warning">Your cart is empty!</p>

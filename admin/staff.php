@@ -38,8 +38,8 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Employee List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+            <p class="text-secondary m-0 fw-bold">Employee List</p>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
                 Add Employee
             </button>
         </div>
@@ -152,7 +152,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                             <button class="btn btn-outline-secondary" type="button" id="generatePasswordBtn">Generate</button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Add Employee</button>
+                    <button type="submit" class="btn btn-secondary w-100">Add Employee</button>
                 </form>
             </div>
         </div>
@@ -192,7 +192,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-secondary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -218,7 +218,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                    <button type="submit" class="btn btn-secondary">Reset Password</button>
                 </form>
             </div>
         </div>

@@ -33,8 +33,8 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <h3 class="text-dark mb-4">Cakes</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Cake List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCakeModal">Add Cake</button>
+            <p class="text-secondary m-0 fw-bold">Cake List</p>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCakeModal">Add Cake</button>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -142,7 +142,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <label for="cakeImage" class="form-label">Cake Image</label>
                         <input type="file" class="form-control" id="cakeImage" name="cake_image" accept="image/*" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Cake</button>
+                    <button type="submit" class="btn btn-secondary">Add Cake</button>
                 </form>
             </div>
         </div>
@@ -228,7 +228,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-secondary">Save Changes</button>
                 </div>
             </form>
         </div>

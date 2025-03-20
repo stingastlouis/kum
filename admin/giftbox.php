@@ -29,8 +29,8 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <h3 class="text-dark mb-4">Gift Boxes</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Gift Box List</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGiftBoxModal">Add Gift Box</button>
+            <p class="text-secondary m-0 fw-bold">Gift Box List</p>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addGiftBoxModal">Add Gift Box</button>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
@@ -118,7 +118,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <label for="giftBoxImage" class="form-label">Gift Box Image</label>
                         <input type="file" class="form-control" id="giftBoxImage" name="giftbox_image" accept="image/*" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Gift Box</button>
+                    <button type="submit" class="btn btn-secondary">Add Gift Box</button>
                 </form>
             </div>
         </div>
@@ -197,7 +197,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-secondary">Save Changes</button>
                 </div>
             </form>
         </div>

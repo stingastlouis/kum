@@ -36,8 +36,8 @@ $activeClassName = 'active';
                     <li class="nav-item"><a class="nav-link <?php echo $request == "$subDomain/about" ? 'active' : ''; ?>" href="pricing.html">About us</a></li>
                     <li class="nav-item"><a class="nav-link <?php echo $request == "$subDomain/contact" ? 'active' : ''; ?>" href="/hans/contact.php">Contact us</a></li>
                 </ul>
-                <a class="btn btn-primary shadow" role="button" href="signup.html" style="margin-right: 10px">Sign up</a>
-                <a class="btn btn-primary shadow" role="button" href="signup.html">Sign in</a>
+                <a class="btn btn-secondary shadow" role="button" href="signup.html" style="margin-right: 10px">Sign up</a>
+                <a class="btn btn-secondary shadow" role="button" href="signup.html">Sign in</a>
             </div>
         </div>
 </nav>

@@ -138,7 +138,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-secondary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -165,7 +165,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                    <button type="submit" class="btn btn-secondary">Reset Password</button>
                 </form>
             </div>
         </div>
