@@ -9,14 +9,14 @@ $success = isset($_GET["success"]) ? $_GET["success"] : null;
 // Fetch customer members with their roles
 $stmt = $conn->prepare("
     SELECT c.*, 
-           s.Name AS LatestStatus
+           s.StatusName AS LatestStatus
     FROM Customer c
     LEFT JOIN (
-        SELECT cs.UserId, 
+        SELECT cs.CustomerId, 
                MAX(cs.Id) AS LatestStatusId
         FROM CustomerStatus cs
-        GROUP BY cs.UserId
-    ) latest_cs ON c.Id = latest_cs.UserId
+        GROUP BY cs.CustomerId
+    ) latest_cs ON c.Id = latest_cs.CustomerId
     LEFT JOIN CustomerStatus cs ON latest_cs.LatestStatusId = cs.Id
     LEFT JOIN Status s ON cs.StatusId = s.Id;
 ");
@@ -26,7 +26,7 @@ $stmt->execute();
 $customerMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch roles for dropdown
-$stmt2 = $conn->prepare("SELECT * FROM Role");
+$stmt2 = $conn->prepare("SELECT * FROM Roles");
 $stmt2->execute();
 $roles = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
@@ -41,7 +41,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <h3 class="text-dark mb-4">Customer Management</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <p class="text-primary m-0 fw-bold">Customer List</p>
+            <p class="text-secondary m-0 fw-bold">Customer List</p>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">

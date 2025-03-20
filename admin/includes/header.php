@@ -4,32 +4,32 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Dashboard - Brand</title>
+    <title>Dashboard - Delicious Cake</title>
     <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/spotlight.png">
     <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/Nunito.css">
     <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
-    <!-- <link rel="stylesheet" href="../assets/css/header-admin.style.css"> -->
     <link rel="stylesheet" href="../assets/css/dropdown.css">
 </head>
 
 <body id="page-top">
 
 <div id="wrapper">
-        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-secondary p-0">
             <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
                     <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
-                    <div class="sidebar-brand-text mx-3"><span>Brand</span></div>
+                    <div class="sidebar-brand-text mx-3"><span>Delicious Cake</span></div>
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item custom-nav-item"><a class="nav-link active" href="index.html"><svg></svg><span>Dashboard</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="category.php"><svg></svg><span>Category</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="role.php"><svg></svg><span>Role</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="event.php"><svg></svg><span>Event</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="product.php"><svg></svg><span>Product</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="staff.php"><svg></svg><span>Staff</span></a></li>
-                    <li class="nav-item custom-nav-item"><a class="nav-link" href="product.php"><svg></svg><span>Installation</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link active" href="index.html"> <span>Dashboard</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="category.php"> <span>Categories</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="role.php"> <span>Roles</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="giftbox.php"> <span>Giftboxes</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="cake.php"> <span>Cakes</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="staff.php"> <span>Staff</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="delivery.php"> <span>Deliveries</span></a></li>
+                    <li class="nav-item custom-nav-item"><a class="nav-link" href="customer.php"> <span>Customers</span></a></li>
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
