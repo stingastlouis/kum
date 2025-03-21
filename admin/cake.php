@@ -18,12 +18,10 @@ $stmt = $conn->prepare("
 $stmt->execute();
 $cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch statuses
 $stmt2 = $conn->prepare("SELECT * FROM Status");
 $stmt2->execute();
 $statuses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch categories
 $stmt3 = $conn->prepare("SELECT * FROM Category");
 $stmt3->execute();
 $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
@@ -98,8 +96,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-
-<!-- Add Cake Modal -->
 <div class="modal fade" id="addCakeModal" tabindex="-1" aria-labelledby="addCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -149,7 +145,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Delete Cake Modal -->
 <div class="modal fade" id="deleteCakeModal" tabindex="-1" aria-labelledby="deleteCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -173,7 +168,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/footer.php'; ?>
 
-<!-- Edit Cake Modal -->
 <div class="modal fade" id="editCakeModal" tabindex="-1" aria-labelledby="editCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -235,7 +229,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Delete Cake Modal -->
 <div class="modal fade" id="deleteCakeModal" tabindex="-1" aria-labelledby="deleteCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -258,7 +251,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-    // Delete cake event listener
     document.querySelectorAll('.btn-del').forEach(function(button) {
         button.addEventListener('click', function() {
             var cakeId = this.getAttribute('data-id');
@@ -266,7 +258,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // Edit cake event listener
     document.querySelectorAll('.edit-cake-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
@@ -277,7 +268,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             const discount = this.getAttribute('data-discount');
             const stock = this.getAttribute('data-stock');
 
-            // Populate the edit form
             document.getElementById('editCakeId').value = id;
             document.getElementById('editCakeName').value = name;
             document.getElementById('editCakeCategory').value = categoryId;
@@ -286,7 +276,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('editCakeDiscount').value = discount;
             document.getElementById('editCakeStock').value = stock;
 
-            // Show the modal
             const modal = new bootstrap.Modal(document.getElementById('editCakeModal'));
             modal.show();
         });

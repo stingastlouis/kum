@@ -1,14 +1,11 @@
 <?php
-// Include database connection
 include './configs/db.php';
 
-// Example Cart Data (In a real-world scenario, fetch this from a session or database)
 session_start();
 $cartItems = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
-$customerId = $_SESSION['customerId'] ?? 1; // Replace with actual logged-in customer ID
-$paymentMethodId = 1; // Default payment method
+$customerId = $_SESSION['customerId'] ?? 1;
+$paymentMethodId = 1;
 
-// Calculate Totals
 $totalAmount = 0;
 $taxRate = 0.15;
 foreach ($cartItems as $item) {
@@ -25,7 +22,7 @@ $grandTotal = $totalAmount + $tax;
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Product Name</th>
+                        <th>Cake Name</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Subtotal</th>
@@ -56,7 +53,7 @@ $grandTotal = $totalAmount + $tax;
                 <input type="hidden" name="customerId" value="<?= $customerId ?>">
                 <input type="hidden" name="paymentMethodId" value="<?= $paymentMethodId ?>">
                 <input type="hidden" name="cartItems" value='<?= json_encode($cartItems) ?>'>
-                <button type="button" id="complete-process" class="btn btn-secondary btn-lg">Complete Process</button>
+                <button type="button" id="complete-process" class="btn btn-primary btn-lg w-100 py-3">Complete Checkout</button>
             </form>
         <?php else: ?>
             <p class="alert alert-warning">Your cart is empty!</p>
@@ -68,14 +65,12 @@ $grandTotal = $totalAmount + $tax;
             const form = document.getElementById('checkout-form');
             const formData = new FormData(form);
 
-            // Convert form data to JSON
             const data = {
                 customerId: formData.get('customerId'),
                 paymentMethodId: formData.get('paymentMethodId'),
                 cartItems: JSON.parse(formData.get('cartItems'))
             };
 
-            // Send data to the backend
             const response = await fetch('./processCheckout.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
