@@ -5,7 +5,7 @@ include '../configs/db.php';
 
 $success = $_GET["success"] ?? null;
 $stmt = $conn->prepare("
-    SELECT e.*, s.StatusName AS LatestStatus 
+    SELECT e.*, s.StatusName AS LatestStatus, c.Name AS CategoryName 
     FROM Cakes e
     LEFT JOIN (
         SELECT es.CakeId, MAX(es.Id) AS LatestStatusId
@@ -13,8 +13,12 @@ $stmt = $conn->prepare("
         GROUP BY es.CakeId
     ) latest_es ON e.Id = latest_es.CakeId
     LEFT JOIN CakeStatus es ON latest_es.LatestStatusId = es.Id
-    LEFT JOIN Status s ON es.StatusId = s.Id;
+    LEFT JOIN Status s ON es.StatusId = s.Id
+    LEFT JOIN Category c ON e.CategoryId = c.Id;
 ");
+$stmt->execute();
+$cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $stmt->execute();
 $cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -57,7 +61,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td><?= htmlspecialchars($cake['Id']) ?></td>
                                 <td><?= htmlspecialchars($cake['Name']) ?></td>
-                                <td><?= htmlspecialchars($cake['CategoryId']) ?></td>
+                                <td><?= htmlspecialchars($cake['CategoryName']) ?></td>
                                 <td><?= htmlspecialchars($cake['Description']) ?></td>
                                 <td><?= htmlspecialchars($cake['Price']) ?></td>
                                 <td><?= htmlspecialchars($cake['DiscountPrice']) ?></td>
@@ -82,7 +86,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                         <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
                                             <option value="" disabled selected>Change Status</option>
                                             <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['Name']) ?></option>
+                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </form>

@@ -6,7 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $giftboxName = $_POST['giftbox_name'];
     $giftboxDescription = $_POST['giftbox_description'];
     $giftboxPrice = $_POST['giftbox_price'];
-    $giftboxMaxCakes = $_POST['max_cakes'];
+    $giftboxMaxCakes = $_POST['max_giftBoxes'];
+    $categoryId = $_POST["giftbox_category_id"] ?? null;
     
     if (!empty($_FILES['giftbox_image']['name'])) {
         $uploadDirectory = '../../assets/uploads/';
@@ -21,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $conn->beginTransaction();
                     
-                    $insertGiftbox = $conn->prepare("INSERT INTO Giftbox (Name, Description, Price, MaxCakes, ImagePath, DateCreated) 
-                                                   VALUES (?, ?, ?, ?, ?, NOW())");
-                    $insertGiftbox->execute([$giftboxName, $giftboxDescription, $giftboxPrice, $giftboxMaxCakes, $fileName]);
+                    $insertGiftbox = $conn->prepare("INSERT INTO Giftbox (Name, Description, CategoryId, Price, MaxCakes, ImagePath, DateCreated) 
+                                                   VALUES (?, ?, ?, ?, ?, ?, NOW())");
+                    $insertGiftbox->execute([$giftboxName, $giftboxDescription, $categoryId, $giftboxPrice, $giftboxMaxCakes, $fileName]);
                     
                     if ($insertGiftbox->rowCount() > 0) {
                         $giftboxId = $conn->lastInsertId();

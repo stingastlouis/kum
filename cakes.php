@@ -31,7 +31,7 @@
                     echo ' 
                         <div class="col-md-3 mb-4">
                             <div class="card" style="height: 350px; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;">
-                                <img src="./assets/uploads/' . htmlspecialchars($cake['ImagePath']) . '" class="card-img-top" alt="' . htmlspecialchars($cake['Name']) . '" style="object-fit: cover; height: 150px;">
+                                <img src="./assets/uploads/' . htmlspecialchars($cake['ImagePath']) . '" class="card-img-top" alt="' . htmlspecialchars($cake['Name']) . '" style="height: 110px;width: 100%;">
                                 <div class="card-body d-flex flex-column p-2">
                                     <h5 class="card-title" style="font-size: 1.1rem;">' . htmlspecialchars($cake['Name']) . '</h5>
                                     <p class="card-text" style="font-size: 0.9rem;">' . htmlspecialchars($cake['Description']) . '</p>
