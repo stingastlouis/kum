@@ -9,14 +9,20 @@
 
         try {
             $stmt = $conn->prepare("
-                SELECT p.*, 
-                       ps.StatusId, 
-                       s.StatusName
-                FROM Cakes p
-                LEFT JOIN CakeStatus ps ON p.Id = ps.CakeId
-                LEFT JOIN Status s ON ps.StatusId = s.Id
-                WHERE s.StatusName != 'INACTIVE'
-                ORDER BY p.DateCreated DESC;
+                SELECT c.*, 
+       cs.StatusId, 
+       s.StatusName
+FROM Cakes c
+LEFT JOIN CakeStatus cs ON c.Id = cs.CakeId
+LEFT JOIN Status s ON cs.StatusId = s.Id
+WHERE cs.DateCreated = (
+    SELECT MAX(cs_inner.DateCreated)
+    FROM CakeStatus cs_inner
+    WHERE cs_inner.CakeId = c.Id
+)
+AND s.StatusName != 'INACTIVE'
+ORDER BY c.DateCreated DESC;
+
             ");
 
             $stmt->execute();
