@@ -1,115 +1,138 @@
-
 <?php include "includes/header.php" ?>
-    <main class="page landing-page">
-        <section class="clean-block clean-hero" style="background-image:url(&quot;assets/img/tech/image4.jpg&quot;);color:rgba(9, 162, 255, 0.85);">
-            <div class="text">
-                <h2>Lorem ipsum dolor sit amet.</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p><button class="btn btn-outline-light btn-lg" type="button">Learn More</button>
-            </div>
-        </section>
-        <section class="clean-block clean-info dark">
-            <div class="container">
-                <div class="block-heading">
-                    <h2 class="text-info">Info</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                </div>
-                <div class="row align-items-center">
-                    <div class="col-md-6"><img class="img-thumbnail" src="assets/img/scenery/image5.jpg"></div>
-                    <div class="col-md-6">
-                        <h3>Lorem impsum dolor sit amet</h3>
-                        <div class="getting-started-info">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                        </div><button class="btn btn-outline-primary btn-lg" type="button">Join Now</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="clean-block features">
-            <div class="container">
-                <div class="block-heading">
-                    <h2 class="text-info">Features</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-md-5 feature-box"><i class="icon-star icon"></i>
-                        <h4>Bootstrap 5</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-pencil icon"></i>
-                        <h4>Customizable</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-screen-smartphone icon"></i>
-                        <h4>Responsive</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                    </div>
-                    <div class="col-md-5 feature-box"><i class="icon-refresh icon"></i>
-                        <h4>All Browser Compatibility</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="clean-block slider dark">
-            <div class="container">
-                <div class="block-heading">
-                    <h2 class="text-info">Slider</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                </div>
-                <div class="carousel slide" data-bs-ride="carousel" id="carousel-1">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active"><img class="w-100 d-block" src="assets/img/scenery/image1.jpg" alt="Slide Image"></div>
-                        <div class="carousel-item"><img class="w-100 d-block" src="assets/img/scenery/image4.jpg" alt="Slide Image"></div>
-                        <div class="carousel-item"><img class="w-100 d-block" src="assets/img/scenery/image6.jpg" alt="Slide Image"></div>
-                    </div>
-                    <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span><span class="visually-hidden">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-bs-slide="next"><span class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a></div>
-                    <ol class="carousel-indicators">
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="0" class="active"></li>
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="1"></li>
-                        <li data-bs-target="#carousel-1" data-bs-slide-to="2"></li>
-                    </ol>
-                </div>
-            </div>
-        </section>
-        <section class="clean-block about-us">
-            <div class="container">
-                <div class="block-heading">
-                    <h2 class="text-info">About Us</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quam urna, dignissim nec auctor in, mattis vitae leo.</p>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="card text-center clean-card"><img class="card-img-top w-100 d-block" src="assets/img/avatars/avatar1.jpg">
-                            <div class="card-body info">
-                                <h4 class="card-title">John Smith</h4>
-                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                                <div class="icons"><a href="#"><i class="icon-social-facebook"></i></a><a href="#"><i class="icon-social-instagram"></i></a><a href="#"><i class="icon-social-twitter"></i></a></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="card text-center clean-card"><img class="card-img-top w-100 d-block" src="assets/img/avatars/avatar2.jpg">
-                            <div class="card-body info">
-                                <h4 class="card-title">Robert Downturn</h4>
-                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                                <div class="icons"><a href="#"><i class="icon-social-facebook"></i></a><a href="#"><i class="icon-social-instagram"></i></a><a href="#"><i class="icon-social-twitter"></i></a></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="card text-center clean-card"><img class="card-img-top w-100 d-block" src="assets/img/avatars/avatar3.jpg">
-                            <div class="card-body info">
-                                <h4 class="card-title">Ally Sanders</h4>
-                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                                <div class="icons"><a href="#"><i class="icon-social-facebook"></i></a><a href="#"><i class="icon-social-instagram"></i></a><a href="#"><i class="icon-social-twitter"></i></a></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>      
 
-    
+<!-- Hero Section: Cake-Themed -->
+<header class="bg-light py-5" style="background: linear-gradient(to right, #ffd6e0, #ffe6f0);">
+    <div class="container">
+        <div class="row align-items-center flex-column-reverse flex-md-row">
+            <div class="col-md-6 text-center text-md-start">
+                <h1 class="fw-bold text-pink" style="color: #d63384;">Delicious Cakes for Every Occasion</h1>
+                <p class="lead text-muted mb-4">Treat yourself or someone special with our handcrafted cakes, baked with love and decorated to perfection.</p>
+                <a href="cakes.php" class="btn btn-lg" style="background-color: #ff69b4; color: white; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);">Explore Cakes</a>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="assets/img/cake-hero.png" class="img-fluid rounded" alt="Hero Cake Image" style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
+</header>
+
+<?php 
+include './configs/db.php';
+
+try {
+    $stmt = $conn->prepare("
+        SELECT p.*, 
+               ps.StatusId, 
+               s.Name AS StatusName
+        FROM Products p
+        LEFT JOIN ProductStatus ps ON p.Id = ps.ProductId
+        LEFT JOIN Status s ON ps.StatusId = s.Id
+        WHERE ps.Id = (
+            SELECT MAX(ps_inner.Id) 
+            FROM ProductStatus ps_inner 
+            WHERE ps_inner.ProductId = p.Id
+        )
+        AND LOWER(s.Name) = 'active'
+        ORDER BY p.DateCreated DESC
+        LIMIT 3;
+    ");
+
+    $stmt->execute();
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
+?>
+
+<!-- Latest Products -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-pink" style="color: #d63384;">Latest Cakes</h2>
+            <p class="text-muted">Discover our newest cake creations, made with love and perfect for every sweet moment.</p>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <?php foreach ($products as $product): ?>
+                <div class="col">
+                    <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
+                        <img 
+                            src="./assets/uploads/<?= htmlspecialchars($product['ImagePath']) ?>" 
+                            class="card-img-top" 
+                            alt="<?= htmlspecialchars($product['Name']) ?>"
+                        >
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><?= htmlspecialchars($product['Name']) ?></h5>
+                            <p class="card-text"><?= htmlspecialchars($product['Description']) ?></p>
+                            <p class="fw-bold text-pink mt-auto" style="color: #d63384;">Rs<?= number_format($product['Price'], 2) ?></p>
+                            <a href="product.php" class="btn btn-sm" style="background-color: #ff69b4; color: white;">Go to Product</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<?php
+try {
+    $eventStmt = $conn->prepare("
+        SELECT * FROM Event
+        ORDER BY DateCreated DESC
+        LIMIT 2
+    ");
+    $eventStmt->execute();
+    $events = $eventStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($events as &$event) {
+        $productStmt = $conn->prepare("
+            SELECT p.Name, ep.Quantity
+            FROM EventProducts ep
+            INNER JOIN Products p ON ep.ProductId = p.Id
+            WHERE ep.EventId = ?
+        ");
+        $productStmt->execute([$event['Id']]);
+        $event['Products'] = $productStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
+?>
+
+<!-- Bundle Offers -->
+<section class="py-5" style="background-color: #fff0f5;">
+    <div class="container text-center">
+        <h2 class="fw-bold text-pink" style="color: #d63384;">Gift Box Offers</h2>
+        <p class="mb-4" style="font-size: 1.2rem;">Sweeten your celebrations with our beautiful cake bundles and gift boxes!</p>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            <?php foreach ($events as $event): ?>
+                <div class="col">
+                    <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
+                        <img src="./assets/uploads/<?= htmlspecialchars($event['ImagePath']) ?>" class="card-img-top" alt="<?= htmlspecialchars($event['Name']) ?>">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><?= htmlspecialchars($event['Name']) ?></h5>
+                            <p class="card-text"><?= htmlspecialchars($event['Description']) ?></p>
+
+                            <?php if (!empty($event['Products'])): ?>
+                                <div class="text-start mb-3">
+                                    <strong>Includes:</strong>
+                                    <ul class="mb-0">
+                                        <?php foreach ($event['Products'] as $prod): ?>
+                                            <li><?= htmlspecialchars($prod['Name']) ?> (x<?= $prod['Quantity'] ?>)</li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+
+                            <p class="fw-bold text-pink mt-auto" style="color: #d63384;">
+                                <?= $event['DiscountPrice'] ? '<span class="text-decoration-line-through text-muted me-2">Rs' . number_format($event['Price'], 2) . '</span><span>Rs' . number_format($event['DiscountPrice'], 2) . '</span>' : 'Rs' . number_format($event['Price'], 2) ?>
+                            </p>
+                            <a href="event.php" class="btn btn-sm" style="background-color: #ff69b4; color: white;">Go to Event</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
 <?php include "includes/footer.php" ?>
