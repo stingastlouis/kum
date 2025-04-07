@@ -1,4 +1,4 @@
-const cartKey = "user-cart";
+const cartKey = "cake-cart";
 
 function loadCart() {
   const cartData = localStorage.getItem(cartKey);

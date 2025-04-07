@@ -15,7 +15,9 @@
 </head>
 <body>
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $isLoggedIn = isset($_SESSION['customerId']);
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">

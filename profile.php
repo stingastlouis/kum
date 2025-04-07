@@ -113,14 +113,14 @@
                     if (isset($_SESSION['customerId'])) {
                         try {
                             $stmt2 = $conn->prepare("
-                                SELECT o.Id AS OrderId, o.TotalAmount, o.DateCreated AS OrderDate, 
-                                       os.StatusId, s.Name AS StatusName, 
-                                       oi.ProductId, p.Name AS ProductName, oi.Quantity, oi.UnitPrice, oi.Subtotal
-                                FROM `Order` o
+                             SELECT o.Id AS OrderId, o.Total, o.DateCreated AS OrderDate, 
+                                    os.StatusId, s.StatusName, 
+                                    oi.ProductId, p.Name AS ProductName, oi.Quantity, oi.Price, oi.Subtotal
+                                FROM Orders o
                                 LEFT JOIN OrderStatus os ON o.Id = os.OrderId 
                                 LEFT JOIN Status s ON os.StatusId = s.Id
-                                LEFT JOIN OrderItem oi ON o.Id = oi.OrderId
-                                LEFT JOIN Products p ON oi.ProductId = p.Id
+                                LEFT JOIN OrderItems oi ON o.Id = oi.OrderId
+                                LEFT JOIN Cakes p ON oi.ProductId = p.Id
                                 WHERE o.CustomerId = :customerId
                                 AND (
                                     os.Id = (
@@ -129,7 +129,8 @@
                                         WHERE os_inner.OrderId = o.Id
                                     ) OR os.Id IS NULL
                                 )
-                                ORDER BY o.DateCreated DESC
+                                ORDER BY o.DateCreated DESC;
+
                             ");
 
                             $stmt2->bindParam(':customerId', $_SESSION['customerId'], PDO::PARAM_INT);
@@ -160,7 +161,7 @@
                                     $totalAmount = 0;
                                     foreach ($orders as $order) {
                                         if ($order['OrderId'] == $orderId) {
-                                            $totalAmount = $order['TotalAmount'];
+                                            $totalAmount = $order['Total'];
                                             break;
                                         }
                                     }
