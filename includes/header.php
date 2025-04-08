@@ -31,6 +31,7 @@ $isLoggedIn = isset($_SESSION['customerId']);
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' active' : ''; ?>" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'cakes.php' ? ' active' : ''; ?>" href="cakes.php">Cakes</a></li>
+                <li class="nav-item"><a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'cakes.php' ? ' active' : ''; ?>" href="giftbox.php">GiftBox</a></li>
                 <li class="nav-item"><a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? ' active' : ''; ?>" href="contact.php">Contact</a></li>
             </ul>
             <div class="d-flex gap-2">
