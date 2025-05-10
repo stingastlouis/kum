@@ -106,7 +106,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <!-- Pagination -->
+
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-3">
                         <?php if ($page > 1): ?>
@@ -237,11 +237,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <div class="mb-3">
-                        <label for="editGiftboxDiscount" class="form-label">Discount Price</label>
-                        <input type="number" step="0.01" class="form-control" id="editGiftboxDiscount" name="giftbox_discount">
-                    </div>
-
-                    <div class="mb-3">
                         <label for="editGiftboxMax" class="form-label">Stock</label>
                         <input type="number" class="form-control" id="editGiftboxMax" name="giftbox_stock">
                     </div>
@@ -297,7 +292,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             const categoryId = this.getAttribute('data-category-id');
             const description = this.getAttribute('data-description');
             const price = this.getAttribute('data-price');
-            const discount = this.getAttribute('data-discount');
             const max = this.getAttribute('data-max');
 
             document.getElementById('editGiftboxId').value = id;
@@ -305,7 +299,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('editGiftboxCategory').value = categoryId;
             document.getElementById('editGiftboxDescription').value = description;
             document.getElementById('editGiftboxPrice').value = price;
-            document.getElementById('editGiftboxDiscount').value = discount;
             document.getElementById('editGiftboxMax').value = max;
 
             const modal = new bootstrap.Modal(document.getElementById('editGiftboxModal'));
