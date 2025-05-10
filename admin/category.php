@@ -4,9 +4,20 @@
 include '../configs/db.php';
 
 $isSuccess = isset($_GET["success"]) ? $_GET["success"] : null;
-$stmt = $conn->prepare("SELECT * FROM category");
+
+$limit = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+$stmt = $conn->prepare("SELECT * FROM Category ORDER BY Id DESC LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$totalStmt = $conn->query("SELECT COUNT(*) FROM Category");
+$totalCategories = $totalStmt->fetchColumn();
+$totalPages = ceil($totalCategories / $limit);
 ?>
 
 <div class="container-fluid">
@@ -19,20 +30,17 @@ $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </button>
         </div>
         <div class="card-body">
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-6">
-                    <div class="text-md-end dataTables_filter" id="dataTable_filter">
+                    <div class="text-md-end">
                         <label class="form-label">
-                            <input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search" id="searchInput">
+                            <input type="search" class="form-control form-control-sm" placeholder="Search (client-side only)" id="searchInput">
                         </label>
                     </div>
                 </div>
-                <div class="col-md-6 text-nowrap">
-                    <div id="dataTable_length" class="dataTables_length" aria-controls="dataTable"></div>
-                </div>
             </div>
-            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
-                <table class="table my-0" id="dataTable">
+            <div class="table-responsive table mt-2">
+                <table class="table my-0" id="categoryTable">
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -48,16 +56,51 @@ $cake_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($category['Name']) ?></td>
                                 <td><?= htmlspecialchars($category['DateCreated']) ?></td>
                                 <td>
-                                    <button class="btn btn-danger btn-del" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="<?= $category['Id'] ?>">Delete</button>
+                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="<?= $category['Id'] ?>">Delete</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center mt-4">
+                    <?php if ($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        </li>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $totalPages): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+<script>
+    // Optional client-side search
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let value = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#categoryTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(value) ? '' : 'none';
+        });
+    });
+</script>
+
 
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">

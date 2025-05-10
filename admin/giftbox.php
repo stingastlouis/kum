@@ -4,8 +4,18 @@
 include '../configs/db.php';
 
 $success = $_GET["success"] ?? null;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Get total count
+$totalStmt = $conn->query("SELECT COUNT(*) FROM GiftBox");
+$totalRows = $totalStmt->fetchColumn();
+$totalPages = ceil($totalRows / $limit);
+
+// Fetch paginated giftboxes with latest status and category
 $stmt = $conn->prepare("
-        SELECT e.*, s.StatusName AS LatestStatus, c.Name as CategoryName, e.CategoryId, e.ImagePath
+    SELECT e.*, s.StatusName AS LatestStatus, c.Name as CategoryName
     FROM GiftBox e
     LEFT JOIN (
         SELECT es.GiftBoxId, MAX(es.Id) AS LatestStatusId
@@ -14,14 +24,16 @@ $stmt = $conn->prepare("
     ) latest_es ON e.Id = latest_es.GiftBoxId
     LEFT JOIN GiftBoxStatus es ON latest_es.LatestStatusId = es.Id AND latest_es.GiftBoxId = es.GiftBoxId
     LEFT JOIN Status s ON es.StatusId = s.Id
-    LEFT JOIN Category c ON e.CategoryId = c.Id;
+    LEFT JOIN Category c ON e.CategoryId = c.Id
+    ORDER BY e.DateCreated DESC
+    LIMIT :limit OFFSET :offset
 ");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
-$giftbox = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$giftboxes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt->execute();
-$giftbox = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+// Fetch statuses and categories
 $stmt2 = $conn->prepare("SELECT * FROM Status");
 $stmt2->execute();
 $statuses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
@@ -32,14 +44,14 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-    <h3 class="text-dark mb-4">Giftboxs</h3>
+    <h3 class="text-dark mb-4">Giftboxes</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Giftbox List</p>
             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addGiftboxModal">Add Giftbox</button>
         </div>
         <div class="card-body">
-            <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
+            <div class="table-responsive table mt-2" role="grid">
                 <table class="table my-0">
                     <thead>
                         <tr>
@@ -48,7 +60,6 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                             <th>Category</th>
                             <th>Description</th>
                             <th>Price</th>
-                            <th>Discount Price</th>
                             <th>Max Cake</th>
                             <th>Image</th>
                             <th>Latest Status</th>
@@ -57,7 +68,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($giftbox as $giftbox): ?>
+                        <?php foreach ($giftboxes as $giftbox): ?>
                             <tr>
                                 <td><?= htmlspecialchars($giftbox['Id']) ?></td>
                                 <td><?= htmlspecialchars($giftbox['Name']) ?></td>
@@ -66,18 +77,20 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($giftbox['Price']) ?></td>
                                 <td><?= htmlspecialchars($giftbox['MaxCakes']) ?></td>
                                 <td>
-                                    <img src="../assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>" alt="<?= htmlspecialchars($giftbox['Name']) ?>" style="width: 100px; height: auto;">
+                                    <img src="../assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>" alt="<?= htmlspecialchars($giftbox['Name']) ?>" style="width: 100px;">
                                 </td>
-                                <td><?= htmlspecialchars($giftbox['LatestStatus']) ?: 'No Status' ?></td>
+                                <td><?= htmlspecialchars($giftbox['LatestStatus'] ?? 'No Status') ?></td>
                                 <td><?= htmlspecialchars($giftbox['DateCreated']) ?></td>
                                 <td>
-                                    <button class='btn btn-warning btn-sm edit-giftbox-btn' 
-                                        data-id='<?= $giftbox['Id'] ?>' 
-                                        data-name='<?= $giftbox['Name'] ?>' 
-                                        data-category-id='<?= $giftbox['CategoryId'] ?>' 
-                                        data-description='<?= $giftbox['Description'] ?>' 
-                                        data-price='<?= $giftbox['Price'] ?>' 
-                                        data-max='<?= $giftbox['MaxCakes'] ?>'>Edit</button>
+                                    <button class="btn btn-warning btn-sm edit-giftbox-btn"
+                                        data-id="<?= $giftbox['Id'] ?>"
+                                        data-name="<?= $giftbox['Name'] ?>"
+                                        data-category-id="<?= $giftbox['CategoryId'] ?>"
+                                        data-description="<?= $giftbox['Description'] ?>"
+                                        data-price="<?= $giftbox['Price'] ?>"
+                                        data-max="<?= $giftbox['MaxCakes'] ?>">
+                                        Edit
+                                    </button>
                                     <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteGiftboxModal" data-id="<?= $giftbox['Id'] ?>">Delete</button>
                                     <form method="POST" action="status/add_giftboxStatus.php" style="display: inline;">
                                         <input type="hidden" name="giftbox_id" value="<?= $giftbox['Id'] ?>">
@@ -93,10 +106,31 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-3">
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                            </li>
+                        <?php endif; ?>
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <?php if ($page < $totalPages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="addGiftboxModal" tabindex="-1" aria-labelledby="addGiftboxModalLabel" aria-hidden="true">
     <div class="modal-dialog">

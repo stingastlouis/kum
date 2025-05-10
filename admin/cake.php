@@ -3,7 +3,11 @@
 <?php
 include '../configs/db.php';
 
-$success = $_GET["success"] ?? null;
+
+$limit = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
 $stmt = $conn->prepare("
     SELECT e.*, s.StatusName AS LatestStatus, c.Name AS CategoryName 
     FROM Cakes e
@@ -14,13 +18,18 @@ $stmt = $conn->prepare("
     ) latest_es ON e.Id = latest_es.CakeId
     LEFT JOIN CakeStatus es ON latest_es.LatestStatusId = es.Id
     LEFT JOIN Status s ON es.StatusId = s.Id
-    LEFT JOIN Category c ON e.CategoryId = c.Id;
+    LEFT JOIN Category c ON e.CategoryId = c.Id
+    ORDER BY e.Id DESC
+    LIMIT :limit OFFSET :offset
 ");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt->execute();
-$cakes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$totalStmt = $conn->query("SELECT COUNT(*) FROM Cakes");
+$totalCakes = $totalStmt->fetchColumn();
+$totalPages = ceil($totalCakes / $limit);
 
 $stmt2 = $conn->prepare("SELECT * FROM Status");
 $stmt2->execute();
@@ -96,6 +105,29 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                     </tbody>
                 </table>
             </div>
+
+            <nav>
+                <ul class="pagination justify-content-center mt-4">
+                    <?php if ($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        </li>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $totalPages): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+
         </div>
     </div>
 </div>

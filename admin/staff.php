@@ -4,6 +4,14 @@ include '../configs/db.php';
 
 $successMessage = $_GET["success"] ?? null;
 
+$limit = 10; 
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+$countStmt = $conn->query("SELECT COUNT(*) FROM Staff");
+$totalRows = $countStmt->fetchColumn();
+$totalPages = ceil($totalRows / $limit);
+
 $query = "
     SELECT 
         s.*, 
@@ -18,9 +26,13 @@ $query = "
     ) latest_ss ON s.Id = latest_ss.StaffId
     LEFT JOIN StaffStatus ss ON latest_ss.latest_status_id = ss.Id
     LEFT JOIN Status st ON ss.StatusId = st.Id
+    ORDER BY s.Id DESC
+    LIMIT :limit OFFSET :offset
 ";
 
 $stmt = $conn->prepare($query);
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $staffMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -109,10 +121,38 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?= $page - 1 ?><?= $successMessage ? '&success=' . urlencode($successMessage) : '' ?>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?><?= $successMessage ? '&success=' . urlencode($successMessage) : '' ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $totalPages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?= $page + 1 ?><?= $successMessage ? '&success=' . urlencode($successMessage) : '' ?>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+
             </div>
         </div>
     </div>
 </div>
+
 
 
 <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
