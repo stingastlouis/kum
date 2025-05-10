@@ -8,7 +8,7 @@
                 <a href="cakes.php" class="btn btn-lg" style="background-color: #ff69b4; color: white; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);">Explore Cakes</a>
             </div>
             <div class="col-md-6 text-center">
-                <img src="assets/img/cake-hero.png" class="img-fluid rounded" alt="Hero Cake Image" style="max-height: 400px;">
+                <img src="assets/img/home/cake.png" class="img-fluid rounded" alt="Hero Cake Image" style="max-height: 400px;">
             </div>
         </div>
     </div>
@@ -16,8 +16,6 @@
 
 <?php 
 include './configs/db.php';
-
-// Fetch Latest Cakes
 try {
     $stmt = $conn->prepare("SELECT * FROM Cakes ORDER BY DateCreated DESC LIMIT 3");
     $stmt->execute();
@@ -26,7 +24,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-// Fetch Latest Gift Boxes
 try {
     $giftBoxStmt = $conn->prepare("SELECT * FROM GiftBox ORDER BY DateCreated DESC LIMIT 3");
     $giftBoxStmt->execute();
@@ -36,7 +33,6 @@ try {
 }
 ?>
 
-<!-- Latest Cakes -->
 <section class="py-5 bg-white">
     <div class="container">
         <div class="text-center mb-5">
@@ -65,7 +61,6 @@ try {
     </div>
 </section>
 
-<!-- Gift Boxes -->
 <section class="py-5" style="background-color: #fff0f5;">
     <div class="container text-center">
         <h2 class="fw-bold text-pink" style="color: #d63384;">Gift Boxes for Every Celebration</h2>

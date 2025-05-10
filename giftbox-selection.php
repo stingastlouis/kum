@@ -132,7 +132,7 @@ try {
                                     <input type="number" class="form-control cake-quantity" 
                                         name="cake_<?= $cake['Id'] ?>" 
                                         data-cake-id="<?= $cake['Id'] ?>" 
-                                        min="0" max="<?= $cake['StockCount'] ?>" 
+                                        min="0"
                                         value="0">
                                 </div>
                             </div>
@@ -202,17 +202,25 @@ document.getElementById('giftboxForm').addEventListener('submit', function (e) {
         alert(`You need to select exactly ${maxCakes} cakes.`);
         return;
     }
-    const cart = JSON.parse(localStorage.getItem("user-cart")) || [];
+    const cart = JSON.parse(localStorage.getItem("cake-cart")) || [];
     cart.push({
         type: "giftbox",
-        giftboxId: <?= $giftbox['Id'] ?>,
+        id: <?= json_encode($giftbox['Id']) ?>,
         name: <?= json_encode($giftbox['Name']) ?>,
+        quantity: 1,
         price: <?= $giftbox['Price'] ?>,
         cakes: selectedCakes
     });
-    localStorage.setItem("user-cart", JSON.stringify(cart));
-    alert("GiftBox added to cart!");
-    window.location.href = "cart.php";
+    localStorage.setItem("cake-cart", JSON.stringify(cart));
+    updateCartUI(cart);
+
+    quantityInputs.forEach(input => {
+        input.value = 0;
+    });
+
+    updateTotalCount();
+
+    
 });
 </script>
 

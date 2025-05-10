@@ -14,9 +14,6 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Role List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
-                Add Role
-            </button>
         </div>
         <div class="card-body">
             <div class="row mb-3">

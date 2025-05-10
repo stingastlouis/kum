@@ -37,7 +37,7 @@ $isLoggedIn = isset($_SESSION['customerId']);
             <div class="d-flex gap-2">
                 <?php if ($isLoggedIn): ?>
                     <a href="#" id="cart-icon" class="btn btn-light-pink text-dark position-relative me-2 rounded-pill shadow-sm">
-                        🎀 My Cart
+                         My Cart
                         <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-pink text-white">
                             0
                         </span>

@@ -23,11 +23,6 @@ $stmt = $conn->prepare("
 $stmt->execute();
 $customerMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt2 = $conn->prepare("SELECT * FROM Roles");
-$stmt2->execute();
-$roles = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch statuses
 $stmt3 = $conn->prepare("SELECT * FROM Status");
 $stmt3->execute();
 $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
@@ -62,7 +57,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($customer['Fullname']) ?></td>
                                 <td><?= htmlspecialchars($customer['Email']) ?></td>
                                 <td><?= htmlspecialchars($customer['Phone']) ?></td>
-                                <td><?= htmlspecialchars($customer['RoleName']) ?></td>
+                                <td><?= htmlspecialchars($customer['Address']) ?></td>
                                 <td><?= htmlspecialchars($customer['LatestStatus']) ?: 'No Status' ?></td>
                                 <td><?= htmlspecialchars($customer['DateCreated']) ?></td>
                                 <td>
@@ -71,7 +66,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                         data-fullname='<?= $customer['Fullname'] ?>' 
                                         data-email='<?= $customer['Email'] ?>' 
                                         data-phone='<?= $customer['Phone'] ?>' 
-                                        data-role-id='<?= $customer['RoleId'] ?>'>Edit</button>
+                                        data-address='<?= $customer['Address'] ?>'>Edit</button>
                                     <button class="btn btn-info btn-sm reset-password-btn" 
                                         data-id="<?= $customer['Id'] ?>"
                                         data-bs-toggle="modal" 
@@ -85,7 +80,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                         <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
                                             <option value="" disabled selected>Change Status</option>
                                             <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['Name']) ?></option>
+                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </form>
@@ -102,7 +97,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="editCustomerForm" method="POST" action="customer/modify.php">
+            <form id="editCustomerForm" method="POST" action="customer/modify_customer.php">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editCustomerModalLabel">Edit Customer Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -123,12 +118,8 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <input type="tel" class="form-control" id="editCustomerPhone" name="customer_phone" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editCustomerRole" class="form-label">Role</label>
-                        <select class="form-select" id="editCustomerRole" name="customer_role_id" required>
-                            <?php foreach ($roles as $role): ?>
-                                <option value="<?= $role['Id'] ?>"><?= htmlspecialchars($role['Name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="editCustomerAddress" class="form-label">Address</label>
+                        <input type="address" class="form-control" id="editCustomerAddress" name="customer_address" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -203,13 +194,13 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             const fullname = this.getAttribute('data-fullname');
             const email = this.getAttribute('data-email');
             const phone = this.getAttribute('data-phone');
-            const roleId = this.getAttribute('data-role-id');
+            const roleAddress = this.getAttribute('data-address');
 
             document.getElementById('editCustomerId').value = id;
             document.getElementById('editCustomerFullname').value = fullname;
             document.getElementById('editCustomerEmail').value = email;
             document.getElementById('editCustomerPhone').value = phone;
-            document.getElementById('editCustomerRole').value = roleId;
+            document.getElementById('editCustomerAddress').value = roleAddress;
 
             const modal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
             modal.show();

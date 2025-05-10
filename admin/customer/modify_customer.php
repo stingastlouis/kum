@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fullname = $_POST['customer_fullname'];
     $email = $_POST['customer_email'];
     $phone = $_POST['customer_phone'];
-    $roleId = $_POST['customer_role_id'];
+    $address = $_POST['customer_address'];
 
     try {
         $conn->beginTransaction();
@@ -36,20 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                SET Fullname = ?, 
                                    Email = ?, 
                                    Phone = ?, 
-                                   RoleId = ?
+                                   Address = ?
                                WHERE Id = ?");
         
         $stmt->execute([
             $fullname,
             $email,
             $phone,
-            $roleId,
+            $address,
             $customerId
         ]);
 
         if ($stmt->rowCount() >= 0) {
             $conn->commit();
-            header('Location: ../customer.php?success=2');
+            header('Location: ../customer.php?success=1');
             exit;
         } else {
             throw new Exception("Error: Unable to update the customer member in the database.");

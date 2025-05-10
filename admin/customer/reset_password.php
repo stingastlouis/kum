@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("UPDATE Customer SET PasswordHash = ? WHERE Id = ?");
+        $stmt = $conn->prepare("UPDATE Customer SET Password = ? WHERE Id = ?");
         $stmt->execute([$passwordHash, $customerId]);
         if ($stmt->rowCount() > 0) {
             $conn->commit();

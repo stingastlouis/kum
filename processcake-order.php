@@ -1,4 +1,4 @@
-<?php
+<?php 
 include './configs/db.php';
 session_start();
 
@@ -65,36 +65,40 @@ if ($stmt->execute()) {
                 echo json_encode(['success' => false, 'message' => 'Not enough stock for Cake']);
                 exit();
             }
-        } elseif ($itemType === 'event') {
-            $eventId = $item['eventId'];
-
-            $eventProductsQuery = "SELECT ProductId, Quantity FROM `EventProducts` WHERE EventId = :eventId";
-            $eventProductsStmt = $conn->prepare($eventProductsQuery);
-            $eventProductsStmt->bindValue(':eventId', $eventId, PDO::PARAM_INT);
-            $eventProductsStmt->execute();
-
-            while ($eventProduct = $eventProductsStmt->fetch(PDO::FETCH_ASSOC)) {
-                $eventProductId = $eventProduct['ProductId'];
-                $eventProductQuantity = $eventProduct['Quantity'];
-
-                $checkStockQuery = "SELECT StockCount FROM `Products` WHERE Id = :productId";
+        } elseif ($itemType === 'giftbox') {
+            $giftBoxId = $item['id'];
+            
+            foreach ($item['cakes'] as $cake) {
+                $cakeId = $cake['cakeId'];
+                $cakeQuantity = $cake['quantity'] * $quantity;
+        
+                $checkStockQuery = "SELECT StockCount FROM `Cakes` WHERE Id = :cakeId";
                 $checkStockStmt = $conn->prepare($checkStockQuery);
-                $checkStockStmt->bindValue(':productId', $eventProductId, PDO::PARAM_INT);
+                $checkStockStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
                 $checkStockStmt->execute();
                 $productStock = $checkStockStmt->fetch(PDO::FETCH_ASSOC)['StockCount'];
-
-                if ($productStock >= ($eventProductQuantity * $quantity)) {
-                    $updateStockQuery = "UPDATE `Products` SET StockCount = StockCount - :quantity WHERE Id = :productId";
+        
+                if ($productStock >= $cakeQuantity) {
+                    $updateStockQuery = "UPDATE `Cakes` SET StockCount = StockCount - :cakeQuantity WHERE Id = :cakeId";
                     $updateStockStmt = $conn->prepare($updateStockQuery);
-                    $updateStockStmt->bindValue(':quantity', $eventProductQuantity * $quantity, PDO::PARAM_INT); // Multiply by event quantity
-                    $updateStockStmt->bindValue(':productId', $eventProductId, PDO::PARAM_INT);
+                    $updateStockStmt->bindValue(':cakeQuantity', $cakeQuantity, PDO::PARAM_INT);
+                    $updateStockStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
                     $updateStockStmt->execute();
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Not enough stock for product in event']);
+                    echo json_encode(['success' => false, 'message' => 'Not enough stock for cake in gift box']);
                     exit();
                 }
+        
+                $giftBoxSelectionQuery = "INSERT INTO `GiftBoxSelection` (OrderItemId, CakeId, Quantity) 
+                                          VALUES (:orderItemId, :cakeId, :quantity)";
+                $giftBoxSelectionStmt = $conn->prepare($giftBoxSelectionQuery);
+                $giftBoxSelectionStmt->bindValue(':orderItemId', $orderId, PDO::PARAM_INT);
+                $giftBoxSelectionStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
+                $giftBoxSelectionStmt->bindValue(':quantity', $cakeQuantity, PDO::PARAM_INT);
+                $giftBoxSelectionStmt->execute();
             }
         }
+        
     }
 
     $query = "INSERT INTO `Payment` (CustomerId, OrderId, PaymentMethodId, TransactionId, Amount, DateCreated) 

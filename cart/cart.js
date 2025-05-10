@@ -27,7 +27,13 @@ function addToCart(id, name, price, quantity, type) {
 
 function removeFromCart(id, type) {
   let cart = loadCart();
-  cart = cart.filter((item) => !(item.id === id && item.type === type));
+  console.log("before", cart);
+  cart = cart.filter((item) => {
+    console.log(item.id, id);
+    console.log(item.type, type);
+    return !(item.id === id && item.type === type);
+  });
+  console.log("clicked", cart);
   saveCart(cart);
   updateCartUI(cart);
 }
@@ -62,10 +68,10 @@ function updateCartUI(cart) {
       listItem.innerHTML = `
         <div>
           <strong>${item.name} (${item.type})</strong><br>
-          Rs ${item.price.toFixed(2)} x ${item.quantity}
+          Usd ${item.price.toFixed(2)} x ${item.quantity}
         </div>
         <div>
-          <span>Rs ${itemTotal.toFixed(2)}</span>
+          <span>Usd ${itemTotal.toFixed(2)}</span>
           <button class="btn btn-danger btn-sm remove-from-cart" data-id="${
             item.id
           }" data-type="${item.type}">Remove</button>
@@ -76,7 +82,7 @@ function updateCartUI(cart) {
   }
 
   if (cartTotal) {
-    cartTotal.textContent = `Rs ${total.toFixed(2)}`;
+    cartTotal.textContent = `Usd ${total.toFixed(2)}`;
   }
 
   updateCartIconCount();

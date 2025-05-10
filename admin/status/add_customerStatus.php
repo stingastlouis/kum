@@ -4,31 +4,31 @@ include '../../configs/timezoneConfigs.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
-    $eventId = trim($_POST['event_id']);
+    $customerId = trim($_POST['customer_id']);
     $date = date('Y-m-d H:i:s');
-    if (empty($statusId) || empty( $eventId)) {
+    if (empty($statusId) || empty( $customerId)) {
         echo "<h1>Field missing</h1></center>";
         exit;
     }
 
     try {
         $date = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO eventstatus (eventid, statusid, datecreated) VALUES (:eventid, :statusid, :datecreated)");
-        $stmt->bindParam(':eventid', $eventId);
+        $stmt = $conn->prepare("INSERT INTO CustomerStatus (customerid, statusid, datecreated) VALUES (:customerid, :statusid, :datecreated)");
+        $stmt->bindParam(':customerid', $customerId);
         $stmt->bindParam(':statusid', $statusId);
         $stmt->bindParam(':datecreated', $date);
 
         if ($stmt->execute()) {
-            header("Location: ../event.php?success=1");
+            header("Location: ../customer.php?success=1");
             exit;
         } else {
-            echo "Error adding event.";
+            echo "Error adding staff.";
         }
     } catch (PDOException $e) {
         echo "Database error: " . $e->getMessage();
     }
 } else {
-    header("Location: ../event.php");
+    header("Location: ../customer.php");
     exit;
 }
 ?>
