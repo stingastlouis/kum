@@ -5,7 +5,7 @@ include '../configs/db.php';
 
 $success = isset($_GET["success"]) ? $_GET["success"] : null;
 
-$limit = 2; 
+$limit = 10; 
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($page - 1) * $limit;
 

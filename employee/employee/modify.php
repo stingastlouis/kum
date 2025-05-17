@@ -3,11 +3,11 @@ include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $staffId = $_POST['staff_id'];
-    $fullname = $_POST['staff_fullname'];
-    $email = $_POST['staff_email'];
-    $phone = $_POST['staff_phone'];
-    $roleId = $_POST['staff_role_id'];
+    $employeeId = $_POST['employee_id'];
+    $fullname = $_POST['employee_fullname'];
+    $email = $_POST['employee_email'];
+    $phone = $_POST['employee_phone'];
+    $roleId = $_POST['employee_role_id'];
 
     try {
         $conn->beginTransaction();
@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Invalid email format");
         }
 
-        $checkEmail = $conn->prepare("SELECT COUNT(*) FROM Staff WHERE Email = ? AND Id != ?");
-        $checkEmail->execute([$email, $staffId]);
+        $checkEmail = $conn->prepare("SELECT COUNT(*) FROM Employee WHERE Email = ? AND Id != ?");
+        $checkEmail->execute([$email, $employeeId]);
         if ($checkEmail->fetchColumn() > 0) {
             throw new Exception("Email already exists");
         }
@@ -26,13 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Invalid phone number format");
         }
 
-        $checkStaff = $conn->prepare("SELECT COUNT(*) FROM Staff WHERE Id = ?");
-        $checkStaff->execute([$staffId]);
-        if ($checkStaff->fetchColumn() == 0) {
-            throw new Exception("Staff member not found");
+        $checkEmployee = $conn->prepare("SELECT COUNT(*) FROM Employee WHERE Id = ?");
+        $checkEmployee->execute([$employeeId]);
+        if ($checkEmployee->fetchColumn() == 0) {
+            throw new Exception("Employee member not found");
         }
 
-        $stmt = $conn->prepare("UPDATE Staff 
+        $stmt = $conn->prepare("UPDATE Employee 
                                SET Fullname = ?, 
                                    Email = ?, 
                                    Phone = ?, 
@@ -44,16 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email,
             $phone,
             $roleId,
-            $staffId
+            $employeeId
         ]);
 
         if ($stmt->rowCount() >= 0) { 
             $conn->commit();
 
-            header('Location: ../staff.php?success=2');
+            header('Location: ../employee.php?success=2');
             exit;
         } else {
-            throw new Exception("Error: Unable to update the staff member in the database.");
+            throw new Exception("Error: Unable to update the employee member in the database.");
         }
 
     } catch (Exception $e) {
@@ -61,20 +61,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $errorMessage = $e->getMessage();
         if (strpos($errorMessage, "Invalid email") !== false) {
-            header('Location: ../staff.php?error=invalid_email');
+            header('Location: ../employee.php?error=invalid_email');
         } else if (strpos($errorMessage, "Email already exists") !== false) {
-            header('Location: ../staff.php?error=email_exists');
+            header('Location: ../employee.php?error=email_exists');
         } else if (strpos($errorMessage, "Invalid phone") !== false) {
-            header('Location: ../staff.php?error=invalid_phone');
-        } else if (strpos($errorMessage, "Staff member not found") !== false) {
-            header('Location: ../staff.php?error=staff_not_found');
+            header('Location: ../employee.php?error=invalid_phone');
+        } else if (strpos($errorMessage, "Employee member not found") !== false) {
+            header('Location: ../employee.php?error=employee_not_found');
         } else {
-            header('Location: ../staff.php?error=general&message=' . urlencode($errorMessage));
+            header('Location: ../employee.php?error=general&message=' . urlencode($errorMessage));
         }
         exit;
     }
 } else {
-    header('Location: ../staff.php');
+    header('Location: ../employee.php');
     exit;
 }
 ?>

@@ -4,31 +4,31 @@ include '../../configs/timezoneConfigs.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
-    $staffId = trim($_POST['staff_id']);
+    $employeeId = trim($_POST['employee_id']);
     $date = date('Y-m-d H:i:s');
-    if (empty($statusId) || empty( $staffId)) {
+    if (empty($statusId) || empty( $employeeId)) {
         echo "<h1>Field missing</h1></center>";
         exit;
     }
 
     try {
         $date = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO staffstatus (staffid, statusid, datecreated) VALUES (:staffid, :statusid, :datecreated)");
-        $stmt->bindParam(':staffid', $staffId);
+        $stmt = $conn->prepare("INSERT INTO employeestatus (employeeid, statusid, datecreated) VALUES (:employeeid, :statusid, :datecreated)");
+        $stmt->bindParam(':employeeid', $employeeId);
         $stmt->bindParam(':statusid', $statusId);
         $stmt->bindParam(':datecreated', $date);
 
         if ($stmt->execute()) {
-            header("Location: ../staff.php?success=1");
+            header("Location: ../employee.php?success=1");
             exit;
         } else {
-            echo "Error adding staff.";
+            echo "Error adding employee.";
         }
     } catch (PDOException $e) {
         echo "Database error: " . $e->getMessage();
     }
 } else {
-    header("Location: ../staff.php");
+    header("Location: ../employee.php");
     exit;
 }
 ?>

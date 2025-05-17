@@ -1,6 +1,8 @@
 CREATE DATABASE delicious_cake;
 
 
+
+
 CREATE TABLE Roles (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -23,7 +25,7 @@ CREATE TABLE Customer (
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Staff (
+CREATE TABLE Employee (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     Fullname VARCHAR(255) NOT NULL,
     Email VARCHAR(255) NOT NULL UNIQUE,
@@ -38,18 +40,22 @@ CREATE TABLE CustomerStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     CustomerId INT NOT NULL,
     StatusId INT NULL,
+    EmployeeId INT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
 );
 
-CREATE TABLE StaffStatus (
+CREATE TABLE EmployeeStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
-    StaffId INT NOT NULL,
+    EmployeeId INT NOT NULL,
     StatusId INT NULL,
+    ModifyBy INT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (StaffId) REFERENCES Staff(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (ModifyBy) REFERENCES Employee(Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Category (
@@ -75,7 +81,6 @@ CREATE TABLE Orders (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     CustomerId INT NOT NULL,
     Total DOUBLE NOT NULL,
-    Tax DOUBLE NOT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE
 );
@@ -84,9 +89,11 @@ CREATE TABLE OrderStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     OrderId INT NOT NULL,
     StatusId INT NULL,
+    EmployeeId INT NOT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
 );
 
 CREATE TABLE OrderItems (
@@ -105,22 +112,22 @@ CREATE TABLE OrderItems (
 CREATE TABLE Delivery (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     OrderId INT NOT NULL,
-    StatusId INT NULL,
-    StaffId INT NULL,
+    EmployeeId INT NULL,
     Location TEXT NOT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StaffId) REFERENCES Staff(Id) ON DELETE CASCADE
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
 );
 
 CREATE TABLE DeliveryStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     DeliveryId INT NOT NULL,
     StatusId INT NULL,
+    EmployeeId INT,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (DeliveryId) REFERENCES Delivery(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
 );
 
 CREATE TABLE PaymentMethod (
@@ -134,15 +141,26 @@ CREATE TABLE Payment (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     CustomerId INT NOT NULL,
     PaymentMethodId INT NOT NULL,
-    Amount DOUBLE NOT NULL,
-    TransactionId INT NOT NULL,
     OrderId INT NOT NULL,
-    StatusId INT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE,
     FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
-    FOREIGN KEY (PaymentMethodId) REFERENCES PaymentMethod(Id) ON DELETE CASCADE,
-    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+    FOREIGN KEY (PaymentMethodId) REFERENCES PaymentMethod(Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE PaypalPayment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PaymentId INT NOT NULL,
+    TransactionId TEXT NULL, 
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE CashPayment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PaymentId INT NOT NULL,
+    DatePaid DATETIME NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE GiftBox (
@@ -161,8 +179,10 @@ CREATE TABLE GiftBoxStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     GiftBoxId INT NOT NULL,
     StatusId INT NULL,
+    EmployeeId INT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (GiftBoxId) REFERENCES GiftBox(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
     FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
 );
 
@@ -170,8 +190,10 @@ CREATE TABLE CakeStatus (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     CakeId INT NOT NULL,
     StatusId INT NULL,
+    EmployeeId INT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
     FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
 );
 
@@ -188,3 +210,26 @@ CREATE TABLE GiftBoxSelection (
 INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE',NOW());
 INSERT INTO `status`(`StatusName`,`DateCreated`) VALUES ('INACTIVE',NOW());
 INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('IN PROGRESS',NOW());
+
+-- insert paymentmethod 
+INSERT INTO `paymentmethod` (`Name`, `Description`, `DateCreated`) VALUES ('Cash', 'Pay at shop or at Door', current_timestamp());
+INSERT INTO `paymentmethod` (`Name`, `Description`, `DateCreated`) VALUES ('Paypal', 'Process online payment', current_timestamp());
+
+-- insert Role
+INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Admin', current_timestamp());
+INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Viewer', current_timestamp());
+INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Delivery', current_timestamp());
+
+
+-- insert first Admin
+INSERT INTO `employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', '(SELECT Id FROM Role WHERE Name = "Admin")', current_timestamp());
+
+-- insert status for employee kum
+INSERT INTO `EmployeeStatus` (`EmployeeId`, `StatusId`, `DateCreated`) 
+VALUES (
+    (SELECT `Id` FROM `Employee` WHERE Email = "admin@gmail.com"), 
+    (SELECT Id FROM `Status` WHERE StatusName = "ACTIVE"), 
+    current_timestamp()
+);
+-- code  : Admin123$
+-- email : admin@gmaill.com

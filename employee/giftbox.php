@@ -163,7 +163,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                         <input type="number" step="0.01" class="form-control" id="giftboxPrice" name="giftbox_price" required>
                     </div>
                     <div class="mb-3">
-                        <label for="giftboxMax" class="form-label">Stock</label>
+                        <label for="giftboxMax" class="form-label">Cake selection</label>
                         <input type="number" class="form-control" id="giftboxMax" name="max_giftBoxes" required>
                     </div>
                     <div class="mb-3">
@@ -237,7 +237,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <div class="mb-3">
-                        <label for="editGiftboxMax" class="form-label">Stock</label>
+                        <label for="editGiftboxMax" class="form-label">Cake selection</label>
                         <input type="number" class="form-control" id="editGiftboxMax" name="giftbox_stock">
                     </div>
 

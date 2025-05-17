@@ -12,24 +12,40 @@ if (!$data) {
 $customerId = $_SESSION['customerId'];
 $paymentMethodId = $data['paymentMethodId'] ?? 1;
 $cartItems = $data['cartItems'];
-$transactionId = $data['transactionId'];
-$amount = $data['amount'];
+$transactionId = $data['transactionId'] ?? null;
+$location = $data['location'] ?? null;
 $_SESSION['orderSuccess'] = true;
+$totalAmount = $data['amount'];
 
-$taxRate = 0.15;  
-$tax = $amount * $taxRate;
-$totalAmount = $amount + $tax;
+// Validate that the payment method ID exists
+$paymentMethodQuery = "SELECT Name FROM PaymentMethod WHERE Id = :paymentMethodId";
+$paymentMethodStmt = $conn->prepare($paymentMethodQuery);
+$paymentMethodStmt->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
+$paymentMethodStmt->execute();
+$paymentMethodName = $paymentMethodStmt->fetchColumn();
+if (!$paymentMethodName) {
+    echo json_encode(['success' => false, 'message' => 'Invalid payment method']);
+    exit();
+}
 
-$query = "INSERT INTO `Orders` (CustomerId, Tax, Total, DateCreated) 
-          VALUES (:customerId, :tax, :totalAmount, NOW())";
+$query = "INSERT INTO `Orders` (CustomerId,Total, DateCreated) 
+          VALUES (:customerId, :totalAmount, NOW())";
 $stmt = $conn->prepare($query);
 $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
-$stmt->bindValue(':tax', $tax, PDO::PARAM_STR);
 $stmt->bindValue(':totalAmount', $totalAmount, PDO::PARAM_STR);
 
 if ($stmt->execute()) {
     $orderId = $conn->lastInsertId(); 
-    
+
+    if ($location) {
+        $deliveryQuery = "INSERT INTO `Delivery` (OrderId, Location, DateCreated)
+                          VALUES (:orderId, :location, NOW())";
+        $deliveryStmt = $conn->prepare($deliveryQuery);
+        $deliveryStmt->bindValue(':orderId', $orderId, PDO::PARAM_INT);
+        $deliveryStmt->bindValue(':location', $location, PDO::PARAM_STR);
+        $deliveryStmt->execute();
+    }
+
     foreach ($cartItems as $item) {
         $itemType = $item['type'];
         $productId = $item['id'];
@@ -65,6 +81,7 @@ if ($stmt->execute()) {
                 echo json_encode(['success' => false, 'message' => 'Not enough stock for Cake']);
                 exit();
             }
+
         } elseif ($itemType === 'giftbox') {
             $giftBoxId = $item['id'];
             
@@ -88,7 +105,7 @@ if ($stmt->execute()) {
                     echo json_encode(['success' => false, 'message' => 'Not enough stock for cake in gift box']);
                     exit();
                 }
-        
+
                 $giftBoxSelectionQuery = "INSERT INTO `GiftBoxSelection` (OrderItemId, CakeId, Quantity) 
                                           VALUES (:orderItemId, :cakeId, :quantity)";
                 $giftBoxSelectionStmt = $conn->prepare($giftBoxSelectionQuery);
@@ -98,20 +115,46 @@ if ($stmt->execute()) {
                 $giftBoxSelectionStmt->execute();
             }
         }
-        
     }
 
-    $query = "INSERT INTO `Payment` (CustomerId, OrderId, PaymentMethodId, TransactionId, Amount, DateCreated) 
-              VALUES (:customerId, :orderId, :paymentMethodId, :transactionId, :amount, NOW())";
-    $stmt = $conn->prepare($query);
-    $stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
-    $stmt->bindValue(':orderId', $orderId, PDO::PARAM_INT);
-    $stmt->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
-    $stmt->bindValue(':transactionId', $transactionId, PDO::PARAM_STR);
-    $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
-    $stmt->execute();
+    $queryPayment = "INSERT INTO `Payment` (CustomerId, OrderId, PaymentMethodId, DateCreated) 
+              VALUES (:customerId, :orderId, :paymentMethodId, NOW())";
+    $stmtPayment = $conn->prepare($queryPayment);
+    $stmtPayment->bindValue(':customerId', $customerId, PDO::PARAM_INT);
+    $stmtPayment->bindValue(':orderId', $orderId, PDO::PARAM_INT);
+    $stmtPayment->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
+    $stmtPayment->execute();
+
+    if ($stmtPayment->execute()) {
+        $paymentId = $conn->lastInsertId();
+
+       switch (strtolower($paymentMethodName)) {
+        case 'paypal':
+            $paypalQuery = "INSERT INTO `PaypalPayment` (PaymentId, TransactionId, DateCreated) 
+                            VALUES (:paymentId, :transactionId, NOW())";
+            $paypalStmt = $conn->prepare($paypalQuery);
+            $paypalStmt->bindValue(':paymentId', $paymentId, PDO::PARAM_INT);
+            $paypalStmt->bindValue(':transactionId', $transactionId, PDO::PARAM_STR);
+            $paypalStmt->execute();
+            break;
+
+        case 'cash':
+            $cashQuery = "INSERT INTO `CashPayment` (PaymentId, DateCreated) 
+                          VALUES (:paymentId, NOW())";
+            $cashStmt = $conn->prepare($cashQuery);
+            $cashStmt->bindValue(':paymentId', $paymentId, PDO::PARAM_INT);
+            $cashStmt->execute();
+            break;
+        default:
+            error_log("Unsupported payment method: $paymentMethodName");
+            break;
+    }
+
+    }
 
     echo json_encode(['success' => true, 'orderId' => $orderId]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to process the order']);
 }
+
+

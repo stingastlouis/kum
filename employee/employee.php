@@ -8,7 +8,7 @@ $limit = 10;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-$countStmt = $conn->query("SELECT COUNT(*) FROM Staff");
+$countStmt = $conn->query("SELECT COUNT(*) FROM Employee");
 $totalRows = $countStmt->fetchColumn();
 $totalPages = ceil($totalRows / $limit);
 
@@ -17,14 +17,14 @@ $query = "
         s.*, 
         r.Name AS role_name,
         st.StatusName AS latest_status
-    FROM Staff s
+    FROM Employee s
     LEFT JOIN Roles r ON s.RoleId = r.Id
     LEFT JOIN (
-        SELECT ss.StaffId, MAX(ss.Id) AS latest_status_id
-        FROM StaffStatus ss
-        GROUP BY ss.StaffId
-    ) latest_ss ON s.Id = latest_ss.StaffId
-    LEFT JOIN StaffStatus ss ON latest_ss.latest_status_id = ss.Id
+        SELECT ss.EmployeeId, MAX(ss.Id) AS latest_status_id
+        FROM EmployeeStatus ss
+        GROUP BY ss.EmployeeId
+    ) latest_ss ON s.Id = latest_ss.EmployeeId
+    LEFT JOIN EmployeeStatus ss ON latest_ss.latest_status_id = ss.Id
     LEFT JOIN Status st ON ss.StatusId = st.Id
     ORDER BY s.Id DESC
     LIMIT :limit OFFSET :offset
@@ -34,7 +34,7 @@ $stmt = $conn->prepare($query);
 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
-$staffMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$employeeMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $roleStmt = $conn->prepare("SELECT * FROM Roles");
 $roleStmt->execute();
@@ -51,7 +51,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Employee List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
                 Add Employee
             </button>
         </div>
@@ -72,41 +72,41 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($staffMembers as $staff): ?>
+                        <?php foreach ($employeeMembers as $employee): ?>
                             <tr>
-                                <td><?= htmlspecialchars($staff['Id']) ?></td>
-                                <td><?= htmlspecialchars($staff['Fullname']) ?></td>
-                                <td><?= htmlspecialchars($staff['Email']) ?></td>
-                                <td><?= htmlspecialchars($staff['Phone']) ?></td>
-                                <td><?= htmlspecialchars($staff['role_name']) ?></td>
-                                <td><?= htmlspecialchars($staff['latest_status'] ?? 'No Status') ?></td>
-                                <td><?= htmlspecialchars($staff['DateCreated']) ?></td>
+                                <td><?= htmlspecialchars($employee['Id']) ?></td>
+                                <td><?= htmlspecialchars($employee['Fullname']) ?></td>
+                                <td><?= htmlspecialchars($employee['Email']) ?></td>
+                                <td><?= htmlspecialchars($employee['Phone']) ?></td>
+                                <td><?= htmlspecialchars($employee['role_name']) ?></td>
+                                <td><?= htmlspecialchars($employee['latest_status'] ?? 'No Status') ?></td>
+                                <td><?= htmlspecialchars($employee['DateCreated']) ?></td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm edit-staff-btn" 
-                                        data-id="<?= $staff['Id'] ?>" 
-                                        data-fullname="<?= htmlspecialchars($staff['Fullname']) ?>" 
-                                        data-email="<?= htmlspecialchars($staff['Email']) ?>" 
-                                        data-phone="<?= htmlspecialchars($staff['Phone']) ?>" 
-                                        data-role-id="<?= $staff['RoleId'] ?>">
+                                    <button class="btn btn-warning btn-sm edit-employee-btn" 
+                                        data-id="<?= $employee['Id'] ?>" 
+                                        data-fullname="<?= htmlspecialchars($employee['Fullname']) ?>" 
+                                        data-email="<?= htmlspecialchars($employee['Email']) ?>" 
+                                        data-phone="<?= htmlspecialchars($employee['Phone']) ?>" 
+                                        data-role-id="<?= $employee['RoleId'] ?>">
                                         Edit
                                     </button>
 
                                     <button class="btn btn-info btn-sm reset-password-btn" 
-                                        data-id="<?= $staff['Id'] ?>" 
+                                        data-id="<?= $employee['Id'] ?>" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#resetPasswordModal">
                                         Reset Password
                                     </button>
 
-                                    <button class="btn btn-del btn-danger btn-sm delete-staff-btn" 
+                                    <button class="btn btn-del btn-danger btn-sm delete-employee-btn" 
                                         data-bs-toggle="modal" 
-                                        data-bs-target="#deleteStaffModal" 
-                                        data-id="<?= $staff['Id'] ?>">
+                                        data-bs-target="#deleteEmployeeModal" 
+                                        data-id="<?= $employee['Id'] ?>">
                                         Delete
                                     </button>
 
-                                    <form method="POST" action="status/add_staffStatus.php" class="d-inline">
-                                        <input type="hidden" name="staff_id" value="<?= $staff['Id'] ?>">
+                                    <form method="POST" action="status/add_employeeStatus.php" class="d-inline">
+                                        <input type="hidden" name="employee_id" value="<?= $employee['Id'] ?>">
                                         <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
                                             <option value="" disabled selected>Change Status</option>
                                             <?php foreach ($statuses as $status): ?>
@@ -155,30 +155,30 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addStaffModalLabel">Add Employee</h5>
+                <h5 class="modal-title" id="addEmployeeModalLabel">Add Employee</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="staff/add_staff.php" method="POST">
+                <form action="employee/add_employee.php" method="POST">
                     <div class="mb-3">
-                        <label for="staffFullname" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="staffFullname" name="staff_fullname" required autocomplete="off">
+                        <label for="employeeFullname" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="employeeFullname" name="employee_fullname" required autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="staffEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="staffEmail" name="staff_email" required>
+                        <label for="employeeEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="employeeEmail" name="employee_email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="staffPhone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="staffPhone" name="staff_phone" required>
+                        <label for="employeePhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="employeePhone" name="employee_phone" required>
                     </div>
                     <div class="mb-3">
-                        <label for="staffRole" class="form-label">Role</label>
-                        <select class="form-select" id="staffRole" name="staff_role_id" required>
+                        <label for="employeeRole" class="form-label">Role</label>
+                        <select class="form-select" id="employeeRole" name="employee_role_id" required>
                             <option value="" disabled selected>Select Role</option>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= htmlspecialchars($role['Id']) ?>"><?= htmlspecialchars($role['Name']) ?></option>
@@ -186,9 +186,9 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="staffPassword" class="form-label">Initial Password</label>
+                        <label for="employeePassword" class="form-label">Initial Password</label>
                         <div class="input-group">
-                            <input type="password" class="form-control" id="staffPassword" name="staff_password" required>
+                            <input type="password" class="form-control" id="employeePassword" name="employee_password" required>
                             <button class="btn btn-outline-secondary" type="button" id="generatePasswordBtn">Generate</button>
                         </div>
                     </div>
@@ -199,31 +199,31 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="editStaffForm" method="POST" action="staff/modify.php">
+            <form id="editEmployeeForm" method="POST" action="employee/modify.php">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editStaffModalLabel">Edit Employee</h5>
+                    <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="staff_id" id="editStaffId">
+                    <input type="hidden" name="employee_id" id="editEmployeeId">
                     <div class="mb-3">
-                        <label for="editStaffFullname" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="editStaffFullname" name="staff_fullname" required>
+                        <label for="editEmployeeFullname" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editEmployeeFullname" name="employee_fullname" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editStaffEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editStaffEmail" name="staff_email" required>
+                        <label for="editEmployeeEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmployeeEmail" name="employee_email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editStaffPhone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="editStaffPhone" name="staff_phone" required>
+                        <label for="editEmployeePhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="editEmployeePhone" name="employee_phone" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editStaffRole" class="form-label">Role</label>
-                        <select class="form-select" id="editStaffRole" name="staff_role_id" required>
+                        <label for="editEmployeeRole" class="form-label">Role</label>
+                        <select class="form-select" id="editEmployeeRole" name="employee_role_id" required>
                             <?php foreach ($roles as $role): ?>
                                 <option value="<?= htmlspecialchars($role['Id']) ?>"><?= htmlspecialchars($role['Name']) ?></option>
                             <?php endforeach; ?>
@@ -247,12 +247,12 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="staff/reset_password.php" method="POST">
-                    <input type="hidden" name="staff_id" id="resetPasswordStaffId">
+                <form action="employee/reset_password.php" method="POST">
+                    <input type="hidden" name="employee_id" id="resetPasswordEmployeeId">
                     <div class="mb-3">
-                        <label for="staffPassword" class="form-label">Initial Password</label>
+                        <label for="employeePassword" class="form-label">Initial Password</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="staffNewPassword" name="staff_password" required>
+                            <input type="text" class="form-control" id="employeeNewPassword" name="employee_password" required>
                             <button class="btn btn-outline-secondary" type="button" id="generateNewPasswordBtn">
                                 Generate Password
                             </button>
@@ -265,20 +265,20 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<div class="modal fade" id="deleteStaffModal" tabindex="-1" aria-labelledby="deleteStaffModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteStaffModalLabel">Delete Staff Member</h5>
+                <h5 class="modal-title" id="deleteEmployeeModalLabel">Delete Employee Member</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete this staff member?
+                Are you sure you want to delete this employee member?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="staff/delete_staff.php" method="POST">
-                    <input type="hidden" id="staffIdToDelete" name="staff_id">
+                <form action="employee/delete_employee.php" method="POST">
+                    <input type="hidden" id="employeeIdToDelete" name="employee_id">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
@@ -291,12 +291,12 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 <script>
     document.querySelectorAll('.btn-del').forEach(function(button) {
         button.addEventListener('click', function() {
-            var staffId = this.getAttribute('data-id');
-            document.getElementById('staffIdToDelete').value = staffId;
+            var employeeId = this.getAttribute('data-id');
+            document.getElementById('employeeIdToDelete').value = employeeId;
         });
     });
 
-    document.querySelectorAll('.edit-staff-btn').forEach(button => {
+    document.querySelectorAll('.edit-employee-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const fullname = this.getAttribute('data-fullname');
@@ -304,21 +304,21 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
             const phone = this.getAttribute('data-phone');
             const roleId = this.getAttribute('data-role-id');
 
-            document.getElementById('editStaffId').value = id;
-            document.getElementById('editStaffFullname').value = fullname;
-            document.getElementById('editStaffEmail').value = email;
-            document.getElementById('editStaffPhone').value = phone;
-            document.getElementById('editStaffRole').value = roleId;
+            document.getElementById('editEmployeeId').value = id;
+            document.getElementById('editEmployeeFullname').value = fullname;
+            document.getElementById('editEmployeeEmail').value = email;
+            document.getElementById('editEmployeePhone').value = phone;
+            document.getElementById('editEmployeeRole').value = roleId;
 
-            const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+            const modal = new bootstrap.Modal(document.getElementById('editEmployeeModal'));
             modal.show();
         });
     });
 
     document.querySelectorAll('.reset-password-btn').forEach(button => {
         button.addEventListener('click', function() {
-            const staffId = this.getAttribute('data-id');
-            document.getElementById('resetPasswordStaffId').value = staffId;
+            const employeeId = this.getAttribute('data-id');
+            document.getElementById('resetPasswordEmployeeId').value = employeeId;
         });
     });
 
@@ -357,7 +357,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     document.getElementById('generatePasswordBtn').addEventListener('click', function() {
-        const passwordField = document.getElementById('staffPassword');
+        const passwordField = document.getElementById('employeePassword');
         passwordField.value = generatePassword();
         passwordField.type = 'text';
         
@@ -367,7 +367,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     });
 
     document.getElementById('generateNewPasswordBtn').addEventListener('click', function() {
-        const passwordField = document.getElementById('staffNewPassword');
+        const passwordField = document.getElementById('employeeNewPassword');
         passwordField.value = generatePassword();
         passwordField.type = 'text';
         
