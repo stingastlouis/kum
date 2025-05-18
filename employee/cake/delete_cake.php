@@ -1,5 +1,6 @@
-<?php 
+<?php
 include '../../configs/db.php';
+require_once '../utils/redirectMessage.php';
 
 if (isset($_POST['cake_id'])) {
     $productId = $_POST['cake_id'];
@@ -8,9 +9,9 @@ if (isset($_POST['cake_id'])) {
     $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
     $stmt->execute();
 
-    header("Location: ../cake.php?success=1");
+    redirectWithMessage("../cake.php", "Cake deleted successfully!", true);
     exit();
 }
 
-header("Location: ../cake.php?error=1");
+redirectWithMessage("../cake.php", "Cake id not found");
 exit();

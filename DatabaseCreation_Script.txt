@@ -207,9 +207,24 @@ CREATE TABLE GiftBoxSelection (
     FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE
 );
 
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE',NOW());
-INSERT INTO `status`(`StatusName`,`DateCreated`) VALUES ('INACTIVE',NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('IN PROGRESS',NOW());
+-- Order Statuses
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('PROCESSING', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('READY FOR PICKUP', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('OUT FOR DELIVERY', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('DELIVERED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('COMPLETED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('CANCELLED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('REFUNDED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('FAILED', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ON HOLD', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('REJECTED', NOW());
+
+-- General Status
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE', NOW());
+INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('INACTIVE', NOW());
+
 
 -- insert paymentmethod 
 INSERT INTO `paymentmethod` (`Name`, `Description`, `DateCreated`) VALUES ('Cash', 'Pay at shop or at Door', current_timestamp());

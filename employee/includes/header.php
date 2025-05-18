@@ -1,5 +1,4 @@
-
-<?php 
+<?php
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -7,7 +6,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $employeeName = $_SESSION['employee_fullname'] ?? null;
 $employeeRole = $_SESSION['employee_role'] ?? null;
+
+require_once 'popupmessage.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +23,7 @@ $employeeRole = $_SESSION['employee_role'] ?? null;
     <link rel="stylesheet" href="../assets/css/Nunito.css">
     <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="../assets/css/dropdown.css">
+    <link rel="stylesheet" href="../assets/css/board-image.css">
 </head>
 
 <body id="page-top">
@@ -53,18 +56,22 @@ $employeeRole = $_SESSION['employee_role'] ?? null;
                             <i class="fas fa-envelope"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown">
-                            <li><h6 class="dropdown-header">Message Center</h6></li>
+                            <li>
+                                <h6 class="dropdown-header">Message Center</h6>
+                            </li>
                             <li><a class="dropdown-item" href="#">New message from Emily</a></li>
                             <li><a class="dropdown-item" href="#">Photos received</a></li>
                             <li><a class="dropdown-item" href="#">Monthly report looks good</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-center" href="#">Show All Messages</a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="d-none d-lg-inline text-white small me-2"><?php echo $employeeName." - ".$employeeRole?></span>                        </a>
+                            <span class="d-none d-lg-inline text-white small me-2"><?php echo $employeeName . " - " . $employeeRole ?></span> </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="employee-logout.php">Logout</a></li>
                         </ul>

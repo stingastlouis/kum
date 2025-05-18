@@ -1,6 +1,11 @@
-<?php include 'includes/header.php'; ?>
-
 <?php
+require_once 'auth.php';
+requireEmployeeLogin();
+
+$employeeId = $_SESSION['employeeId'] ?? null;
+include 'includes/header.php';
+
+
 include '../configs/db.php';
 
 
@@ -31,7 +36,7 @@ $totalStmt = $conn->query("SELECT COUNT(*) FROM Cakes");
 $totalCakes = $totalStmt->fetchColumn();
 $totalPages = ceil($totalCakes / $limit);
 
-$stmt2 = $conn->prepare("SELECT * FROM Status");
+$stmt2 = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('ACTIVE', 'INACTIVE')");
 $stmt2->execute();
 $statuses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
@@ -45,11 +50,13 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Cake List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCakeModal">Add Cake</button>
+            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCakeModal">Add Cake</button>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" id="dataTable" role="grid" aria-describedby="dataTable_info">
-                <table class="table my-0">
+                <table class="table my-0 table table-striped table-hover align-middle">
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -62,7 +69,9 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                             <th>Image</th>
                             <th>Latest Status</th>
                             <th>Date Created</th>
-                            <th>Actions</th>
+                            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,30 +85,48 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($cake['DiscountPrice']) ?></td>
                                 <td><?= htmlspecialchars($cake['StockCount']) ?></td>
                                 <td>
-                                    <img src="../assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" alt="<?= htmlspecialchars($cake['Name']) ?>" style="width: 100px; height: auto;">
+                                    <img src="../assets/uploads/cakes/<?= htmlspecialchars($cake['ImagePath']) ?>" alt="<?= htmlspecialchars($cake['Name']) ?>" style="width: 100px; height: auto;">
                                 </td>
                                 <td><?= htmlspecialchars($cake['LatestStatus']) ?: 'No Status' ?></td>
                                 <td><?= htmlspecialchars($cake['DateCreated']) ?></td>
-                                <td>
-                                    <button class='btn btn-warning btn-sm edit-cake-btn' 
-                                        data-id='<?= $cake['Id'] ?>' 
-                                        data-name='<?= $cake['Name'] ?>' 
-                                        data-category-id='<?= $cake['CategoryId'] ?>' 
-                                        data-description='<?= $cake['Description'] ?>' 
-                                        data-price='<?= $cake['Price'] ?>' 
-                                        data-discount='<?= $cake['DiscountPrice'] ?>' 
-                                        data-stock='<?= $cake['StockCount'] ?>'>Edit</button>
-                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteCakeModal" data-id="<?= $cake['Id'] ?>">Delete</button>
-                                    <form method="POST" action="status/add_cakeStatus.php" style="display: inline;">
-                                        <input type="hidden" name="cake_id" value="<?= $cake['Id'] ?>">
-                                        <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="" disabled selected>Change Status</option>
-                                            <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-                                </td>
+                                <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button class="btn btn-secondary btn-sm edit-cake-btn"
+                                                data-id="<?= $cake['Id'] ?>"
+                                                data-name="<?= $cake['Name'] ?>"
+                                                data-category-id="<?= $cake['CategoryId'] ?>"
+                                                data-description="<?= $cake['Description'] ?>"
+                                                data-price="<?= $cake['Price'] ?>"
+                                                data-discount="<?= $cake['DiscountPrice'] ?>"
+                                                data-stock="<?= $cake['StockCount'] ?>">
+                                                Edit
+                                            </button>
+
+                                            <button class="btn btn-dark btn-sm btn-del"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteCakeModal"
+                                                data-id="<?= $cake['Id'] ?>">
+                                                Delete
+                                            </button>
+
+                                            <form method="POST" action="status/add_cakeStatus.php" style="margin: 0;">
+                                                <input type="hidden" name="cake_id" value="<?= $cake['Id'] ?>">
+                                                <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+                                                <select name="status_id" class="form-select form-select-sm"
+                                                    style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
+                                                    onchange="this.form.submit()">
+                                                    <option value="" disabled selected>Change Status</option>
+                                                    <?php foreach ($statuses as $status): ?>
+                                                        <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </form>
+                                        </div>
+                                    </td>
+
+
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -135,12 +162,13 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 <div class="modal fade" id="addCakeModal" tabindex="-1" aria-labelledby="addCakeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header ">
                 <h5 class="modal-title" id="addCakeModalLabel">Add Cake</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="cake/add_cake.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
                     <div class="mb-3">
                         <label for="cakeName" class="form-label">Cake Name</label>
                         <input type="text" class="form-control" id="cakeName" name="cake_name" required>
@@ -208,13 +236,14 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="editCakeForm" method="POST" action="cake/modify_cake.php" enctype="multipart/form-data">
+                <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editCakeModalLabel">Edit Cake</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="cake_id" id="editCakeId">
-                    
+
                     <div class="mb-3">
                         <label for="editCakeName" class="form-label">Name</label>
                         <input type="text" class="form-control" id="editCakeName" name="cake_name">
