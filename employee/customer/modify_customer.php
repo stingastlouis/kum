@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $customerId = $_POST['customer_id'];
@@ -38,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                    Phone = ?, 
                                    Address = ?
                                WHERE Id = ?");
-        
+
         $stmt->execute([
             $fullname,
             $email,
@@ -49,25 +50,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($stmt->rowCount() >= 0) {
             $conn->commit();
-            header('Location: ../customer.php?success=1');
-            exit;
+            redirectWithMessage("../customer.php", "Customer updated successfully!", true);
         } else {
             throw new Exception("Error: Unable to update the customer member in the database.");
         }
-
     } catch (Exception $e) {
         $conn->rollBack();
         $errorMessage = $e->getMessage();
         if (strpos($errorMessage, "Invalid email") !== false) {
-            header('Location: ../customer.php?error=invalid_email');
+            redirectWithMessage("../customer.php", "Invalid Email");
         } else if (strpos($errorMessage, "Email already exists") !== false) {
-            header('Location: ../customer.php?error=email_exists');
+            redirectWithMessage("../customer.php", "Email already exists");
         } else if (strpos($errorMessage, "Invalid phone") !== false) {
-            header('Location: ../customer.php?error=invalid_phone');
+            redirectWithMessage("../customer.php", "Invalid mpbile number");
         } else if (strpos($errorMessage, "Customer member not found") !== false) {
-            header('Location: ../customer.php?error=customer_not_found');
+            redirectWithMessage("../customer.php", "Customer not found");
         } else {
             header('Location: ../customer.php?error=general&message=' . urlencode($errorMessage));
+            redirectWithMessage("../customer.php", "Error");
         }
         exit;
     }
@@ -75,4 +75,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('Location: ../customer.php');
     exit;
 }
-?>

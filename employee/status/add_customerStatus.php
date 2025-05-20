@@ -1,14 +1,14 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
     $customerId = trim($_POST['customer_id']);
     $date = date('Y-m-d H:i:s');
-    if (empty($statusId) || empty( $customerId)) {
-        echo "<h1>Field missing</h1></center>";
-        exit;
+    if (empty($statusId) || empty($customerId)) {
+        redirectWithMessage("../customer.php", "Missing required fields");
     }
 
     try {
@@ -19,16 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':datecreated', $date);
 
         if ($stmt->execute()) {
-            header("Location: ../customer.php?success=1");
-            exit;
+            redirectWithMessage("../customer.php", "Customer updated successfully!", true);
         } else {
-            echo "Error adding staff.";
+            redirectWithMessage("../customer.php", "Database Error");
         }
     } catch (PDOException $e) {
-        echo "Database error: " . $e->getMessage();
+        redirectWithMessage("../customer.php", "Database Error");
     }
 } else {
     header("Location: ../customer.php");
     exit;
 }
-?>

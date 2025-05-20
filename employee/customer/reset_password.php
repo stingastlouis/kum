@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -29,21 +30,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$passwordHash, $customerId]);
         if ($stmt->rowCount() > 0) {
             $conn->commit();
-            header('Location: ../customer.php?success=1');
+            redirectWithMessage("../customer.php", "Password reset for customer!", true);
             exit;
         } else {
             throw new Exception("Error: Unable to reset the password. No changes were made.");
         }
-
     } catch (Exception $e) {
         $conn->rollBack();
         $errorMessage = $e->getMessage();
         if (strpos($errorMessage, "Password must be") !== false) {
-            header('Location: ../customer.php?error=weak_password');
+            redirectWithMessage("../customer.php", "Password weak");
         } else if (strpos($errorMessage, "Customer member not found") !== false) {
-            header('Location: ../customer.php?error=customer_not_found');
+            redirectWithMessage("../customer.php", "Customer not found");
         } else {
-            header('Location: ../customer.php?error=general&message=' . urlencode($errorMessage));
+            redirectWithMessage("../customer.php", "Error");
         }
         exit;
     }
@@ -51,4 +51,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('Location: ../customer.php');
     exit;
 }
-?>

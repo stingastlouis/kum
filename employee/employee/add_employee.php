@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../employee.php');
@@ -31,11 +32,11 @@ try {
     }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
+    $now = date('Y-m-d H:i:s');
     $insertStmt = $conn->prepare(
-        "INSERT INTO Employee (Fullname, Email, Phone, RoleId, Password, DateCreated) VALUES (?, ?, ?, ?, ?, NOW())"
+        "INSERT INTO Employee (Fullname, Email, Phone, RoleId, Password, DateCreated) VALUES (?, ?, ?, ?, ?, ?)"
     );
-    $insertStmt->execute([$fullName, $email, $phone, $roleId, $hashedPassword]);
+    $insertStmt->execute([$fullName, $email, $phone, $roleId, $hashedPassword, $now]);
 
     if ($insertStmt->rowCount() === 0) {
         throw new Exception("Error: Unable to insert employee member.");
@@ -48,34 +49,33 @@ try {
     $statusRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
 
     if ($statusRow) {
-        
+
         $statusId = $statusRow['Id'];
         $statusInsertStmt = $conn->prepare("INSERT INTO employeestatus (employeeid, statusid, datecreated) 
-                                            VALUES (?, ?, NOW())");
-        $statusInsertStmt->execute([$employeeId, $statusId]);
+                                            VALUES (?, ?, ?)");
+        $statusInsertStmt->execute([$employeeId, $statusId, $now]);
     } else {
         throw new Exception("Error: 'ACTIVE' status not found.");
     }
 
     $conn->commit();
-    header('Location: ../employee.php?success=1');
+    redirectWithMessage("../employee.php", "Employee added successfully!", true);
     exit;
 } catch (Exception $e) {
     $conn->rollBack();
-    
+
     $errorMessages = [
         "Invalid email" => "invalid_email",
         "Email already exists" => "email_exists",
         "Invalid phone" => "invalid_phone"
     ];
-    
+
     foreach ($errorMessages as $key => $param) {
         if (strpos($e->getMessage(), $key) !== false) {
-            header("Location: ../employee.php?error=$param");
+            redirectWithMessage("../employee.php", "$param");
             exit;
         }
     }
-    
-    header("Location: ../employee.php?error=general&message=" . urlencode($e->getMessage()));
-    exit;
+
+    redirectWithMessage("../employee.php", "Error");
 }

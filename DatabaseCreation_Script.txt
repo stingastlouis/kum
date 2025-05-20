@@ -1,8 +1,6 @@
 CREATE DATABASE delicious_cake;
 
 
-
-
 CREATE TABLE Roles (
     Id INT PRIMARY KEY AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
@@ -237,7 +235,7 @@ INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Delivery', current_timestam
 
 
 -- insert first Admin
-INSERT INTO `employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', '(SELECT Id FROM Role WHERE Name = "Admin")', current_timestamp());
+INSERT INTO `employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', (SELECT Id FROM Roles WHERE Name = "Admin"), current_timestamp());
 
 -- insert status for employee kum
 INSERT INTO `EmployeeStatus` (`EmployeeId`, `StatusId`, `DateCreated`) 

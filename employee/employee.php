@@ -1,10 +1,13 @@
-<?php 
-include 'includes/header.php'; 
+<?php
+require_once 'auth.php';
+requireEmployeeLogin();
+
+include 'includes/header.php';
 include '../configs/db.php';
 
 $successMessage = $_GET["success"] ?? null;
 
-$limit = 10; 
+$limit = 10;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
@@ -40,7 +43,7 @@ $roleStmt = $conn->prepare("SELECT * FROM Roles");
 $roleStmt->execute();
 $roles = $roleStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$statusStmt = $conn->prepare("SELECT * FROM Status");
+$statusStmt = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('ACTIVE','INACTIVE');");
 $statusStmt->execute();
 $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -51,9 +54,11 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Employee List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
-                Add Employee
-            </button>
+            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                    Add Employee
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="card-body">
@@ -68,7 +73,9 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                             <th>Role</th>
                             <th>Latest Status</th>
                             <th>Date Created</th>
-                            <th>Actions</th>
+                            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,42 +88,53 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($employee['role_name']) ?></td>
                                 <td><?= htmlspecialchars($employee['latest_status'] ?? 'No Status') ?></td>
                                 <td><?= htmlspecialchars($employee['DateCreated']) ?></td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm edit-employee-btn" 
-                                        data-id="<?= $employee['Id'] ?>" 
-                                        data-fullname="<?= htmlspecialchars($employee['Fullname']) ?>" 
-                                        data-email="<?= htmlspecialchars($employee['Email']) ?>" 
-                                        data-phone="<?= htmlspecialchars($employee['Phone']) ?>" 
-                                        data-role-id="<?= $employee['RoleId'] ?>">
-                                        Edit
-                                    </button>
+                                <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
 
-                                    <button class="btn btn-info btn-sm reset-password-btn" 
-                                        data-id="<?= $employee['Id'] ?>" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#resetPasswordModal">
-                                        Reset Password
-                                    </button>
 
-                                    <button class="btn btn-del btn-danger btn-sm delete-employee-btn" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#deleteEmployeeModal" 
-                                        data-id="<?= $employee['Id'] ?>">
-                                        Delete
-                                    </button>
+                                            <button class="btn btn-secondary btn-sm edit-employee-btn"
+                                                data-id="<?= $employee['Id'] ?>"
+                                                data-fullname="<?= htmlspecialchars($employee['Fullname']) ?>"
+                                                data-email="<?= htmlspecialchars($employee['Email']) ?>"
+                                                data-phone="<?= htmlspecialchars($employee['Phone']) ?>"
+                                                data-role-id="<?= $employee['RoleId'] ?>">
+                                                Edit
+                                            </button>
 
-                                    <form method="POST" action="status/add_employeeStatus.php" class="d-inline">
-                                        <input type="hidden" name="employee_id" value="<?= $employee['Id'] ?>">
-                                        <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="" disabled selected>Change Status</option>
-                                            <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>">
-                                                    <?= htmlspecialchars($status['StatusName']) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-                                </td>
+
+                                            <button class="btn btn-secondary btn-sm reset-password-btn"
+                                                data-id="<?= $employee['Id'] ?>"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#resetPasswordModal">
+                                                Reset Password
+                                            </button>
+
+                                            <?php if ($_SESSION["employeeId"] != $employee['Id']): ?>
+                                                <button class="btn btn-dark btn-sm delete-employee-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteEmployeeModal"
+                                                    data-id="<?= $employee['Id'] ?>">
+                                                    Delete
+                                                </button>
+                                            <?php endif; ?>
+
+                                            <form method="POST" action="status/add_employeeStatus.php" style="margin: 0">
+                                                <input type="hidden" name="employee_id" value="<?= $employee['Id'] ?>">
+                                                <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 150px;">
+                                                    <option value="" disabled selected>Change Status</option>
+                                                    <?php foreach ($statuses as $status): ?>
+                                                        <option value="<?= $status['Id'] ?>">
+                                                            <?= htmlspecialchars($status['StatusName']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </form>
+
+                                        </div>
+                                    </td>
+
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -289,7 +307,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    document.querySelectorAll('.btn-del').forEach(function(button) {
+    document.querySelectorAll('.delete-employee-btn').forEach(function(button) {
         button.addEventListener('click', function() {
             var employeeId = this.getAttribute('data-id');
             document.getElementById('employeeIdToDelete').value = employeeId;
@@ -325,7 +343,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     document.querySelector('#resetPasswordModal form').addEventListener('submit', function(e) {
         const password = document.getElementById('newPassword').value;
         const confirm = document.getElementById('confirmPassword').value;
-        
+
         if (password !== confirm) {
             e.preventDefault();
             alert('Passwords do not match!');
@@ -335,9 +353,9 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
     function generatePassword() {
-        const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; 
-        const lowercase = 'abcdefghijkmnpqrstuvwxyz'; 
-        const numbers = '23456789'; 
+        const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const lowercase = 'abcdefghijkmnpqrstuvwxyz';
+        const numbers = '23456789';
         const symbols = '!@#$%^&*';
         let password = '';
 
@@ -345,14 +363,14 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
         password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
         password += numbers.charAt(Math.floor(Math.random() * numbers.length));
         password += symbols.charAt(Math.floor(Math.random() * symbols.length));
-        
+
         const allChars = uppercase + lowercase + numbers + symbols;
         for (let i = password.length; i < 12; i++) {
             password += allChars.charAt(Math.floor(Math.random() * allChars.length));
         }
 
         password = password.split('').sort(() => Math.random() - 0.5).join('');
-        
+
         return password;
     }
 
@@ -360,7 +378,7 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
         const passwordField = document.getElementById('employeePassword');
         passwordField.value = generatePassword();
         passwordField.type = 'text';
-        
+
         setTimeout(() => {
             passwordField.type = 'password';
         }, 5000);
@@ -370,19 +388,19 @@ $statuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
         const passwordField = document.getElementById('employeeNewPassword');
         passwordField.value = generatePassword();
         passwordField.type = 'text';
-        
+
         setTimeout(() => {
             passwordField.type = 'password';
         }, 5000);
     });
 
     document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('hidden.bs.modal', function () {
+        modal.addEventListener('hidden.bs.modal', function() {
             const forms = this.getElementsByTagName('form');
             for (let form of forms) {
                 form.reset();
             }
-            
+
             const passwordFields = this.querySelectorAll('input[type="text"][id$="Password"]');
             passwordFields.forEach(field => {
                 field.type = 'password';

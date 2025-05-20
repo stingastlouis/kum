@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
@@ -9,8 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = date('Y-m-d H:i:s');
 
     if (empty($statusId) || empty($cakeId) || empty($employeeId)) {
-        header("Location: ../cake.php?error=Missing+required+fields.");
-        exit;
+        redirectWithMessage("../cake.php", "Missing required fields");
     }
 
     try {
@@ -23,18 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':datecreated', $date);
 
         if ($stmt->execute()) {
-            header("Location: ../cake.php?success=Cake+status+updated+successfully.");
-            exit;
+            redirectWithMessage("../cake.php", "Cake updated successfully!", true);
         } else {
-            header("Location: ../cake.php?error=Failed+to+update+cake+status.");
-            exit;
+            redirectWithMessage("../cake.php", "Failed to update cake status");
         }
     } catch (PDOException $e) {
-        $message = urlencode("Database error: " . $e->getMessage());
-        header("Location: ../cake.php?error=$message");
-        exit;
+        redirectWithMessage("../cake.php", "Database Error");
     }
 } else {
-    header("Location: ../cake.php?error=Invalid+request+method.");
+    header("Location: ../cake.php");
     exit;
 }

@@ -1,19 +1,18 @@
-<?php include 'includes/header.php'; ?>
-
 <?php
+require_once 'auth.php';
+requireEmployeeLogin();
+
+include 'includes/header.php';
 include '../configs/db.php';
 
-$success = $_GET["success"] ?? null;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Get total count
 $totalStmt = $conn->query("SELECT COUNT(*) FROM GiftBox");
 $totalRows = $totalStmt->fetchColumn();
 $totalPages = ceil($totalRows / $limit);
 
-// Fetch paginated giftboxes with latest status and category
 $stmt = $conn->prepare("
     SELECT e.*, s.StatusName AS LatestStatus, c.Name as CategoryName
     FROM GiftBox e
@@ -33,8 +32,7 @@ $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $giftboxes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch statuses and categories
-$stmt2 = $conn->prepare("SELECT * FROM Status");
+$stmt2 = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('ACTIVE','INACTIVE');");
 $stmt2->execute();
 $statuses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
@@ -48,7 +46,9 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Giftbox List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addGiftboxModal">Add Giftbox</button>
+            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addGiftboxModal">Add Giftbox</button>
+            <?php endif; ?>
         </div>
         <div class="card-body">
             <div class="table-responsive table mt-2" role="grid">
@@ -60,11 +60,13 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                             <th>Category</th>
                             <th>Description</th>
                             <th>Price</th>
-                            <th>Max Cake</th>
+                            <th>Cake Selection</th>
                             <th>Image</th>
                             <th>Latest Status</th>
                             <th>Date Created</th>
-                            <th>Actions</th>
+                            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,31 +79,43 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($giftbox['Price']) ?></td>
                                 <td><?= htmlspecialchars($giftbox['MaxCakes']) ?></td>
                                 <td>
-                                    <img src="../assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>" alt="<?= htmlspecialchars($giftbox['Name']) ?>" style="width: 100px;">
+                                    <img src="../assets/uploads/giftboxes/<?= htmlspecialchars($giftbox['ImagePath']) ?>" alt="<?= htmlspecialchars($giftbox['Name']) ?>" style="width: 100px;">
                                 </td>
                                 <td><?= htmlspecialchars($giftbox['LatestStatus'] ?? 'No Status') ?></td>
                                 <td><?= htmlspecialchars($giftbox['DateCreated']) ?></td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm edit-giftbox-btn"
-                                        data-id="<?= $giftbox['Id'] ?>"
-                                        data-name="<?= $giftbox['Name'] ?>"
-                                        data-category-id="<?= $giftbox['CategoryId'] ?>"
-                                        data-description="<?= $giftbox['Description'] ?>"
-                                        data-price="<?= $giftbox['Price'] ?>"
-                                        data-max="<?= $giftbox['MaxCakes'] ?>">
-                                        Edit
-                                    </button>
-                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteGiftboxModal" data-id="<?= $giftbox['Id'] ?>">Delete</button>
-                                    <form method="POST" action="status/add_giftboxStatus.php" style="display: inline;">
-                                        <input type="hidden" name="giftbox_id" value="<?= $giftbox['Id'] ?>">
-                                        <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="" disabled selected>Change Status</option>
-                                            <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-                                </td>
+                                <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-secondary btn-sm  edit-giftbox-btn"
+                                                data-id="<?= $giftbox['Id'] ?>"
+                                                data-name="<?= $giftbox['Name'] ?>"
+                                                data-category-id="<?= $giftbox['CategoryId'] ?>"
+                                                data-description="<?= $giftbox['Description'] ?>"
+                                                data-price="<?= $giftbox['Price'] ?>"
+                                                data-max="<?= $giftbox['MaxCakes'] ?>">
+                                                Edit
+                                            </button>
+
+                                            <button class="btn btn-dark btn-sm btn-del"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteGiftboxModal"
+                                                data-id="<?= $giftbox['Id'] ?>">
+                                                Delete
+                                            </button>
+
+                                            <form method="POST" action="status/add_giftboxStatus.php" class="d-flex align-items-center" style="margin: 0;">
+                                                <input type="hidden" name="giftbox_id" value="<?= $giftbox['Id'] ?>">
+                                                <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 160px;">
+                                                    <option value="" disabled selected>Change Status</option>
+                                                    <?php foreach ($statuses as $status): ?>
+                                                        <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </form>
+                                        </div>
+                                    </td>
+
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -210,7 +224,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="giftbox_id" id="editGiftboxId">
-                    
+
                     <div class="mb-3">
                         <label for="editGiftboxName" class="form-label">Name</label>
                         <input type="text" class="form-control" id="editGiftboxName" name="giftbox_name">
@@ -238,7 +252,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
                     <div class="mb-3">
                         <label for="editGiftboxMax" class="form-label">Cake selection</label>
-                        <input type="number" class="form-control" id="editGiftboxMax" name="giftbox_stock">
+                        <input type="number" class="form-control" id="editGiftboxMax" name="giftbox_selection">
                     </div>
 
                     <div class="mb-3">

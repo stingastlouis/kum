@@ -1,6 +1,8 @@
-<?php include 'includes/header.php'; ?>
-
 <?php
+require_once 'auth.php';
+requireEmployeeLogin();
+include 'includes/header.php';
+
 include '../configs/db.php';
 
 $isSuccess = isset($_GET["success"]) ? $_GET["success"] : null;
@@ -25,20 +27,13 @@ $totalPages = ceil($totalCategories / $limit);
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <p class="text-secondary m-0 fw-bold">Cake Category List</p>
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                Add Category
-            </button>
+            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                    Add Category
+                </button>
+            <?php endif; ?>
         </div>
         <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-md-6">
-                    <div class="text-md-end">
-                        <label class="form-label">
-                            <input type="search" class="form-control form-control-sm" placeholder="Search (client-side only)" id="searchInput">
-                        </label>
-                    </div>
-                </div>
-            </div>
             <div class="table-responsive table mt-2">
                 <table class="table my-0" id="categoryTable">
                     <thead>
@@ -46,7 +41,9 @@ $totalPages = ceil($totalCategories / $limit);
                             <th>Id</th>
                             <th>Category Name</th>
                             <th>Date Created</th>
-                            <th>Actions</th>
+                            <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,16 +52,17 @@ $totalPages = ceil($totalCategories / $limit);
                                 <td><?= htmlspecialchars($category['Id']) ?></td>
                                 <td><?= htmlspecialchars($category['Name']) ?></td>
                                 <td><?= htmlspecialchars($category['DateCreated']) ?></td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="<?= $category['Id'] ?>">Delete</button>
-                                </td>
+                                <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-id="<?= $category['Id'] ?>">Delete</button>
+                                    </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination -->
             <nav>
                 <ul class="pagination justify-content-center mt-4">
                     <?php if ($page > 1): ?>
@@ -91,8 +89,7 @@ $totalPages = ceil($totalCategories / $limit);
 </div>
 
 <script>
-    // Optional client-side search
-    document.getElementById('searchInput').addEventListener('keyup', function () {
+    document.getElementById('searchInput').addEventListener('keyup', function() {
         let value = this.value.toLowerCase();
         let rows = document.querySelectorAll('#categoryTable tbody tr');
         rows.forEach(row => {
@@ -143,20 +140,7 @@ $totalPages = ceil($totalCategories / $limit);
     </div>
 </div>
 
-<div class="modal fade" id="SuccessMessage" tabindex="-1" aria-labelledby="successMessgeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modifyCategoryModalLabel">Message</h5>
-            </div>
-            <div class="modal-body">
-                <form action="category/modify_category.php" method="POST">
-                    Created Successfully
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -181,16 +165,6 @@ $totalPages = ceil($totalCategories / $limit);
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    <?php if ($isSuccess): ?>
-        var myModal = new bootstrap.Modal(document.getElementById('SuccessMessage'));
-        myModal.show();
-        setTimeout(function() {
-            myModal.hide();
-        }, 3000);
-    <?php endif; ?>
-</script>
-
-<script>
     var deleteButtons = document.querySelectorAll('.btn-del');
     deleteButtons.forEach(function(button) {
         button.addEventListener('click', function() {
@@ -201,10 +175,10 @@ $totalPages = ceil($totalCategories / $limit);
 </script>
 
 <script>
-    document.getElementById('searchInput').addEventListener('input', function () {
+    document.getElementById('searchInput').addEventListener('input', function() {
         var query = this.value.toLowerCase();
         var rows = document.querySelectorAll('#dataTable tbody tr');
-        rows.forEach(function (row) {
+        rows.forEach(function(row) {
             var categoryName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
             row.style.display = categoryName.includes(query) ? '' : 'none';
         });

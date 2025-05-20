@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $giftboxName = $_POST['giftbox_name'];
@@ -8,41 +9,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $giftboxPrice = $_POST['giftbox_price'];
     $giftboxMaxCakes = $_POST['max_giftBoxes'];
     $categoryId = $_POST["giftbox_category_id"] ?? null;
-    
+
     if (!empty($_FILES['giftbox_image']['name'])) {
-        $uploadDirectory = '../../assets/uploads/';
+        $uploadDirectory = '../../assets/uploads/giftboxes/';
         $fileName = basename($_FILES['giftbox_image']['name']);
         $filePath = $uploadDirectory . $fileName;
-        
+
         $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
         $fileMimeType = mime_content_type($_FILES['giftbox_image']['tmp_name']);
-        
+
         if (in_array($fileMimeType, $allowedMimeTypes)) {
             if (move_uploaded_file($_FILES['giftbox_image']['tmp_name'], $filePath)) {
                 try {
                     $conn->beginTransaction();
-                    
+                    $now = date('Y-m-d H:i:s');
                     $insertGiftbox = $conn->prepare("INSERT INTO Giftbox (Name, Description, CategoryId, Price, MaxCakes, ImagePath, DateCreated) 
-                                                   VALUES (?, ?, ?, ?, ?, ?, NOW())");
-                    $insertGiftbox->execute([$giftboxName, $giftboxDescription, $categoryId, $giftboxPrice, $giftboxMaxCakes, $fileName]);
-                    
+                                                   VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $insertGiftbox->execute([$giftboxName, $giftboxDescription, $categoryId, $giftboxPrice, $giftboxMaxCakes, $fileName, $now]);
+
                     if ($insertGiftbox->rowCount() > 0) {
                         $giftboxId = $conn->lastInsertId();
-                        
+
                         $statusQuery = $conn->prepare("SELECT Id FROM Status WHERE StatusName = 'ACTIVE' LIMIT 1");
                         $statusQuery->execute();
                         $status = $statusQuery->fetch(PDO::FETCH_ASSOC);
-                        
+
                         if ($status) {
                             $statusId = $status['Id'];
-                            
+
                             $insertStatus = $conn->prepare("INSERT INTO giftboxstatus (giftboxid, statusid, datecreated) 
-                                                           VALUES (?, ?, NOW())");
-                            $insertStatus->execute([$giftboxId, $statusId]);
-                            
+                                                           VALUES (?, ?, ?)");
+                            $insertStatus->execute([$giftboxId, $statusId, $now]);
+
                             $conn->commit();
-                            header('Location: ../giftbox.php?success=1');
-                            exit;
+                            redirectWithMessage("../giftbox.php", "GiftBox added successfully!", true);
                         }
                         throw new Exception("'ACTIVE' status not found.");
                     }
@@ -50,15 +50,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (Exception $e) {
                     $conn->rollBack();
                     echo "Error: " . $e->getMessage();
+                    redirectWithMessage("../giftbox.php", "Error");
                 }
             } else {
-                echo "Error: File upload failed.";
+                redirectWithMessage("../giftbox.php", "File upload failed.");
             }
         } else {
-            echo "Error: Invalid file format. Allowed types: JPEG, PNG, GIF.";
+            redirectWithMessage("../giftbox.php", "Allowed types: JPEG, PNG, GIF.");
         }
     } else {
-        echo "Error: Image upload required.";
+        redirectWithMessage("../giftbox.php", "Image upload required.");
     }
 }
-?>

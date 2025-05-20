@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $employeeId = $_POST['employee_id'];
@@ -38,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                    Phone = ?, 
                                    RoleId = ?
                                WHERE Id = ?");
-        
+
         $stmt->execute([
             $fullname,
             $email,
@@ -47,29 +48,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $employeeId
         ]);
 
-        if ($stmt->rowCount() >= 0) { 
+        if ($stmt->rowCount() >= 0) {
             $conn->commit();
 
-            header('Location: ../employee.php?success=2');
-            exit;
+            redirectWithMessage("../employee.php", "Employee updated successfully!", true);
         } else {
             throw new Exception("Error: Unable to update the employee member in the database.");
         }
-
     } catch (Exception $e) {
         $conn->rollBack();
-        
+
         $errorMessage = $e->getMessage();
         if (strpos($errorMessage, "Invalid email") !== false) {
-            header('Location: ../employee.php?error=invalid_email');
+            redirectWithMessage("../employee.php", "Email invalid");
         } else if (strpos($errorMessage, "Email already exists") !== false) {
-            header('Location: ../employee.php?error=email_exists');
+            redirectWithMessage("../employee.php", "Email already Exists");
         } else if (strpos($errorMessage, "Invalid phone") !== false) {
-            header('Location: ../employee.php?error=invalid_phone');
+            redirectWithMessage("../employee.php", "Invalid Phone Number");
         } else if (strpos($errorMessage, "Employee member not found") !== false) {
-            header('Location: ../employee.php?error=employee_not_found');
+            redirectWithMessage("../employee.php", "Employee not found");
         } else {
-            header('Location: ../employee.php?error=general&message=' . urlencode($errorMessage));
+            redirectWithMessage("../employee.php", "Error");
         }
         exit;
     }
@@ -77,4 +76,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('Location: ../employee.php');
     exit;
 }
-?>

@@ -1,18 +1,16 @@
 <?php
 include '../../configs/db.php';
-
+require_once '../utils/redirectMessage.php';
 if (isset($_POST['category_id'])) {
     $categoryKey = $_POST['category_id'];
 
     var_dump($categoryKey);
-    
+
     $queryDelete = $conn->prepare("DELETE FROM category WHERE Id = :key");
     $queryDelete->bindParam(':key', $categoryKey, PDO::PARAM_INT);
     $queryDelete->execute();
 
-    header("Location: ../category.php?success=1");
-    exit();
+    redirectWithMessage("../category.php", "Category deleted successfully!", true);
 } else {
-    header("Location: ../category.php?error=1");
-    exit();
+    redirectWithMessage("../category.php", "Database error");
 }

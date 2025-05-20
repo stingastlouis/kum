@@ -1,6 +1,7 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['employee_id']) && !empty($_POST['employee_password'])) {
     $employeeId = $_POST['employee_id'];
@@ -33,19 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['employee_id']) && !e
 
         if ($updateStmt->rowCount() > 0) {
             $conn->commit();
-            header('Location: ../employee.php?success=1');
-            exit;
+            redirectWithMessage("../employee.php", "Password reset successfully!", true);
         } else {
             throw new Exception("Password reset failed: No changes made");
         }
-
     } catch (Exception $e) {
         $conn->rollBack();
-        header("Location: ../employee.php?error=" . urlencode($e->getMessage()));
+        redirectWithMessage("../employee.php", "Error");
         exit;
     }
 } else {
-    header('Location: ../employee.php?error=invalid_request');
+    header('Location: ../employee.php');
     exit;
 }
-?>

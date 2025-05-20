@@ -40,13 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $conn->beginTransaction();
-
+        $now = date('Y-m-d H:i:s');
         $stmt = $conn->prepare("INSERT INTO Cakes (Name, CategoryId, Description, Price, DiscountPrice, StockCount, ImagePath, DateCreated) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$name, $categoryId, $description, $price, $discount_price, $stock, $unique_name]);
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $categoryId, $description, $price, $discount_price, $stock, $unique_name, $now]);
 
         if ($stmt->rowCount() === 0) {
-            throw new Exception("Unable to insert the cake into the database.");
+            redirectWithMessage("../cake.php", "Unable to insert the cake into the database.");
         }
 
         $cakeId = $conn->lastInsertId();
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statusRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$statusRow) {
-            throw new Exception("'ACTIVE' status not found.");
+            redirectWithMessage("../cake.php", "'ACTIVE' status not found.");
         }
 
         $statusId = $statusRow['Id'];

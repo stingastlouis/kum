@@ -1,4 +1,4 @@
-<?php 
+<?php
 include '../../configs/db.php';
 
 if (isset($_POST['customer_id'])) {
@@ -8,9 +8,8 @@ if (isset($_POST['customer_id'])) {
     $stmt->bindParam(':id', $customerId, PDO::PARAM_INT);
     $stmt->execute();
 
-    header("Location: ../customer.php?success=1");
-    exit();
+    redirectWithMessage("../customer.php", "Customer deleted successfully!", true);
 } else {
-    header("Location: ../customer.php?error=1");
+    header("Location: ../customer.php");
     exit();
 }

@@ -1,5 +1,6 @@
 <?php
 include '../../configs/db.php';
+include '../../configs/timezoneConfigs.php';
 require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -74,9 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $statusId = $statusRow['Id'];
+        $now = date('Y-m-d H:i:s');
         $statusInsertStmt = $conn->prepare("INSERT INTO CakeStatus (CakeId, StatusId, EmployeeId, DateCreated) 
-                                            VALUES (?, ?, ?, NOW())");
-        $statusInsertStmt->execute([$cakeId, $statusId, $employeeId]);
+                                            VALUES (?, ?, ?, ?)");
+        $statusInsertStmt->execute([$cakeId, $statusId, $employeeId, $now]);
 
         redirectWithMessage("Cake updated successfully!", true);
     } catch (Exception $e) {

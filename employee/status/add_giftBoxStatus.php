@@ -1,14 +1,14 @@
 <?php
 include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
+require_once '../utils/redirectMessage.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
     $giftboxId = trim($_POST['giftbox_id']);
     $date = date('Y-m-d H:i:s');
     if (empty($statusId) || empty($giftboxId)) {
-        echo "<h1>Field missing</h1></center>";
-        exit;
+        redirectWithMessage("../employee.php", "Missing required fields");
     }
 
     try {
@@ -19,16 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':datecreated', $date);
 
         if ($stmt->execute()) {
-            header("Location: ../giftbox.php?success=1");
+            redirectWithMessage("../giftbox.php", "Giftbox updated successfully!", true);
             exit;
         } else {
-            echo "Error adding Giftbox.";
+            redirectWithMessage("../giftbox.php", "Database error");
         }
     } catch (PDOException $e) {
-        echo "Database error: " . $e->getMessage();
+        redirectWithMessage("../giftbox.php", "Error");
     }
 } else {
     header("Location: ../giftbox.php");
     exit;
 }
-?>
