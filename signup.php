@@ -1,5 +1,4 @@
-
-<?php include "./includes/header.php"?>
+<?php include "./includes/header.php" ?>
 <link rel="stylesheet" href="./assets/css/signup.css">
 <?php
 include './configs/db.php';
@@ -36,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = $stmt->execute([$sweetieName, $sweetieEmail, $sweetieAddress, $sweetiePhone, $hashedSprinkle]);
 
                 if ($success) {
-                  
+
                     echo "<div class='alert alert-success'>Yay! You're officially part of our cookie club</div>";
                     echo "<meta http-equiv='refresh' content='3;url=signin.php'>";
                     exit;
@@ -91,4 +90,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 </div>
 
-<?php include "./includes/footer.php"?>
+<?php include "./includes/footer.php" ?>

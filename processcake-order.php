@@ -1,5 +1,6 @@
-<?php 
+<?php
 include './configs/db.php';
+include './configs/timezoneConfigs.php';
 session_start();
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -9,40 +10,54 @@ if (!$data) {
     exit();
 }
 
-$customerId = $_SESSION['customerId'];
-$paymentMethodId = $data['paymentMethodId'] ?? 1;
-$cartItems = $data['cartItems'];
-$transactionId = $data['transactionId'] ?? null;
-$location = $data['location'] ?? null;
-$_SESSION['orderSuccess'] = true;
-$totalAmount = $data['amount'];
+try {
+    $conn->beginTransaction();
 
-// Validate that the payment method ID exists
-$paymentMethodQuery = "SELECT Name FROM PaymentMethod WHERE Id = :paymentMethodId";
-$paymentMethodStmt = $conn->prepare($paymentMethodQuery);
-$paymentMethodStmt->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
-$paymentMethodStmt->execute();
-$paymentMethodName = $paymentMethodStmt->fetchColumn();
-if (!$paymentMethodName) {
-    echo json_encode(['success' => false, 'message' => 'Invalid payment method']);
-    exit();
-}
+    $customerId = $_SESSION['customerId'];
+    $paymentMethodId = $data['paymentMethodId'] ?? 1;
+    $cartItems = $data['cartItems'];
+    $transactionId = $data['transactionId'] ?? null;
+    $location = $data['location'] ?? null;
+    $_SESSION['orderSuccess'] = true;
+    $totalAmount = $data['amount'];
+    $scheduleDate = $data['scheduleDate'] ?? null;
 
-$query = "INSERT INTO `Orders` (CustomerId,Total, DateCreated) 
-          VALUES (:customerId, :totalAmount, NOW())";
-$stmt = $conn->prepare($query);
-$stmt->bindValue(':customerId', $customerId, PDO::PARAM_INT);
-$stmt->bindValue(':totalAmount', $totalAmount, PDO::PARAM_STR);
+    $paymentMethodStmt = $conn->prepare("SELECT Name FROM PaymentMethod WHERE Id = :paymentMethodId");
+    $paymentMethodStmt->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
+    $paymentMethodStmt->execute();
+    $paymentMethodName = $paymentMethodStmt->fetchColumn();
+    if (!$paymentMethodName) {
+        throw new Exception("Invalid payment method");
+    }
 
-if ($stmt->execute()) {
-    $orderId = $conn->lastInsertId(); 
+    $now = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("INSERT INTO `Orders` (CustomerId, Total, DateCreated, ScheduleDate) VALUES (:customerId, :totalAmount, :dateNow, :scheduleDate)");
+    $stmt->bindValue(':customerId', $customerId);
+    $stmt->bindValue(':totalAmount', $totalAmount);
+    $stmt->bindValue(':dateNow', $now);
+    $stmt->bindValue(':scheduleDate', $scheduleDate);
+    $stmt->execute();
+    $orderId = $conn->lastInsertId();
+
+    $statusStmt = $conn->prepare("SELECT Id FROM Status WHERE StatusName = 'PROCESSING' LIMIT 1");
+    $statusStmt->execute();
+    $statusId = $statusStmt->fetchColumn();
+
+    if (!$statusId) {
+        throw new Exception("Status 'PROCESSING' not found");
+    }
+
+    $orderStatusStmt = $conn->prepare("INSERT INTO OrderStatus (OrderId, StatusId, EmployeeId) VALUES (:orderId, :statusId, NULL)");
+    $orderStatusStmt->execute([
+        ':orderId' => $orderId,
+        ':statusId' => $statusId
+    ]);
 
     if ($location) {
-        $deliveryQuery = "INSERT INTO `Delivery` (OrderId, Location, DateCreated)
-                          VALUES (:orderId, :location, NOW())";
-        $deliveryStmt = $conn->prepare($deliveryQuery);
-        $deliveryStmt->bindValue(':orderId', $orderId, PDO::PARAM_INT);
-        $deliveryStmt->bindValue(':location', $location, PDO::PARAM_STR);
+        $deliveryStmt = $conn->prepare("INSERT INTO `Delivery` (OrderId, Location, DateCreated) VALUES (:orderId, :location, :date)");
+        $deliveryStmt->bindValue(':orderId', $orderId);
+        $deliveryStmt->bindValue(':location', $location);
+        $deliveryStmt->bindValue(':date', $now);
         $deliveryStmt->execute();
     }
 
@@ -53,108 +68,72 @@ if ($stmt->execute()) {
         $unitPrice = $item['price'];
         $subtotal = $unitPrice * $quantity;
 
-        $query = "INSERT INTO `OrderItems` (OrderId, ProductId, Quantity, Price, Subtotal, DateCreated, `ProductType`) 
-                  VALUES (:orderId, :productId, :quantity, :unitPrice, :subtotal, NOW(), :type)";
-        $stmt = $conn->prepare($query);
-        $stmt->bindValue(':orderId', $orderId, PDO::PARAM_INT);
-        $stmt->bindValue(':productId', $productId, PDO::PARAM_INT);
-        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);
-        $stmt->bindValue(':unitPrice', $unitPrice, PDO::PARAM_STR);
-        $stmt->bindValue(':subtotal', $subtotal, PDO::PARAM_STR);
-        $stmt->bindValue(':type', $itemType, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt = $conn->prepare("INSERT INTO `OrderItems` (OrderId, ProductId, Quantity, Price, Subtotal, DateCreated, `ProductType`) VALUES (:orderId, :productId, :quantity, :unitPrice, :subtotal, NOW(), :type)");
+        $stmt->execute([
+            ':orderId' => $orderId,
+            ':productId' => $productId,
+            ':quantity' => $quantity,
+            ':unitPrice' => $unitPrice,
+            ':subtotal' => $subtotal,
+            ':type' => $itemType
+        ]);
 
         if ($itemType === 'cake') {
-            $checkStockQuery = "SELECT StockCount FROM `Cakes` WHERE Id = :productId";
-            $checkStockStmt = $conn->prepare($checkStockQuery);
-            $checkStockStmt->bindValue(':productId', $productId, PDO::PARAM_INT);
-            $checkStockStmt->execute();
-            $productStock = $checkStockStmt->fetch(PDO::FETCH_ASSOC)['StockCount'];
+            $checkStockStmt = $conn->prepare("SELECT StockCount FROM `Cakes` WHERE Id = :productId FOR UPDATE");
+            $checkStockStmt->execute([':productId' => $productId]);
+            $productStock = $checkStockStmt->fetchColumn();
 
-            if ($productStock >= $quantity) {
-                $updateStockQuery = "UPDATE `Cakes` SET StockCount = StockCount - :quantity WHERE Id = :productId";
-                $updateStockStmt = $conn->prepare($updateStockQuery);
-                $updateStockStmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);
-                $updateStockStmt->bindValue(':productId', $productId, PDO::PARAM_INT);
-                $updateStockStmt->execute();
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Not enough stock for Cake']);
-                exit();
+            if ($productStock < $quantity) {
+                throw new Exception("Not enough stock for Cake");
             }
 
+            $updateStockStmt = $conn->prepare("UPDATE `Cakes` SET StockCount = StockCount - :quantity WHERE Id = :productId");
+            $updateStockStmt->execute([':quantity' => $quantity, ':productId' => $productId]);
         } elseif ($itemType === 'giftbox') {
-            $giftBoxId = $item['id'];
-            
             foreach ($item['cakes'] as $cake) {
                 $cakeId = $cake['cakeId'];
                 $cakeQuantity = $cake['quantity'] * $quantity;
-        
-                $checkStockQuery = "SELECT StockCount FROM `Cakes` WHERE Id = :cakeId";
-                $checkStockStmt = $conn->prepare($checkStockQuery);
-                $checkStockStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
-                $checkStockStmt->execute();
-                $productStock = $checkStockStmt->fetch(PDO::FETCH_ASSOC)['StockCount'];
-        
-                if ($productStock >= $cakeQuantity) {
-                    $updateStockQuery = "UPDATE `Cakes` SET StockCount = StockCount - :cakeQuantity WHERE Id = :cakeId";
-                    $updateStockStmt = $conn->prepare($updateStockQuery);
-                    $updateStockStmt->bindValue(':cakeQuantity', $cakeQuantity, PDO::PARAM_INT);
-                    $updateStockStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
-                    $updateStockStmt->execute();
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Not enough stock for cake in gift box']);
-                    exit();
+                $checkStockStmt = $conn->prepare("SELECT StockCount FROM `Cakes` WHERE Id = :cakeId FOR UPDATE");
+                $checkStockStmt->execute([':cakeId' => $cakeId]);
+                $productStock = $checkStockStmt->fetchColumn();
+
+                if ($productStock < $cakeQuantity) {
+                    throw new Exception("Not enough stock for cake in gift box");
                 }
 
-                $giftBoxSelectionQuery = "INSERT INTO `GiftBoxSelection` (OrderItemId, CakeId, Quantity) 
-                                          VALUES (:orderItemId, :cakeId, :quantity)";
-                $giftBoxSelectionStmt = $conn->prepare($giftBoxSelectionQuery);
-                $giftBoxSelectionStmt->bindValue(':orderItemId', $orderId, PDO::PARAM_INT);
-                $giftBoxSelectionStmt->bindValue(':cakeId', $cakeId, PDO::PARAM_INT);
-                $giftBoxSelectionStmt->bindValue(':quantity', $cakeQuantity, PDO::PARAM_INT);
-                $giftBoxSelectionStmt->execute();
+                $updateStockStmt = $conn->prepare("UPDATE `Cakes` SET StockCount = StockCount - :cakeQuantity WHERE Id = :cakeId");
+                $updateStockStmt->execute([':cakeQuantity' => $cakeQuantity, ':cakeId' => $cakeId]);
+
+                $giftBoxSelectionStmt = $conn->prepare("INSERT INTO `GiftBoxSelection` (OrderItemId, CakeId, Quantity) VALUES (:orderItemId, :cakeId, :quantity)");
+                $giftBoxSelectionStmt->execute([
+                    ':orderItemId' => $orderId,
+                    ':cakeId' => $cakeId,
+                    ':quantity' => $cakeQuantity
+                ]);
             }
         }
     }
 
-    $queryPayment = "INSERT INTO `Payment` (CustomerId, OrderId, PaymentMethodId, DateCreated) 
-              VALUES (:customerId, :orderId, :paymentMethodId, NOW())";
-    $stmtPayment = $conn->prepare($queryPayment);
-    $stmtPayment->bindValue(':customerId', $customerId, PDO::PARAM_INT);
-    $stmtPayment->bindValue(':orderId', $orderId, PDO::PARAM_INT);
-    $stmtPayment->bindValue(':paymentMethodId', $paymentMethodId, PDO::PARAM_INT);
-    $stmtPayment->execute();
+    $stmtPayment = $conn->prepare("INSERT INTO `Payment` (CustomerId, OrderId, PaymentMethodId, DateCreated) VALUES (:customerId, :orderId, :paymentMethodId, :dateNow)");
+    $stmtPayment->execute([
+        ':customerId' => $customerId,
+        ':orderId' => $orderId,
+        ':paymentMethodId' => $paymentMethodId,
+        ':dateNow' => $now
+    ]);
+    $paymentId = $conn->lastInsertId();
 
-    if ($stmtPayment->execute()) {
-        $paymentId = $conn->lastInsertId();
-
-       switch (strtolower($paymentMethodName)) {
-        case 'paypal':
-            $paypalQuery = "INSERT INTO `PaypalPayment` (PaymentId, TransactionId, DateCreated) 
-                            VALUES (:paymentId, :transactionId, NOW())";
-            $paypalStmt = $conn->prepare($paypalQuery);
-            $paypalStmt->bindValue(':paymentId', $paymentId, PDO::PARAM_INT);
-            $paypalStmt->bindValue(':transactionId', $transactionId, PDO::PARAM_STR);
-            $paypalStmt->execute();
-            break;
-
-        case 'cash':
-            $cashQuery = "INSERT INTO `CashPayment` (PaymentId, DateCreated) 
-                          VALUES (:paymentId, NOW())";
-            $cashStmt = $conn->prepare($cashQuery);
-            $cashStmt->bindValue(':paymentId', $paymentId, PDO::PARAM_INT);
-            $cashStmt->execute();
-            break;
-        default:
-            error_log("Unsupported payment method: $paymentMethodName");
-            break;
+    if (strtolower($paymentMethodName) === 'paypal') {
+        $paypalStmt = $conn->prepare("INSERT INTO `PaypalPayment` (PaymentId, TransactionId, DateCreated) VALUES (:paymentId, :transactionId, :dateNow)");
+        $paypalStmt->execute([':paymentId' => $paymentId, ':transactionId' => $transactionId, ':dateNow' => $now]);
+    } elseif (strtolower($paymentMethodName) === 'cash') {
+        $cashStmt = $conn->prepare("INSERT INTO `CashPayment` (PaymentId, DateCreated) VALUES (:paymentId, :dateNow)");
+        $cashStmt->execute([':paymentId' => $paymentId, ':dateNow' => $now]);
     }
 
-    }
-
+    $conn->commit();
     echo json_encode(['success' => true, 'orderId' => $orderId]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Failed to process the order']);
+} catch (Exception $e) {
+    $conn->rollBack();
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-
-

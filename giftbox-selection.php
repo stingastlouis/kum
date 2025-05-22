@@ -1,11 +1,11 @@
-<?php  
+<?php
 include "includes/header.php";
 include './configs/db.php';
 
 $giftboxId = $_GET['id'] ?? null;
-if (!$giftboxId) {
-    echo "<p class='text-danger'>GiftBox ID not provided.</p>";
-    include "includes/footer.php";
+
+if (!$giftboxId || !is_numeric($giftboxId)) {
+    echo "<div class='alert alert-danger'>Invalid or missing GiftBox ID.</div>";
     exit;
 }
 
@@ -15,14 +15,13 @@ try {
     $giftbox = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$giftbox) {
-        echo "<p class='text-danger'>GiftBox not found.</p>";
-        include "includes/footer.php";
+        echo "<div class='alert alert-warning'>GiftBox not found.</div>";
         exit;
     }
 
-    $maxCakes = $giftbox['MaxCakes'];
-    $categoryFilter = '';
+    $maxCakes = (int)$giftbox['MaxCakes'];
     $params = [];
+    $categoryFilter = '';
 
     if (!empty($giftbox['CategoryId'])) {
         $categoryFilter = 'AND c.CategoryId = ?';
@@ -45,93 +44,106 @@ try {
     $cakeStmt->execute($params);
     $cakes = $cakeStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
-    include "includes/footer.php";
+    echo "<div class='alert alert-danger'>Database error: " . htmlspecialchars($e->getMessage()) . "</div>";
     exit;
 }
 ?>
 
 <style>
-.giftbox-selection-page {
-    background-color: #fff0f6;
-    font-family: 'Poppins', sans-serif;
-}
-.giftbox-selection-page .cake-title {
-    color: #d63384;
-    font-weight: bold;
-    font-family: 'Pacifico', cursive;
-}
-.giftbox-selection-page .cake-card {
-    background-color: #fff;
-    border-radius: 20px;
-    border: 2px solid #ffc8dd;
-    box-shadow: 0 5px 15px rgba(255, 192, 203, 0.3);
-    transition: transform 0.3s ease;
-    overflow: hidden;
-}
-.giftbox-selection-page .cake-card:hover {
-    transform: scale(1.03);
-}
-.giftbox-selection-page .card-title {
-    color: #ff69b4;
-    font-size: 1.2rem;
-    font-weight: bold;
-    font-family: 'Poppins', cursive;
-}
-.giftbox-selection-page .card-body p {
-    font-size: 0.9rem;
-    color: #555;
-}
-.giftbox-selection-page .card-img-top {
-    height: 180px;
-    object-fit: cover;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-}
-.giftbox-selection-page input.cake-quantity {
-    border-radius: 10px;
-    border: 1px solid #ffc8dd;
-    padding: 5px;
-}
-.giftbox-selection-page .btn-primary {
-    background-color: #ff69b4;
-    border-color: #ff69b4;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-family: 'Poppins', sans-serif;
-}
-.giftbox-selection-page .btn-primary:hover {
-    background-color: #ff85c1;
-    border-color: #ff85c1;
-}
-.giftbox-selection-page #cake-count-info {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #d63384;
-}
+    .giftbox-selection-page {
+        background-color: #fff0f6;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .giftbox-selection-page .cake-title {
+        color: #d63384;
+        font-weight: bold;
+        font-family: 'Pacifico', cursive;
+    }
+
+    .giftbox-selection-page .cake-card {
+        background-color: #fff;
+        border-radius: 20px;
+        border: 2px solid #ffc8dd;
+        box-shadow: 0 5px 15px rgba(255, 192, 203, 0.3);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+
+    .giftbox-selection-page .cake-card:hover {
+        transform: scale(1.03);
+    }
+
+    .giftbox-selection-page .card-title {
+        color: #ff69b4;
+        font-size: 1.2rem;
+        font-weight: bold;
+        font-family: 'Poppins', cursive;
+    }
+
+    .giftbox-selection-page .card-body p {
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .giftbox-selection-page .card-img-top {
+        height: 180px;
+        object-fit: cover;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+    }
+
+    .giftbox-selection-page input.cake-quantity {
+        border-radius: 10px;
+        border: 1px solid #ffc8dd;
+        padding: 5px;
+    }
+
+    .giftbox-selection-page .btn-primary {
+        background-color: #ff69b4;
+        border-color: #ff69b4;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .giftbox-selection-page .btn-primary:hover {
+        background-color: #ff85c1;
+        border-color: #ff85c1;
+    }
+
+    .giftbox-selection-page #cake-count-info {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #d63384;
+    }
 </style>
 
-<div style="background-color: #fff0f6">
-    <div class="giftbox-selection-page container py-4">
-        <h2 class="cake-title text-center mb-4">Select up to <?= $maxCakes ?> cakes for: <?= htmlspecialchars($giftbox['Name']) ?> Giftbox</h2>
-        <h3 class="cake-title text-center mb-4">Price: <?= htmlspecialchars($giftbox['Price']) ?></h3>
+<div class="giftbox-selection-page" style="background-color: #fff0f6">
+    <div class="container py-4">
+        <h2 class="cake-title text-center mb-3">
+            Select up to <?= htmlspecialchars($maxCakes) ?> cakes for: <?= htmlspecialchars($giftbox['Name']) ?> Giftbox
+        </h2>
+        <h4 class="cake-title text-center mb-4">Price: <?= htmlspecialchars(number_format($giftbox['Price'], 2)) ?> Rs</h4>
 
-        <form id="giftboxForm">
-            <input type="hidden" name="giftboxId" value="<?= $giftbox['Id'] ?>">
+        <form id="giftboxForm" novalidate>
+            <input type="hidden" name="giftboxId" value="<?= htmlspecialchars($giftbox['Id']) ?>">
             <div class="row">
                 <?php foreach ($cakes as $cake): ?>
-                    <div class="col-md-3 mb-4">
-                        <div class="cake-card shadow-sm">
-                            <img src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" class="card-img-top mb-2" alt="<?= htmlspecialchars($cake['Name']) ?>">
+                    <div class="col-sm-6 col-lg-3 mb-4">
+                        <div class="cake-card shadow-sm h-100 d-flex flex-column justify-content-between">
+                            <img src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" class="card-img-top" alt="<?= htmlspecialchars($cake['Name']) ?>">
                             <div class="card-body p-2">
                                 <h5 class="card-title"><?= htmlspecialchars($cake['Name']) ?></h5>
                                 <p><?= htmlspecialchars($cake['Description']) ?></p>
                                 <div class="form-group">
-                                    <label>Quantity:</label>
-                                    <input type="number" class="form-control cake-quantity" 
-                                        name="cake_<?= $cake['Id'] ?>" 
-                                        data-cake-id="<?= $cake['Id'] ?>" 
+                                    <label for="cake-<?= $cake['Id'] ?>">Quantity:</label>
+                                    <input type="number"
+                                        class="form-control cake-quantity"
+                                        id="cake-<?= $cake['Id'] ?>"
+                                        name="cake_<?= $cake['Id'] ?>"
+                                        data-cake-id="<?= $cake['Id'] ?>"
                                         min="0"
                                         value="0">
                                 </div>
@@ -150,78 +162,67 @@ try {
 </div>
 
 <script>
-const maxCakes = <?= $maxCakes ?>;
-const quantityInputs = document.querySelectorAll('.cake-quantity');
-const infoText = document.getElementById('cake-count-info');
-const submitButton = document.getElementById('submitGiftBox');
+    const maxCakes = <?= $maxCakes ?>;
+    const quantityInputs = document.querySelectorAll('.cake-quantity');
+    const infoText = document.getElementById('cake-count-info');
+    const submitButton = document.getElementById('submitGiftBox');
 
-function updateTotalCount() {
-    let total = 0;
-    quantityInputs.forEach(input => {
-        total += parseInt(input.value || 0);
-    });
-    infoText.textContent = `Selected: ${total} / ${maxCakes}`;
-    submitButton.disabled = total !== maxCakes;
-    quantityInputs.forEach(input => {
-        const currentVal = parseInt(input.value || 0);
-        const maxAttr = parseInt(input.getAttribute('max'));
-        input.max = Math.min(maxCakes - (total - currentVal), maxAttr);
-    });
-}
-
-quantityInputs.forEach(input => {
-    input.addEventListener('input', () => {
-        let total = 0;
-        quantityInputs.forEach(i => {
-            total += parseInt(i.value || 0);
-        });
-        if (total > maxCakes) {
-            alert(`You can only select up to ${maxCakes} cakes in total.`);
-            input.value = 0;
-        }
-        updateTotalCount();
-    });
-});
-
-updateTotalCount();
-
-document.getElementById('giftboxForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const selectedCakes = [];
-    quantityInputs.forEach(input => {
-        const quantity = parseInt(input.value || 0);
-        if (quantity > 0) {
-            selectedCakes.push({
-                cakeId: input.dataset.cakeId,
-                quantity: quantity
-            });
-        }
-    });
-    const totalSelected = selectedCakes.reduce((acc, item) => acc + item.quantity, 0);
-    if (totalSelected < maxCakes) {
-        alert(`You need to select exactly ${maxCakes} cakes.`);
-        return;
+    function updateTotalCount() {
+        let total = Array.from(quantityInputs).reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+        infoText.textContent = `Selected: ${total} / ${maxCakes}`;
+        submitButton.disabled = total !== maxCakes;
     }
-    const cart = JSON.parse(localStorage.getItem("cake-cart")) || [];
-    cart.push({
-        type: "giftbox",
-        id: <?= json_encode($giftbox['Id']) ?>,
-        name: <?= json_encode($giftbox['Name']) ?>,
-        quantity: 1,
-        price: <?= $giftbox['Price'] ?>,
-        cakes: selectedCakes
-    });
-    localStorage.setItem("cake-cart", JSON.stringify(cart));
-    updateCartUI(cart);
 
     quantityInputs.forEach(input => {
-        input.value = 0;
+        input.addEventListener('input', () => {
+            let total = Array.from(quantityInputs).reduce((sum, inp) => sum + (parseInt(inp.value) || 0), 0);
+
+            if (total > maxCakes) {
+                alert(`You can only select up to ${maxCakes} cakes.`);
+                input.value = 0;
+            }
+
+            updateTotalCount();
+        });
+    });
+
+    document.getElementById('giftboxForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const selectedCakes = Array.from(quantityInputs).map(input => {
+            const quantity = parseInt(input.value || 0);
+            return quantity > 0 ? {
+                cakeId: input.dataset.cakeId,
+                quantity
+            } : null;
+        }).filter(Boolean);
+
+        const totalSelected = selectedCakes.reduce((acc, item) => acc + item.quantity, 0);
+
+        if (totalSelected !== maxCakes) {
+            alert(`You need to select exactly ${maxCakes} cakes.`);
+            return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem("cake-cart")) || [];
+        cart.push({
+            type: "giftbox",
+            id: <?= json_encode($giftbox['Id']) ?>,
+            name: <?= json_encode($giftbox['Name']) ?>,
+            quantity: 1,
+            price: <?= json_encode($giftbox['Price']) ?>,
+            cakes: selectedCakes
+        });
+
+        localStorage.setItem("cake-cart", JSON.stringify(cart));
+        updateCartUI(cart);
+
+        // Reset the form
+        quantityInputs.forEach(input => input.value = 0);
+        updateTotalCount();
     });
 
     updateTotalCount();
-
-    
-});
 </script>
 
 <?php include "includes/footer.php"; ?>

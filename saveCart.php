@@ -9,4 +9,3 @@ if (isset($data['cart'])) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Cart data missing']);
 }
-?>

@@ -1,10 +1,10 @@
 <?php include "./includes/header.php" ?>
-<?php 
+<?php
 
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-    $cookieShelfLife = 7 * 24 * 60 * 60; 
+    $cookieShelfLife = 7 * 24 * 60 * 60;
     session_set_cookie_params($cookieShelfLife);
 }
 

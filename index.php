@@ -1,4 +1,4 @@
-<?php include "includes/header.php" ?> 
+<?php include "includes/header.php" ?>
 <header class="bg-light py-5" style="background: linear-gradient(to right, #ffd6e0, #ffe6f0);">
     <div class="container">
         <div class="row align-items-center flex-column-reverse flex-md-row">
@@ -14,7 +14,7 @@
     </div>
 </header>
 
-<?php 
+<?php
 include './configs/db.php';
 try {
     $stmt = $conn->prepare("SELECT * FROM Cakes ORDER BY DateCreated DESC LIMIT 3");
@@ -43,11 +43,10 @@ try {
             <?php foreach ($cakes as $cake): ?>
                 <div class="col">
                     <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
-                        <img 
-                            src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" 
-                            class="card-img-top" 
-                            alt="<?= htmlspecialchars($cake['Name']) ?>"
-                        >
+                        <img
+                            src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>"
+                            class="card-img-top"
+                            alt="<?= htmlspecialchars($cake['Name']) ?>">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($cake['Name']) ?></h5>
                             <p class="card-text"><?= htmlspecialchars($cake['Description']) ?></p>
@@ -69,11 +68,10 @@ try {
             <?php foreach ($giftboxes as $giftbox): ?>
                 <div class="col">
                     <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
-                        <img 
-                            src="./assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>" 
-                            class="card-img-top" 
-                            alt="<?= htmlspecialchars($giftbox['Name']) ?>"
-                        >
+                        <img
+                            src="./assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>"
+                            class="card-img-top"
+                            alt="<?= htmlspecialchars($giftbox['Name']) ?>">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($giftbox['Name']) ?></h5>
                             <p class="card-text">Max Cakes: <?= $giftbox['MaxCakes'] ?></p>

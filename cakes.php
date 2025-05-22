@@ -1,4 +1,7 @@
-<?php include "includes/header.php" ?>
+<?php
+include "includes/header.php";
+include './configs/db.php';
+?>
 
 <link rel="stylesheet" href="./assets/css/cakes.css">
 
@@ -6,7 +9,7 @@
     <h1 class="text-center mb-5 cake-title"> Our Yummiest Cakes </h1>
     <div class="row">
         <?php
-        include './configs/db.php';
+
 
         try {
             $stmt = $conn->prepare("
@@ -34,7 +37,7 @@
                     echo ' 
                         <div class="col-md-3 mb-4">
                             <div class="cake-card shadow-sm d-flex flex-column">
-                                <img src="./assets/uploads/' . htmlspecialchars($cake['ImagePath']) . '" class="card-img-top mb-2" alt="' . htmlspecialchars($cake['Name']) . '">
+                                <img src="./assets/uploads/cakes/' . htmlspecialchars($cake['ImagePath']) . '" class="card-img-top mb-2" alt="' . htmlspecialchars($cake['Name']) . '">
                                 <div class="card-body d-flex flex-column p-2">
                                     <h5 class="card-title">' . htmlspecialchars($cake['Name']) . '</h5>
                                     <p>' . htmlspecialchars($cake['Description']) . '</p>
