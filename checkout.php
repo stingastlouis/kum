@@ -214,6 +214,14 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const methodText = this.options[this.selectedIndex].text.trim().toLowerCase();
             selectedPaymentMethodInput.value = this.value;
 
+            const dateVal = scheduleDateInput.value;
+            if (!dateVal) {
+                alert('Please select a schedule date before choosing payment.');
+                this.value = '';
+                return;
+            }
+
+
             if (methodText === 'paypal') {
                 paypalContainer.style.display = 'block';
                 proceedButton.style.display = 'none';
