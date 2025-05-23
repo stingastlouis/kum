@@ -8,12 +8,18 @@
             </div>
         </div>
         <div class="row d-flex justify-content-center">
+            <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+                <div class="alert alert-success text-center w-100" role="alert">
+                    Your message has been sent successfully.
+                </div>
+            <?php endif; ?>
             <div class="col-md-6 col-xl-4">
                 <div>
-                    <form class="p-3 p-xl-4" method="post">
-                        <div class="mb-3"><input class="form-control" type="text" id="name-1" name="name" placeholder="Name"></div>
+                    <form action="./user-profile/addMessage.php" class=" p-3 p-xl-4" method="post">
                         <div class="mb-3"><input class="form-control" type="email" id="email-1" name="email" placeholder="Email"></div>
-                        <div class="mb-3"><textarea class="form-control" id="message-1" name="message" rows="6" placeholder="Message"></textarea></div>
+                        <div class="mb-3"><input class="form-control" type="text" id="subject-1" name="subject" placeholder="Enter the subject" required></div>
+
+                        <div class="mb-3"><textarea class="form-control" id="query" name="query" rows="4" placeholder="Describe your query..." required></textarea></div>
                         <div><button class="btn btn-secondary shadow d-block w-100" type="submit">Send </button></div>
                     </form>
                 </div>

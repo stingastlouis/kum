@@ -207,6 +207,23 @@ CREATE TABLE GiftBoxSelection (
     FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE
 );
 
+CREATE TABLE messages (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    SenderType ENUM('guest', 'customer') NOT NULL,
+    SenderId INT NULL,
+    GuestName VARCHAR(100),
+    GuestEmail VARCHAR(100),
+    RecipientId INT NULL,
+    Subject VARCHAR(255) NOT NULL,
+    Content TEXT NOT NULL,
+    `Read` BOOLEAN DEFAULT FALSE,
+    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    DateUpdated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (SenderId) REFERENCES Customer(Id),
+    FOREIGN KEY (RecipientId) REFERENCES Employee(Id)
+);
+
+
 -- Order Statuses
 INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
 INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());

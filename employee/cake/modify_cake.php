@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             VALUES (?, ?, ?, ?)");
         $statusInsertStmt->execute([$cakeId, $statusId, $employeeId, $now]);
 
-        redirectWithMessage("Cake updated successfully!", true);
+        redirectWithMessage("../cake.php", "Cake modify successfully!", true);
     } catch (Exception $e) {
         redirectWithMessage("../cake.php", "An error occurred: " . $e->getMessage());
     }

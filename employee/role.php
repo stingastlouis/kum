@@ -6,7 +6,7 @@ include '../configs/db.php';
 $success = isset($_GET["success"]) ? $_GET["success"] : null;
 
 
-$limit = 10; 
+$limit = 10;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
@@ -41,7 +41,7 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="table-responsive">
                 <table class="table table-striped" id="dataTable">
-                    <thead class="table-dark">
+                    <thead class="table-secondary">
                         <tr>
                             <th>Id</th>
                             <th>Role Name</th>
@@ -160,12 +160,12 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     document.querySelectorAll('.btn-del').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             document.getElementById('roleIdToDelete').value = this.getAttribute('data-id');
         });
     });
 
-    document.getElementById('searchInput').addEventListener('input', function () {
+    document.getElementById('searchInput').addEventListener('input', function() {
         const query = this.value.toLowerCase();
         document.querySelectorAll('#dataTable tbody tr').forEach(row => {
             const roleName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();

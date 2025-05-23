@@ -1,10 +1,20 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'auth.php';
+
+include '../configs/db.php';
 
 $employeeName = $_SESSION['employee_fullname'] ?? null;
 $employeeRole = $_SESSION['employee_role'] ?? null;
+$unreadCount = 0;
+if ($employeeName) {
+    try {
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM `Messages` WHERE `Read` = 0");
+        $stmt->execute();
+        $unreadCount = $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        error_log("DB Error: " . $e->getMessage());
+    }
+}
 
 require_once 'popupmessage.php';
 ?>
@@ -37,46 +47,49 @@ require_once 'popupmessage.php';
             </button>
 
             <div class="collapse navbar-collapse" id="topNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
-                    <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="employee.php">Employees</a></li>
-                    <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
-                    <li class="nav-item"><a class="nav-link" href="customer.php">Customers</a></li>
-                </ul>
+                <?php if (isEmployeeLoggedIn()): ?>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_VIEWER])): ?>
+                            <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
+                            <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
+                            <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="employee.php">Employees</a></li>
+                            <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
+                            <li class="nav-item"><a class="nav-link" href="customer.php">Customers</a></li>
+                            <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
+                        <?php endif; ?>
+                        <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
+                            <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
+                        <?php endif; ?>
+                    </ul>
 
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item dropdown me-3">
-                        <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="badge bg-danger badge-counter">7</span>
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messagesDropdown">
-                            <li>
-                                <h6 class="dropdown-header">Message Center</h6>
+                    <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_VIEWER])): ?>
+                        <ul class="navbar-nav mb-2 mb-lg-0">
+                            <li class="nav-item d-flex align-items-center me-3">
+                                <a class="nav-link position-relative" href="message.php" title="Go to messages">
+                                    <i class="fas fa-envelope"></i>
+                                    <?php if ($unreadCount > 0): ?>
+                                        <span class="badge bg-danger position-absolute top-1 start-100 translate-middle badge-counter">
+                                            <?= $unreadCount ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
                             </li>
-                            <li><a class="dropdown-item" href="#">New message from Emily</a></li>
-                            <li><a class="dropdown-item" href="#">Photos received</a></li>
-                            <li><a class="dropdown-item" href="#">Monthly report looks good</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-center" href="#">Show All Messages</a></li>
-                        </ul>
-                    </li>
+                        <?php endif; ?>
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="d-none d-lg-inline text-white small me-2"><?php echo $employeeName . " - " . $employeeRole ?></span> </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="employee-logout.php">Logout</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="d-none d-lg-inline text-white small me-2"><?php echo $employeeName . " - " . $employeeRole ?></span> </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="employee-logout.php">Logout</a></li>
+                            </ul>
+                        </li>
                         </ul>
-                    </li>
-                </ul>
+                    <?php endif; ?>
             </div>
+
         </div>
     </nav>
     <br>
