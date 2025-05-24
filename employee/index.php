@@ -1,11 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
+include 'auth.php';
 
 if (!isset($_SESSION['employeeId'])) {
     header("Location: ./employee-login.php");
     exit;
+}
+
+if (strtolower($_SESSION['employee_role']) == ROLE_DELIVERY) {
+    header("Location: ./delivery.php");
 }
 
 include 'includes/header.php';

@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = date('Y-m-d H:i:s');
 
     if (empty($orderId) || empty($statusId) || empty($employeeId)) {
-        redirectWithMessage("../order.php", "Missing required fields");
+        redirectWithMessage("../delivery.php", "Missing required fields");
     }
 
     try {
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$delivery) {
             $conn->rollBack();
-            redirectWithMessage("../order.php", "Delivery not found for this order");
+            redirectWithMessage("../delivery.php", "Delivery not found for this order");
         }
 
         $deliveryId = $delivery['Id'];
@@ -39,14 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conn->commit();
 
-        redirectWithMessage("../order.php", "Delivery status updated successfully!", true);
+        redirectWithMessage("../delivery.php", "Delivery status updated successfully!", true);
     } catch (PDOException $e) {
         if ($conn->inTransaction()) {
             $conn->rollBack();
         }
-        redirectWithMessage("../order.php", "Database Error: " . $e->getMessage());
+        redirectWithMessage("../delivery.php", "Database Error: " . $e->getMessage());
     }
 } else {
-    header("Location: ../order.php");
+    header("Location: ../delivery.php");
     exit;
 }

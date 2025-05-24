@@ -196,7 +196,7 @@ $totalPages = ceil($totalOrders / $limit);
                                         <form method="POST" action="status/add_deliveryStatus.php" style="margin: 0;">
                                             <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
                                             <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
-                                            <select name="delivery_id" class="form-select form-select-sm"
+                                            <select name="status_id" class="form-select form-select-sm"
                                                 style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
                                                 onchange="this.form.submit()">
                                                 <option value="" disabled selected>Change Delivery Status</option>

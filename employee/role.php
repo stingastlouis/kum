@@ -32,11 +32,6 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <div class="text-md-end dataTables_filter" id="dataTable_filter">
-                        <label class="form-label">
-                            <input type="search" class="form-control" aria-controls="dataTable" placeholder="Search roles" id="searchInput">
-                        </label>
-                    </div>
                 </div>
             </div>
             <div class="table-responsive">
@@ -46,7 +41,6 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th>Id</th>
                             <th>Role Name</th>
                             <th>Date Created</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,9 +49,6 @@ $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($role['Id']) ?></td>
                                 <td><?= htmlspecialchars($role['Name']) ?></td>
                                 <td><?= htmlspecialchars(date('d M Y, H:i', strtotime($role['DateCreated']))) ?></td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm btn-del" data-bs-toggle="modal" data-bs-target="#deleteRoleModal" data-id="<?= $role['Id'] ?>">Delete</button>
-                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

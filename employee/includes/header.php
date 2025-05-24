@@ -50,18 +50,18 @@ require_once 'popupmessage.php';
                 <?php if (isEmployeeLoggedIn()): ?>
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_VIEWER])): ?>
-                            <li class="nav-item"><a class="nav-link active" href="index.php">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
                             <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
                             <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
                             <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
                             <li class="nav-item"><a class="nav-link" href="employee.php">Employees</a></li>
-                            <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
+
                             <li class="nav-item"><a class="nav-link" href="customer.php">Customers</a></li>
                             <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
                         <?php endif; ?>
                         <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
-                            <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
+                            <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
                         <?php endif; ?>
                     </ul>
 

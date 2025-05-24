@@ -2,9 +2,11 @@
 include '../configs/db.php';
 
 $currentYear = date('Y');
+
+// Initialize types with 0 to ensure chart works even if there's no data
 $revenueByType = [
-    'event' => 0,
-    'product' => 0
+    'cake' => 0,
+    'giftbox' => 0
 ];
 
 $sql = "
@@ -19,23 +21,27 @@ $stmt->bindValue(':currentYear', $currentYear, PDO::PARAM_INT);
 $stmt->execute();
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Optional: for debugging
+// var_dump($results);
+
 foreach ($results as $row) {
-    $type = strtolower($row['ProductType']);
+    $type = strtolower($row['ProductType']); // Expecting 'cake' or 'giftbox'
     if (isset($revenueByType[$type])) {
         $revenueByType[$type] = (float)$row['totalRevenue'];
     }
 }
 
-$sourceIncomeLabels = ['Event', 'Product'];
+$sourceIncomeLabels = ['Cake', 'Giftbox'];
 $data = [
-    $revenueByType['event'],
-    $revenueByType['product']
+    $revenueByType['cake'],
+    $revenueByType['giftbox']
 ];
 
 $sourceIncomeLabelsJson = json_encode($sourceIncomeLabels);
 $dataJson = json_encode($data);
 ?>
 
+<!-- Chart Card -->
 <div class="col-lg-5 col-xl-4">
     <div class="card shadow mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -46,22 +52,25 @@ $dataJson = json_encode($data);
                 <canvas id="revenueChart"></canvas>
             </div>
             <div class="text-center small mt-4">
-                <span class="me-2"><i class="fas fa-circle" style="color: #567db3;"></i>&nbsp;Event</span>
-                <span class="me-2"><i class="fas fa-circle" style="color: #a256b3;"></i>&nbsp;Product</span>
+                <span class="me-2"><i class="fas fa-circle" style="color: #4e73df;"></i>&nbsp;Cake</span>
+                <span class="me-2"><i class="fas fa-circle" style="color: #1cc88a;"></i>&nbsp;Giftbox</span>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-    const sourceIncomelabels = <?php echo $sourceIncomeLabelsJson; ?>;
+    const sourceIncomeLabels = <?php echo $sourceIncomeLabelsJson; ?>;
     const data = <?php echo $dataJson; ?>;
 
     const revenueChart = new Chart(ctxRevenue, {
         type: 'doughnut',
         data: {
-            labels: sourceIncomelabels,
+            labels: sourceIncomeLabels,
             datasets: [{
                 label: 'Revenue',
                 data: data,

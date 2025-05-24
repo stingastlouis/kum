@@ -5,8 +5,6 @@ include 'includes/header.php';
 
 include '../configs/db.php';
 
-$isSuccess = isset($_GET["success"]) ? $_GET["success"] : null;
-
 $limit = 10;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;

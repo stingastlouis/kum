@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 function requireRole(array $allowedRoles)
 {
     if (!isEmployeeInRoles($allowedRoles)) {
-        header('Location: ../unauthorized.php');
+        header('Location: ../unauthorised.php');
         exit;
     }
 }
@@ -42,7 +42,7 @@ function isEmployeeLoggedIn(): bool
 function requireEmployeeLogin()
 {
     if (!isset($_SESSION['employeeId'])) {
-        header("Location: ./employee-login.php");
+        header("Location: ../unauthorised.php");
         exit;
     }
 }
