@@ -83,7 +83,7 @@
                                         <td>{$index}</td>
                                         <td>{$orderDate}</td>
                                         <td>{$itemList}</td>
-                                        <td>Rs " . number_format($orderTotals[$orderId], 2) . "</td>
+                                        <td>$ " . number_format($orderTotals[$orderId], 2) . "</td>
                                         <td>{$orderStatuses[$orderId]}</td>
                                     </tr>
                                 ";

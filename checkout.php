@@ -6,14 +6,12 @@ $cartItems = $_SESSION['cart'] ?? [];
 $customerId = $_SESSION['customerId'] ?? 1;
 
 $totalAmount = 0;
-$taxRate = 0.15;
 $deliveryFee = 20;
 
 foreach ($cartItems as $item) {
     $totalAmount += $item['price'] * $item['quantity'];
 }
-$taxAmount = $totalAmount * $taxRate;
-$grandTotal = $totalAmount + $taxAmount;
+$grandTotal = $totalAmount;
 $paymentMethods = [];
 
 $stmt = $conn->query("SELECT id, name FROM paymentmethod");
@@ -51,23 +49,19 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= htmlspecialchars($cartItem['name']) ?></td>
                             <td><?= htmlspecialchars($cartItem['type']) ?></td>
                             <td><?= intval($cartItem['quantity']) ?></td>
-                            <td>USD <?= number_format($cartItem['price'], 2) ?></td>
-                            <td>USD <?= number_format($cartItem['price'] * $cartItem['quantity'], 2) ?></td>
+                            <td>$ <?= number_format($cartItem['price'], 2) ?></td>
+                            <td>$ <?= number_format($cartItem['price'] * $cartItem['quantity'], 2) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <th colspan="3" class="text-end">Tax (<?= $taxRate * 100 ?>%)</th>
-                        <th colspan="2" id="tax-amount">USD <?= number_format($taxAmount, 2) ?></th>
-                    </tr>
                     <tr id="delivery-row" style="display: none;">
                         <th colspan="3" class="text-end">Delivery Fee</th>
-                        <th colspan="2" id="delivery-amount">USD <?= number_format($deliveryFee, 2) ?></th>
+                        <th colspan="2" id="delivery-amount">$ <?= number_format($deliveryFee, 2) ?></th>
                     </tr>
                     <tr>
                         <th colspan="3" class="text-end">Total</th>
-                        <th colspan="2" id="total-amount">USD <?= number_format($grandTotal, 2) ?></th>
+                        <th colspan="2" id="total-amount">$ <?= number_format($grandTotal, 2) ?></th>
                     </tr>
                 </tfoot>
             </table>
@@ -80,7 +74,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" value="" id="deliveryCheckbox">
                 <label class="form-check-label" for="deliveryCheckbox">
-                    Add delivery (USD <?= number_format($deliveryFee, 2) ?>)
+                    Add delivery ($ <?= number_format($deliveryFee, 2) ?>)
                 </label>
             </div>
 
@@ -206,7 +200,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 lngInput.value = '';
             }
 
-            totalAmountField.textContent = 'USD ' + newTotal.toFixed(2);
+            totalAmountField.textContent = '$ ' + newTotal.toFixed(2);
             finalAmountInput.value = newTotal.toFixed(2);
         });
 
@@ -263,6 +257,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             })
                         }).then(res => res.json())
                         .then(response => {
+                            localStorage.removeItem("cake-cart");
                             const modal = new bootstrap.Modal(document.getElementById('orderResponseModal'));
                             const messageEl = document.getElementById('orderResponseMessage');
                             const headerEl = document.getElementById('modalHeader');
@@ -311,6 +306,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     const successBtn = document.getElementById('successRedirectBtn');
 
                     if (response.success) {
+                        localStorage.removeItem("cake-cart");
                         messageEl.textContent = "Order placed successfully!";
                         headerEl.classList.remove("bg-danger");
                         headerEl.classList.add("bg-success", "text-white");

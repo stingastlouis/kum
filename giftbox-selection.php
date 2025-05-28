@@ -125,7 +125,7 @@ try {
         <h2 class="cake-title text-center mb-3">
             Select up to <?= htmlspecialchars($maxCakes) ?> cakes for: <?= htmlspecialchars($giftbox['Name']) ?> Giftbox
         </h2>
-        <h4 class="cake-title text-center mb-4">Price: <?= htmlspecialchars(number_format($giftbox['Price'], 2)) ?> Rs</h4>
+        <h4 class="cake-title text-center mb-4">Price: $<?= htmlspecialchars(number_format($giftbox['Price'], 2)) ?> </h4>
 
         <form id="giftboxForm" novalidate>
             <input type="hidden" name="giftboxId" value="<?= htmlspecialchars($giftbox['Id']) ?>">
@@ -220,6 +220,7 @@ try {
         // Reset the form
         quantityInputs.forEach(input => input.value = 0);
         updateTotalCount();
+        window.location.href = "giftbox.php"
     });
 
     updateTotalCount();

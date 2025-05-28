@@ -9,7 +9,7 @@
 
   <div class="d-flex justify-content-between mb-3">
     <strong class="text-pink">Total:</strong>
-    <span id="cart-total" class="fw-bold text-dark">USD 0.00</span>
+    <span id="cart-total" class="fw-bold text-dark">$ 0.00</span>
   </div>
 
   <button id="checkout-button" class="btn btn-pink w-100 rounded-pill"> Checkout</button>

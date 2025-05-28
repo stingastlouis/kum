@@ -8,7 +8,7 @@
                 <a href="cakes.php" class="btn btn-lg" style="background-color: #ff69b4; color: white; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);">Explore Cakes</a>
             </div>
             <div class="col-md-6 text-center">
-                <img src="assets/img/home/cake.png" class="img-fluid rounded" alt="Hero Cake Image" style="max-height: 400px;">
+                <img src="assets/img/cake.png" class="img-fluid rounded" alt="Hero Cake Image" style="max-height: 400px;">
             </div>
         </div>
     </div>
@@ -50,8 +50,7 @@ try {
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($cake['Name']) ?></h5>
                             <p class="card-text"><?= htmlspecialchars($cake['Description']) ?></p>
-                            <p class="fw-bold text-pink mt-auto" style="color: #d63384;">Rs<?= number_format($cake['Price'], 2) ?></p>
-                            <a href="cake.php?id=<?= $cake['Id'] ?>" class="btn btn-sm" style="background-color: #ff69b4; color: white;">Go to Cake</a>
+                            <p class="fw-bold text-pink mt-auto" style="color: #d63384;">$<?= number_format($cake['Price'], 2) ?></p>
                         </div>
                     </div>
                 </div>
@@ -74,9 +73,8 @@ try {
                             alt="<?= htmlspecialchars($giftbox['Name']) ?>">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($giftbox['Name']) ?></h5>
-                            <p class="card-text">Max Cakes: <?= $giftbox['MaxCakes'] ?></p>
-                            <p class="card-text">Price: USD <?= number_format($giftbox['Price'], 2) ?></p>
-                            <a href="giftbox-selection.php?id=<?= $giftbox['Id'] ?>&categoryId=<?= $giftbox['CategoryId'] ?>" class="btn btn-sm" style="background-color: #ff69b4; color: white;">Go to Gift Box</a>
+                            <p class="card-text">Cake Selection: <?= $giftbox['MaxCakes'] ?></p>
+                            <p class="card-text">Price: $ <?= number_format($giftbox['Price'], 2) ?></p>
                         </div>
                     </div>
                 </div>

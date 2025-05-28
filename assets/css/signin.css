@@ -1,0 +1,24 @@
+.text-pink {
+  color: #d63384;
+}
+
+.bg-light-pink {
+  background-color: #fff0f5;
+}
+
+.btn-primary {
+  background-color: #ff69b4;
+  border-color: #ff69b4;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color: #ff85c1;
+  border-color: #ff85c1;
+}
+
+.alert-danger {
+  background-color: #ffe0ec;
+  color: #d63384;
+  border-color: #f8bbd0;
+}

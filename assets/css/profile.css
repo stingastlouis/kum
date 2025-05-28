@@ -1,0 +1,45 @@
+body {
+  background: #fff0f6;
+  font-family: "Montserrat", sans-serif;
+}
+
+.profile-tabs {
+  background-color: #ffe6f0;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.nav-tabs .nav-link {
+  border-radius: 20px;
+  background-color: #fddde6;
+  color: #c2185b;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #f8bbd0;
+  color: #880e4f;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(255, 105, 180, 0.15);
+  background: #fff;
+}
+
+h1,
+h3,
+h4 {
+  color: #ad1457;
+}
+
+.btn-primary {
+  background-color: #ec407a;
+  border-color: #ec407a;
+}
+
+.btn-primary:hover {
+  background-color: #d81b60;
+  border-color: #d81b60;
+}

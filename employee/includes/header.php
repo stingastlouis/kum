@@ -33,6 +33,7 @@ require_once 'popupmessage.php';
     <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="../assets/css/dropdown.css">
     <link rel="stylesheet" href="../assets/css/board-image.css">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
 </head>
 
 <body id="page-top">

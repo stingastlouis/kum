@@ -12,13 +12,14 @@ function saveCart(cart) {
 function addToCart(id, name, price, quantity, type) {
   const cart = loadCart();
   const existingItem = cart.find(
-    (item) => item.id === id && item.type === type
+    (item) =>
+      String(item.id) === String(id) && String(item.type) === String(type)
   );
 
   if (existingItem) {
     existingItem.quantity += quantity;
   } else {
-    cart.push({ id, name, price, quantity, type });
+    cart.push({ id: String(id), name, price, quantity, type: String(type) });
   }
 
   saveCart(cart);
@@ -27,13 +28,11 @@ function addToCart(id, name, price, quantity, type) {
 
 function removeFromCart(id, type) {
   let cart = loadCart();
-  console.log("before", cart);
   cart = cart.filter((item) => {
-    console.log(item.id, id);
-    console.log(item.type, type);
-    return !(item.id === id && item.type === type);
+    const match = !(String(item.id) === String(id) && item.type === type);
+    return match;
   });
-  console.log("clicked", cart);
+
   saveCart(cart);
   updateCartUI(cart);
 }
@@ -68,10 +67,10 @@ function updateCartUI(cart) {
       listItem.innerHTML = `
         <div>
           <strong>${item.name} (${item.type})</strong><br>
-          Usd ${item.price.toFixed(2)} x ${item.quantity}
+          $ ${item.price.toFixed(2)} x ${item.quantity}
         </div>
         <div>
-          <span>Usd ${itemTotal.toFixed(2)}</span>
+          <span>$ ${itemTotal.toFixed(2)}</span>
           <button class="btn btn-danger btn-sm remove-from-cart" data-id="${
             item.id
           }" data-type="${item.type}">Remove</button>
@@ -82,7 +81,7 @@ function updateCartUI(cart) {
   }
 
   if (cartTotal) {
-    cartTotal.textContent = `Usd ${total.toFixed(2)}`;
+    cartTotal.textContent = `$ ${total.toFixed(2)}`;
   }
 
   updateCartIconCount();
@@ -118,6 +117,7 @@ function initCart() {
 
       if (quantity > 0 && quantity <= stock) {
         addToCart(id, name, price, quantity, type);
+        quantityInput.value = 1;
       } else {
         alert("Invalid quantity!");
       }
