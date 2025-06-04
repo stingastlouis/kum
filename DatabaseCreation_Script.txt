@@ -218,6 +218,16 @@ CREATE TABLE OrderAssignment (
     FOREIGN KEY (AssignedBy) REFERENCES Employee(Id) ON DELETE SET NULL
 );
 
+CREATE TABLE Receipt (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    OrderId INT NOT NULL,
+    FileName VARCHAR(100) NOT NULL,
+    ExternalId VARCHAR(100) NOT NULL UNIQUE,
+    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id)
+);
+
+
 CREATE TABLE messages (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     SenderType ENUM('guest', 'customer') NOT NULL,
@@ -239,11 +249,15 @@ INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PROCESSING', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY FOR PICKUP', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY FOR DELIVERY', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('OUT FOR DELIVERY', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('DELIVERED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('COLLECTED', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('COMPLETED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('BAKED', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CANCELLED', NOW());
 INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY TO BAKE', NOW());
+
 
 
 -- General Status

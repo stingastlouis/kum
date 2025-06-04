@@ -16,10 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $conn->beginTransaction();
 
-        $stmt = $conn->prepare("INSERT INTO OrderAssignment (OrderId, CookId, AssignedBy, DateCreated) VALUES (:orderId, :employeeId, :cookId, :dateCreated)");
+        $stmt = $conn->prepare("INSERT INTO OrderAssignment (OrderId, CookId, AssignedBy, DateCreated) VALUES (:orderId, :cookId, :employeeId, :dateCreated)");
         $stmt->bindParam(':orderId', $orderId);
-        $stmt->bindParam(':employeeId', $employeeId);
         $stmt->bindParam(':cookId', $cook_id);
+        $stmt->bindParam(':employeeId', $employeeId);
         $stmt->bindParam(':dateCreated', $date);
         $stmt->execute();
 

@@ -1,6 +1,8 @@
 <?php
 include './configs/db.php';
 include './configs/timezoneConfigs.php';
+require_once './libs/fpdf.php';
+require_once './utils/pdf.php';
 session_start();
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -130,6 +132,18 @@ try {
         $cashStmt = $conn->prepare("INSERT INTO `CashPayment` (PaymentId, DateCreated) VALUES (:paymentId, :dateNow)");
         $cashStmt->execute([':paymentId' => $paymentId, ':dateNow' => $now]);
     }
+
+    $externalId = generateShortExternalId();
+    $pdfPath = createReceiptPDF($externalId, $orderId, $customerId, $totalAmount, $paymentMethodName, $conn);
+
+    $stmtReceipt = $conn->prepare("INSERT INTO Receipt (OrderId, ExternalId, FileName, DateCreated) VALUES (:orderId, :externalId, :path, :dateNow)");
+    $stmtReceipt->execute([
+        ':orderId' => $orderId,
+        ':externalId' => $externalId,
+        ':path' => $pdfPath,
+        ':dateNow' => $now
+    ]);
+
 
     $conn->commit();
     echo json_encode(['success' => true, 'orderId' => $orderId]);

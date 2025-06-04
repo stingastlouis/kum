@@ -1,8 +1,9 @@
 <?php
-// requireEmployeeLogin();
+require_once 'auth.php';
+requireEmployeeLogin();
 include '../configs/db.php';
 include 'includes/header.php';
-
+$employeeId = $_SESSION['employeeId'] ?? null;
 $sql = "
 SELECT o.Id AS OrderId, o.CustomerId, o.Total, o.DateCreated AS OrderDate, o.ScheduleDate,
        s.StatusName, os.DateCreated AS StatusDate
@@ -14,7 +15,7 @@ WHERE os.DateCreated = (
     FROM OrderStatus
     WHERE OrderId = o.Id
 )
-AND s.StatusName = 'CONFIRMED'
+AND s.StatusName = 'READY TO BAKE'
 ORDER BY os.DateCreated DESC
 ";
 $stmt = $conn->query($sql);
@@ -27,7 +28,6 @@ $giftboxCakes = [];
 if (count($orderIds) > 0) {
     $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
 
-    // Get order items (cake and giftbox)
     $itemsStmt = $conn->prepare("
         SELECT oi.*, 
                c.Name AS CakeName, c.Description AS CakeDescription, c.ImagePath AS CakeImage
@@ -42,7 +42,6 @@ if (count($orderIds) > 0) {
         $itemsByOrder[$item['OrderId']][] = $item;
     }
 
-    // Get giftbox cake selections
     $giftboxStmt = $conn->prepare("
         SELECT gbs.OrderItemId, gbs.Quantity, c.Name, c.Description, c.ImagePath
         FROM GiftBoxSelection gbs
@@ -58,6 +57,12 @@ if (count($orderIds) > 0) {
         $giftboxCakes[$row['OrderItemId']][] = $row;
     }
 }
+
+$stmtStatus = $conn->prepare("SELECT * FROM Status 
+WHERE StatusName = 'BAKED' LIMIT 1;");
+$stmtStatus->execute();
+$statusBaked = $stmtStatus->fetch(PDO::FETCH_ASSOC);
+$statusBakedId = $statusBaked["Id"] ?? null;
 ?>
 
 <!DOCTYPE html>
@@ -103,6 +108,12 @@ if (count($orderIds) > 0) {
           <button class="btn btn-primary btn-sm view-items-btn" data-order-id="<?= $order['OrderId'] ?>">
             View Items
           </button>
+           <form method="POST" action="status/add_orderStatus.php" style="margin: 0;">
+              <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
+              <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+              <input type="hidden" name="status_id" value="<?= $statusBakedId ?>">
+              <button type="submit">Baked</button>                            
+          </form>
         </td>
       </tr>
       <tr class="order-items-row d-none" id="items-row-<?= $order['OrderId'] ?>">

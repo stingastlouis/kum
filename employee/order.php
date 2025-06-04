@@ -1,6 +1,8 @@
+
 <?php
 require_once 'auth.php';
 requireEmployeeLogin();
+require_once './utils/orderUtils.php';
 
 $employeeId = $_SESSION['employeeId'] ?? null;
 include 'includes/header.php';
@@ -10,7 +12,44 @@ $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-$stmt = $conn->prepare("
+// Search filters
+$filters = [];
+$params = [];
+
+if (!empty($_GET['schedule_date'])) {
+    $filters[] = 'DATE(o.ScheduleDate) = :schedule_date';
+    $params[':schedule_date'] = $_GET['schedule_date'];
+}
+
+if (!empty($_GET['created_at'])) {
+    $filters[] = 'DATE(o.DateCreated) = :created_at';
+    $params[':created_at'] = $_GET['created_at'];
+}
+
+if (!empty($_GET['payment_method'])) {
+    $filters[] = 'pm.Name LIKE :payment_method';
+    $params[':payment_method'] = '%' . $_GET['payment_method'] . '%';
+}
+
+if (!empty($_GET['is_paid'])) {
+    if ($_GET['is_paid'] === 'Yes') {
+        $filters[] = "(pp.Id IS NOT NULL OR (cp.Id IS NOT NULL AND cp.DatePaid IS NOT NULL))";
+    } elseif ($_GET['is_paid'] === 'No') {
+        $filters[] = "(pp.Id IS NULL AND (cp.Id IS NULL OR cp.DatePaid IS NULL))";
+    }
+}
+
+if (!empty($_GET['cook'])) {
+    $filters[] = 'cook.Id = :cook';
+    $params[':cook'] = $_GET['cook'];
+}
+
+$whereClause = '';
+if (!empty($filters)) {
+    $whereClause = 'WHERE ' . implode(' AND ', $filters);
+}
+
+$sql = "
     SELECT
         o.Id AS OrderId,
         o.Total,
@@ -25,7 +64,8 @@ $stmt = $conn->prepare("
         s.StatusName AS LatestOrderStatus,
         d.Location AS DeliveryLocation,
         ds.StatusName AS LatestDeliveryStatus,
-        e.Fullname AS DeliveryEmployeeName
+        e.Fullname AS DeliveryEmployeeName,
+        cook.Fullname AS CookName
     FROM Orders o
     LEFT JOIN Payment p ON o.Id = p.OrderId
     LEFT JOIN PaymentMethod pm ON p.PaymentMethodId = pm.Id
@@ -49,15 +89,58 @@ $stmt = $conn->prepare("
             SELECT MAX(Id) FROM DeliveryStatus GROUP BY DeliveryId
         )
     ) ds ON d.Id = ds.DeliveryId
+    LEFT JOIN (
+        SELECT oa1.*
+        FROM OrderAssignment oa1
+        INNER JOIN (
+            SELECT OrderId, MAX(DateCreated) AS MaxDate
+            FROM OrderAssignment
+            GROUP BY OrderId
+        ) oa2 ON oa1.OrderId = oa2.OrderId AND oa1.DateCreated = oa2.MaxDate
+    ) oa ON o.Id = oa.OrderId
+    LEFT JOIN Employee cook ON oa.CookId = cook.Id
+    $whereClause
     ORDER BY o.Id DESC
     LIMIT :limit OFFSET :offset
-");
+";
 
-
+$stmt = $conn->prepare($sql);
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key, $value);
+}
 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) 
+    FROM Orders o
+    LEFT JOIN Payment p ON o.Id = p.OrderId
+    LEFT JOIN PaymentMethod pm ON p.PaymentMethodId = pm.Id
+    LEFT JOIN PaypalPayment pp ON p.Id = pp.PaymentId
+    LEFT JOIN CashPayment cp ON p.Id = cp.PaymentId
+    LEFT JOIN (
+        SELECT oa1.*
+        FROM OrderAssignment oa1
+        INNER JOIN (
+            SELECT OrderId, MAX(DateCreated) AS MaxDate
+            FROM OrderAssignment
+            GROUP BY OrderId
+        ) oa2 ON oa1.OrderId = oa2.OrderId AND oa1.DateCreated = oa2.MaxDate
+    ) oa ON o.Id = oa.OrderId
+    LEFT JOIN Employee cook ON oa.CookId = cook.Id
+    $whereClause
+");
+
+foreach ($params as $key => $value) {
+    $countStmt->bindValue($key, $value);
+}
+
+$countStmt->execute();
+$totalOrders = $countStmt->fetchColumn();
+$totalPages = ceil($totalOrders / $limit);
+
 
 $orderIds = array_column($orders, 'OrderId');
 
@@ -101,18 +184,35 @@ if (!empty($orderIds)) {
     }
 }
 
-$stmtStatus = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('CONFIRMED', 'READY FOR PICKUP', 'OUT FOR DELIVERY', 'DELIVERED', 'CANCELLED')");
+$stmtStatus = $conn->prepare("SELECT * FROM Status
+ORDER BY StatusName ASC"
+);
 $stmtStatus->execute();
 $statuses = $stmtStatus->fetchAll(PDO::FETCH_ASSOC);
 
-$stmtDeliveryStatus = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('OUT FOR DELIVERY', 'DELIVERED', 'CANCELLED')");
+$stmtDeliveryStatus = $conn->prepare("SELECT * FROM Status WHERE StatusName IN ('OUT FOR DELIVERY', 'DELIVERED')");
 $stmtDeliveryStatus->execute();
 $Deliverystatuses = $stmtDeliveryStatus->fetchAll(PDO::FETCH_ASSOC);
 
+$stmtRiders = $conn->prepare("
+    SELECT Employee.Id, Employee.Fullname
+    FROM Employee
+    INNER JOIN Roles ON Employee.RoleId = Roles.Id
+    WHERE Roles.Name = 'Rider'
+    ORDER BY Employee.Fullname
+");
+$stmtRiders->execute();
+$riders = $stmtRiders->fetchAll(PDO::FETCH_ASSOC);
 
-$stmtEmployyes = $conn->prepare("SELECT Id, Fullname FROM Employee ORDER BY Fullname");
-$stmtEmployyes->execute();
-$employees = $stmtEmployyes->fetchAll(PDO::FETCH_ASSOC);
+$stmtCooks = $conn->prepare("
+    SELECT Employee.Id, Employee.Fullname
+    FROM Employee
+    INNER JOIN Roles ON Employee.RoleId = Roles.Id
+    WHERE Roles.Name = 'Cook'
+    ORDER BY Employee.Fullname
+");
+$stmtCooks->execute();
+$cooks = $stmtCooks->fetchAll(PDO::FETCH_ASSOC);
 
 $totalStmt = $conn->query("SELECT COUNT(*) FROM Orders");
 $totalOrders = $totalStmt->fetchColumn();
@@ -120,6 +220,57 @@ $totalPages = ceil($totalOrders / $limit);
 ?>
 <div class="container-fluid">
     <h3 class="text-dark mb-4">Orders</h3>
+    <div>
+        <form method="GET" class="row g-2 mb-3"> 
+    <div class="col">
+        <label for="schedule_date" class="form-label">Schedule Date</label>
+        <input type="date" id="schedule_date" name="schedule_date" class="form-control" value="<?= htmlspecialchars($_GET['schedule_date'] ?? '') ?>">
+    </div>
+    <div class="col">
+        <label for="created_at" class="form-label">Created At</label>
+        <input type="date" id="created_at" name="created_at" class="form-control" value="<?= htmlspecialchars($_GET['created_at'] ?? '') ?>">
+    </div>
+    <div class="col">
+        <label for="payment_method" class="form-label">Payment Method</label>
+        <select id="payment_method" name="payment_method" class="form-control">
+            <option value="">All Payment Methods</option>
+            <?php
+            $pmStmt = $conn->query("SELECT Name FROM PaymentMethod ORDER BY Name ASC");
+            foreach ($pmStmt->fetchAll(PDO::FETCH_COLUMN) as $pm) {
+                $selected = (isset($_GET['payment_method']) && $_GET['payment_method'] == $pm) ? 'selected' : '';
+                echo "<option value=\"$pm\" $selected>$pm</option>";
+            }
+            ?>
+        </select>
+    </div>
+    <div class="col">
+        <label for="is_paid" class="form-label">Paid?</label>
+        <select id="is_paid" name="is_paid" class="form-control">
+            <option value="">Paid?</option>
+            <option value="Yes" <?= ($_GET['is_paid'] ?? '') === 'Yes' ? 'selected' : '' ?>>Yes</option>
+            <option value="No" <?= ($_GET['is_paid'] ?? '') === 'No' ? 'selected' : '' ?>>No</option>
+        </select>
+    </div>
+    <div class="col">
+    <label for="cook" class="form-label">Cook Name</label>
+        <select id="cook" name="cook" class="form-control">
+            <option value="">All Cooks</option>
+            <?php foreach ($cooks as $cook): 
+                $selected = (isset($_GET['cook']) && $_GET['cook'] == $cook) ? 'selected' : '';
+            ?>
+                <option value="<?= htmlspecialchars($cook['Id']) ?>" <?= $selected ?>>
+                    <?= htmlspecialchars($cook['Fullname']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="col d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Filter</button>
+        <a href="?" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+    </div>
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
@@ -129,6 +280,7 @@ $totalPages = ceil($totalOrders / $limit);
                 <th>Created At</th>
                 <th>Payment Method</th>
                 <th>Paid?</th>
+                <th>Cook</th>
                 <th>Latest Status</th>
                 <th>Delivery Employee</th>
                 <th>Latest Delivery Status</th>
@@ -167,6 +319,7 @@ $totalPages = ceil($totalOrders / $limit);
                             <?php echo $order['IsPaid']; ?>
                         <?php endif; ?>
                     </td>
+                    <td><?= htmlspecialchars($order['CookName']) ?: 'N/A' ?></td>
                     <td><?= htmlspecialchars($order['LatestOrderStatus']) ?: 'No Status' ?></td>
                     <td><?= htmlspecialchars($order['DeliveryEmployeeName']) ?: 'N/A' ?></td>
                     <td><?= htmlspecialchars($order['LatestDeliveryStatus']) ?: 'N/A' ?></td>
@@ -176,66 +329,68 @@ $totalPages = ceil($totalOrders / $limit);
                         </button>
                     </td>
                     <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
-                        <td>
-                            <?php if ($order['LatestOrderStatus'] !== 'CANCELLED' && $order['LatestOrderStatus'] !== 'DELIVERED'): ?>
-                                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                                    <form method="POST" action="status/add_orderStatus.php" style="margin: 0;">
-                                        <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
-                                        <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
-                                        <select name="status_id" class="form-select form-select-sm"
-                                            style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
-                                            onchange="this.form.submit()">
-                                            <option value="" disabled selected>Change Order Status</option>
-                                            <?php foreach ($statuses as $status): ?>
-                                                <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-
-                                    <?php if ($order['DeliveryLocation']): ?>
-                                        <form method="POST" action="status/add_deliveryStatus.php" style="margin: 0;">
+                        <?php if (!isOrderAndDeliveCompletedStatus($order['LatestOrderStatus'])): ?>
+                            <td>
+                                <?php if ($order['LatestOrderStatus'] !== 'CANCELLED' && $order['LatestOrderStatus'] !== 'DELIVERED'): ?>
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        <form method="POST" action="status/add_orderStatus.php" style="margin: 0;">
                                             <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
                                             <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
                                             <select name="status_id" class="form-select form-select-sm"
                                                 style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
                                                 onchange="this.form.submit()">
-                                                <option value="" disabled selected>Change Delivery Status</option>
-                                                <?php foreach ($Deliverystatuses as $deliveryStatus): ?>
-                                                    <option value="<?= $deliveryStatus['Id'] ?>"><?= htmlspecialchars($deliveryStatus['StatusName']) ?></option>
+                                                <option value="" disabled selected>Change Order Status</option>
+                                                <?php foreach (getFilteredStatuses($statuses, $order['LatestOrderStatus']) as $status): ?>
+                                                    <option value="<?= $status['Id'] ?>"><?= htmlspecialchars($status['StatusName']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </form>
-                                    <?php endif ?>
 
-                                    <form method="POST" action="assign_employee.php" style="margin: 0;">
-                                        <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>" />
-                                        <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
-                                        <select name="deliveryGuy_id" class="form-select form-select-sm"
-                                            style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
-                                            onchange="this.form.submit()">
-                                            <option value="" disabled selected>Assign Staff</option>
-                                            <?php foreach ($employees as $employee): ?>
-                                                <option value="<?= $employee['Id'] ?>"><?= htmlspecialchars($employee['Fullname']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-                                    <?php if ($order['LatestOrderStatus'] == 'CONFIRMED'): ?>
-                                        <form method="POST" action="assign_cook.php" style="margin: 0;">
+                                        <?php if (!empty($order['DeliveryLocation'])): ?>
+                                            <form method="POST" action="status/add_deliveryStatus.php" style="margin: 0;">
+                                                <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
+                                                <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+                                                <select name="status_id" class="form-select form-select-sm"
+                                                    style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
+                                                    onchange="this.form.submit()">
+                                                    <option value="" disabled selected>Change Delivery Status</option>
+                                                    <?php foreach ($Deliverystatuses as $deliveryStatus): ?>
+                                                        <option value="<?= $deliveryStatus['Id'] ?>"><?= htmlspecialchars($deliveryStatus['StatusName']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </form>
+                                        <?php endif ?>
+
+                                        <form method="POST" action="./assign_employee.php" style="margin: 0;">
                                             <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>" />
                                             <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
-                                            <select name="cook_id" class="form-select form-select-sm"
+                                            <select name="deliveryGuy_id" class="form-select form-select-sm"
                                                 style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
                                                 onchange="this.form.submit()">
-                                                <option value="" disabled selected>Assign Cook</option>
-                                                <?php foreach ($employees as $employee): ?>
+                                                <option value="" disabled selected>Assign Rider</option>
+                                                <?php foreach ($riders as $employee): ?>
                                                     <option value="<?= $employee['Id'] ?>"><?= htmlspecialchars($employee['Fullname']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </form>
-                                    <?php endif ?>
-                                </div>
-                            <?php endif ?>
-                        </td>
+                                        <?php if ($order['LatestOrderStatus'] == 'CONFIRMED'): ?>
+                                            <form method="POST" action="assign_cook.php" style="margin: 0;">
+                                                <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>" />
+                                                <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+                                                <select name="cook_id" class="form-select form-select-sm"
+                                                    style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
+                                                    onchange="this.form.submit()">
+                                                    <option value="" disabled selected>Assign Cook</option>
+                                                    <?php foreach ($cooks as $employee): ?>
+                                                        <option value="<?= $employee['Id'] ?>"><?= htmlspecialchars($employee['Fullname']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </form>
+                                        <?php endif ?>
+                                    </div>
+                                <?php endif ?>
+                            </td>
+                        <?php endif; ?>
                     <?php endif ?>
                 </tr>
             <?php endforeach; ?>
