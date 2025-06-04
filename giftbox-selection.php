@@ -133,7 +133,7 @@ try {
                 <?php foreach ($cakes as $cake): ?>
                     <div class="col-sm-6 col-lg-3 mb-4">
                         <div class="cake-card shadow-sm h-100 d-flex flex-column justify-content-between">
-                            <img src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>" class="card-img-top" alt="<?= htmlspecialchars($cake['Name']) ?>">
+                            <img src="./assets/uploads/cakes/<?= htmlspecialchars($cake['ImagePath']) ?>" class="card-img-top" alt="<?= htmlspecialchars($cake['Name']) ?>">
                             <div class="card-body p-2">
                                 <h5 class="card-title"><?= htmlspecialchars($cake['Name']) ?></h5>
                                 <p><?= htmlspecialchars($cake['Description']) ?></p>

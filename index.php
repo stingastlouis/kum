@@ -44,7 +44,7 @@ try {
                 <div class="col">
                     <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
                         <img
-                            src="./assets/uploads/<?= htmlspecialchars($cake['ImagePath']) ?>"
+                            src="./assets/uploads/cakes/<?= htmlspecialchars($cake['ImagePath']) ?>"
                             class="card-img-top"
                             alt="<?= htmlspecialchars($cake['Name']) ?>">
                         <div class="card-body d-flex flex-column">
@@ -68,7 +68,7 @@ try {
                 <div class="col">
                     <div class="card shadow-sm h-100 border-pink" style="border: 1px solid #ffc0cb;">
                         <img
-                            src="./assets/uploads/<?= htmlspecialchars($giftbox['ImagePath']) ?>"
+                            src="./assets/uploads/giftboxes/<?= htmlspecialchars($giftbox['ImagePath']) ?>"
                             class="card-img-top"
                             alt="<?= htmlspecialchars($giftbox['Name']) ?>">
                         <div class="card-body d-flex flex-column">

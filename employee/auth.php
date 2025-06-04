@@ -48,6 +48,6 @@ function requireEmployeeLogin()
 }
 
 
-define('ROLE_ADMIN', 'admin');
-define('ROLE_VIEWER', 'viewer');
-define('ROLE_DELIVERY', 'delivery');
+define('ROLE_ADMIN', 'manager');
+define('ROLE_COOK', 'cook');
+define('ROLE_DELIVERY', 'rider');

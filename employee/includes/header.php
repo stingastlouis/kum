@@ -50,7 +50,7 @@ require_once 'popupmessage.php';
             <div class="collapse navbar-collapse" id="topNavbar">
                 <?php if (isEmployeeLoggedIn()): ?>
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_VIEWER])): ?>
+                        <?php if (isEmployeeInRoles([ROLE_ADMIN])): ?>
                             <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
                             <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
@@ -64,9 +64,12 @@ require_once 'popupmessage.php';
                         <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
                             <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
                         <?php endif; ?>
+                          <?php if (isEmployeeInRoles([ROLE_COOK])): ?>
+                            <li class="nav-item"><a class="nav-link" href="orderToBake.php">Orders</a></li>
+                        <?php endif; ?>
                     </ul>
 
-                    <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_VIEWER])): ?>
+                    <?php if (isEmployeeInRoles([ROLE_ADMIN])): ?>
                         <ul class="navbar-nav mb-2 mb-lg-0">
                             <li class="nav-item d-flex align-items-center me-3">
                                 <a class="nav-link position-relative" href="message.php" title="Go to messages">

@@ -207,6 +207,17 @@ CREATE TABLE GiftBoxSelection (
     FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE
 );
 
+CREATE TABLE OrderAssignment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    CookId INT NOT NULL,
+    AssignedBy INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (CookId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (AssignedBy) REFERENCES Employee(Id) ON DELETE SET NULL
+);
+
 CREATE TABLE messages (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     SenderType ENUM('guest', 'customer') NOT NULL,
@@ -223,40 +234,37 @@ CREATE TABLE messages (
     FOREIGN KEY (RecipientId) REFERENCES Employee(Id)
 );
 
-
 -- Order Statuses
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('PROCESSING', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('READY FOR PICKUP', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('OUT FOR DELIVERY', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('DELIVERED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('COMPLETED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('CANCELLED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('REFUNDED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('FAILED', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ON HOLD', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('REJECTED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PROCESSING', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY FOR PICKUP', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('OUT FOR DELIVERY', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('DELIVERED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('COMPLETED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CANCELLED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY TO BAKE', NOW());
+
 
 -- General Status
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE', NOW());
-INSERT INTO `status`(`StatusName`, `DateCreated`) VALUES ('INACTIVE', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('INACTIVE', NOW());
 
 
--- insert paymentmethod 
-INSERT INTO `paymentmethod` (`Name`, `Description`, `DateCreated`) VALUES ('Cash', 'Pay at shop or at Door', current_timestamp());
-INSERT INTO `paymentmethod` (`Name`, `Description`, `DateCreated`) VALUES ('Paypal', 'Process online payment', current_timestamp());
+-- insert paymentmethod
+INSERT INTO `PaymentMethod` (`Name`, `Description`, `DateCreated`) VALUES ('Cash', 'Pay at shop or at Door', current_timestamp());
+INSERT INTO `PaymentMethod` (`Name`, `Description`, `DateCreated`) VALUES ('Paypal', 'Process online payment', current_timestamp());
 
 -- insert Role
-INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Admin', current_timestamp());
-INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Viewer', current_timestamp());
-INSERT INTO `roles` (`Name`, `DateCreated`) VALUES ('Delivery', current_timestamp());
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Manager', current_timestamp());
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Cook', current_timestamp());
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Rider', current_timestamp());
 
 
 -- insert first Admin
-INSERT INTO `employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', (SELECT Id FROM Roles WHERE Name = "Admin"), current_timestamp());
+INSERT INTO `Employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', (SELECT Id FROM Roles WHERE Name = "Manager"), current_timestamp());
 
--- insert status for employee kum
+-- insert Status for employee kum
 INSERT INTO `EmployeeStatus` (`EmployeeId`, `StatusId`, `DateCreated`) 
 VALUES (
     (SELECT `Id` FROM `Employee` WHERE Email = "admin@gmail.com"), 
@@ -264,4 +272,4 @@ VALUES (
     current_timestamp()
 );
 -- code  : Admin123$
--- email : admin@gmaill.com
+-- email : admin@gmail.com

@@ -219,6 +219,20 @@ $totalPages = ceil($totalOrders / $limit);
                                             <?php endforeach; ?>
                                         </select>
                                     </form>
+                                    <?php if ($order['LatestOrderStatus'] == 'CONFIRMED'): ?>
+                                        <form method="POST" action="assign_cook.php" style="margin: 0;">
+                                            <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>" />
+                                            <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+                                            <select name="cook_id" class="form-select form-select-sm"
+                                                style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
+                                                onchange="this.form.submit()">
+                                                <option value="" disabled selected>Assign Cook</option>
+                                                <?php foreach ($employees as $employee): ?>
+                                                    <option value="<?= $employee['Id'] ?>"><?= htmlspecialchars($employee['Fullname']) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </form>
+                                    <?php endif ?>
                                 </div>
                             <?php endif ?>
                         </td>

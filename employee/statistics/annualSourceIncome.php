@@ -3,7 +3,6 @@ include '../configs/db.php';
 
 $currentYear = date('Y');
 
-// Initialize types with 0 to ensure chart works even if there's no data
 $revenueByType = [
     'cake' => 0,
     'giftbox' => 0
@@ -21,11 +20,9 @@ $stmt->bindValue(':currentYear', $currentYear, PDO::PARAM_INT);
 $stmt->execute();
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Optional: for debugging
-// var_dump($results);
 
 foreach ($results as $row) {
-    $type = strtolower($row['ProductType']); // Expecting 'cake' or 'giftbox'
+    $type = strtolower($row['ProductType']);
     if (isset($revenueByType[$type])) {
         $revenueByType[$type] = (float)$row['totalRevenue'];
     }
@@ -41,7 +38,6 @@ $sourceIncomeLabelsJson = json_encode($sourceIncomeLabels);
 $dataJson = json_encode($data);
 ?>
 
-<!-- Chart Card -->
 <div class="col-lg-5 col-xl-4">
     <div class="card shadow mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -59,7 +55,6 @@ $dataJson = json_encode($data);
     </div>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
