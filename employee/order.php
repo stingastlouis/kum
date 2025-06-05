@@ -60,6 +60,7 @@ $sql = "
         o.ScheduleDate,
         o.DateCreated AS OrderDate,
         pm.Name AS PaymentMethod,
+        r.FileName AS ReceiptFileName,
         CASE 
             WHEN pp.Id IS NOT NULL THEN 'Yes'
             WHEN cp.Id IS NOT NULL AND cp.DatePaid IS NOT NULL THEN 'Yes'
@@ -300,7 +301,7 @@ $totalPages = ceil($totalOrders / $limit);
                 <th>Latest Status</th>
                 <th>Delivery Employee</th>
                 <th>Latest Delivery Status</th>
-                <th>Items</th>
+                <th>Receipt</th>
                 <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
                     <th>Actions</th>
                 <?php endif; ?>
@@ -340,9 +341,7 @@ $totalPages = ceil($totalOrders / $limit);
                     <td><?= htmlspecialchars($order['DeliveryEmployeeName']) ?: 'N/A' ?></td>
                     <td><?= htmlspecialchars($order['LatestDeliveryStatus']) ?: 'N/A' ?></td>
                     <td>
-                        <button class="btn btn-secondary btn-sm view-items-btn" data-order-id="<?= $order['OrderId'] ?>">
-                            View Items
-                        </button>
+                        <a href="../<?= htmlspecialchars($order['ReceiptFileName']) ?>" target='_blank' class='btn btn-sm btn-primary'>View Receipt</a>
                     </td>
                     <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
                         <td>
@@ -442,64 +441,6 @@ $totalPages = ceil($totalOrders / $limit);
         <?php endif; ?>
     </ul>
 </nav>
-
-<div class="modal fade" id="itemsModal" tabindex="-1" aria-labelledby="itemsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="itemsModalLabel">Order Items</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="itemsList">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const itemsByOrder = <?= json_encode($itemsByOrder) ?>;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const itemsModal = new bootstrap.Modal(document.getElementById('itemsModal'));
-        const itemsListContainer = document.getElementById('itemsList');
-
-        document.querySelectorAll('.view-items-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const orderId = button.getAttribute('data-order-id');
-                const items = itemsByOrder[orderId] || [];
-
-                if (items.length === 0) {
-                    itemsListContainer.innerHTML = '<p>No items found for this order.</p>';
-                } else {
-                    let html = '<div class="list-group">';
-                    items.forEach(item => {
-                        const folder = item.ProductType === 'Cake' ? 'cakes' : 'giftboxes';
-                        const imageUrl = `../assets/uploads/${folder}/${item.ImagePath}`;
-
-                        html += `
-                        <div class="list-group-item d-flex align-items-center">
-                            <img src="${imageUrl}" alt="${item.ProductName}" style="width:60px; height:60px; object-fit:cover; margin-right:10px;">
-                            <div>
-                                <strong>Product:</strong> ${item.ProductName}<br>
-                                <strong>Type:</strong> ${item.ProductType}<br>
-                                <strong>Cake Quantity:</strong> ${item.Quantity}<br>
-                                <strong>Subtotal:</strong> ${item.SubTotal}
-                            </div>
-                        </div>`;
-                    });
-                    html += '</div>';
-
-                    itemsListContainer.innerHTML = html;
-                }
-
-                itemsModal.show();
-            });
-        });
-    });
-</script>
-
 
 <div class="modal fade" id="paidDateModal" tabindex="-1" aria-labelledby="paidDateModalLabel" aria-hidden="true">
     <div class="modal-dialog">

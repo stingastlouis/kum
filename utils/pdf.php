@@ -44,7 +44,7 @@ function createReceiptPDF($externalId, $orderId, $customerId, $totalAmount, $pay
     $pdf->Ln();
 
     if ($deliveryIncluded) {
-        $pdf->Cell(80, 10, 'Delivery Fee', 1);
+        $pdf->Cell(80, 10, 'Delivery Fee', 0);
         $pdf->Cell(30, 10, '', 0);
         $pdf->Cell(40, 10, '', 0);
         $pdf->Cell(40, 10, '20.00', 0, 1, '$');
