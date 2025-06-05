@@ -16,7 +16,7 @@ if ($employeeName) {
     }
 }
 
-require_once 'popupmessage.php';
+require_once './popupMessage.php';
 ?>
 
 
@@ -64,7 +64,7 @@ require_once 'popupmessage.php';
                         <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
                             <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
                         <?php endif; ?>
-                          <?php if (isEmployeeInRoles([ROLE_COOK])): ?>
+                        <?php if (isEmployeeInRoles([ROLE_COOK])): ?>
                             <li class="nav-item"><a class="nav-link" href="orderToBake.php">Orders</a></li>
                         <?php endif; ?>
                     </ul>
