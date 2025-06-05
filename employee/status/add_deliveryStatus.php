@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $conn->beginTransaction();
 
-        // Get delivery ID
         $stmt = $conn->prepare("SELECT Id FROM Delivery WHERE OrderId = :orderId LIMIT 1");
         $stmt->bindParam(':orderId', $orderId);
         $stmt->execute();
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $deliveryId = $delivery['Id'];
 
-        // Insert into DeliveryStatus
         $insertStmt = $conn->prepare("
         INSERT INTO DeliveryStatus (DeliveryId, StatusId, EmployeeId, DateCreated)
         VALUES (:deliveryId, :statusId, :employeeId, :dateCreated)

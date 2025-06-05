@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMsg = "Oopsie! That email isn’t sprinkled correctly. Try again!";
     } else {
         try {
-            // 1. Get employee by email
             $stmt = $conn->prepare("
                 SELECT E.Id, E.Fullname, E.Password, R.Name AS RoleName
                 FROM Employee E
@@ -32,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $employee = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($employee && password_verify($password, $employee['Password'])) {
-                // 2. Get latest status
                 $statusStmt = $conn->prepare("
                     SELECT S.StatusName 
                     FROM EmployeeStatus ES 
@@ -47,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$status || strtolower($status['StatusName']) !== 'active') {
                     $errorMsg = "Your account status is '{$status['StatusName']}', please contact administrator.";
                 } else {
-                    // Login success
                     $_SESSION['employeeId'] = $employee['Id'];
                     $_SESSION['employee_fullname'] = $employee['Fullname'];
                     $_SESSION['employee_role'] = $employee['RoleName'];

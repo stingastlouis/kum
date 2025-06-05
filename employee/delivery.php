@@ -104,7 +104,6 @@ $Deliverystatuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- Map Modal -->
 <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -121,7 +120,6 @@ $Deliverystatuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include 'includes/footer.php'; ?>
 
-<!-- Leaflet.js -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -145,11 +143,10 @@ $Deliverystatuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                     map.setView([lat, lng], 13);
                     marker.setLatLng([lat, lng]);
                 }
-            }, 300); // Wait for modal to finish rendering
+            }, 300);
         });
     });
 
-    // Resize map on modal shown
     const mapModal = document.getElementById('mapModal');
     mapModal.addEventListener('shown.bs.modal', function() {
         setTimeout(() => {

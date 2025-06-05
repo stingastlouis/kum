@@ -217,7 +217,6 @@ try {
         localStorage.setItem("cake-cart", JSON.stringify(cart));
         updateCartUI(cart);
 
-        // Reset the form
         quantityInputs.forEach(input => input.value = 0);
         updateTotalCount();
         window.location.href = "giftbox.php"

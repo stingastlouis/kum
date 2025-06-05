@@ -1,11 +1,8 @@
 <?php
-include '../configs/db.php'; // Your PDO connection file
-
-// Get first and last day of current month for filtering
+include '../configs/db.php';
 $firstDayOfMonth = date('Y-m-01 00:00:00');
 $lastDayOfMonth = date('Y-m-t 23:59:59');
 
-// Prepare and execute the SQL query to sum the SubTotal for the current month
 $sql = "SELECT IFNULL(SUM(SubTotal), 0) AS monthlyEarnings 
         FROM OrderItems 
         WHERE DateCreated BETWEEN :startDate AND :endDate";
