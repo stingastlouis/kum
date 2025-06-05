@@ -51,7 +51,7 @@ try {
     if ($statusRow) {
 
         $statusId = $statusRow['Id'];
-        $statusInsertStmt = $conn->prepare("INSERT INTO employeestatus (employeeid, statusid, datecreated) 
+        $statusInsertStmt = $conn->prepare("INSERT INTO Employeestatus (EmployeeId, StatusId, DateCreated) 
                                             VALUES (?, ?, ?)");
         $statusInsertStmt->execute([$employeeId, $statusId, $now]);
     } else {

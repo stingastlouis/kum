@@ -14,7 +14,7 @@ if (!$roleId) {
 }
 
 try {
-    $stmt = $conn->prepare("DELETE FROM roles WHERE Id = :id");
+    $stmt = $conn->prepare("DELETE FROM Roles WHERE Id = :id");
     $stmt->execute([':id' => $roleId]);
     header("Location: ../role.php?success=1");
     exit;
@@ -22,4 +22,3 @@ try {
     header("Location: ../role.php?error=1");
     exit;
 }
-?>

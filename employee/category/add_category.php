@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $queryCheck = $conn->prepare("SELECT COUNT(*) FROM category WHERE name = :title");
+        $queryCheck = $conn->prepare("SELECT COUNT(*) FROM Category WHERE Name = :title");
         $queryCheck->bindParam(':title', $categoryTitle);
         $queryCheck->execute();
 
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $currentTimestamp = date('Y-m-d H:i:s');
-        $queryInsert = $conn->prepare("INSERT INTO category (name, datecreated) VALUES (:title, :created_at)");
+        $queryInsert = $conn->prepare("INSERT INTO Category (Name, Datecreated) VALUES (:title, :created_at)");
         $queryInsert->bindParam(':title', $categoryTitle);
         $queryInsert->bindParam(':created_at', $currentTimestamp);
 

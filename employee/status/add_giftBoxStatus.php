@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $date = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO giftboxstatus (giftboxid, statusid, datecreated) VALUES (:giftboxId, :statusid, :datecreated)");
+        $stmt = $conn->prepare("INSERT INTO GiftboxStatus (GiftBoxId, StatusId, DateCreated) VALUES (:giftboxId, :statusid, :datecreated)");
         $stmt->bindParam(':giftboxId', $giftboxId);
         $stmt->bindParam(':statusid', $statusId);
         $stmt->bindParam(':datecreated', $date);

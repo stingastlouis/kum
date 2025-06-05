@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $date = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO employeestatus (employeeid, statusid, datecreated) VALUES (:employeeid, :statusid, :datecreated)");
+        $stmt = $conn->prepare("INSERT INTO EmployeeStatus (EmployeeId, StatusId, DateCreated) VALUES (:employeeid, :statusid, :datecreated)");
         $stmt->bindParam(':employeeid', $employeeId);
         $stmt->bindParam(':statusid', $statusId);
         $stmt->bindParam(':datecreated', $date);

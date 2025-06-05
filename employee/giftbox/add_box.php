@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($status) {
                             $statusId = $status['Id'];
 
-                            $insertStatus = $conn->prepare("INSERT INTO giftboxstatus (giftboxid, statusid, datecreated) 
+                            $insertStatus = $conn->prepare("INSERT INTO Giftboxstatus (GiftBoxId, StatusId, DateCreated) 
                                                            VALUES (?, ?, ?)");
                             $insertStatus->execute([$giftboxId, $statusId, $now]);
 

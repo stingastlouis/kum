@@ -14,21 +14,20 @@ if (empty($roleName)) {
 }
 
 try {
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM roles WHERE name = :name");
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM Roles WHERE Name = :name");
     $stmt->execute([':name' => $roleName]);
-    
+
     if ($stmt->fetchColumn() > 0) {
         die("<div style='background-color: grey; color:red; top: 25vw; position: relative; text-align: center;'><h1>Role name already exists. Please choose a different name.</h1></div>");
     }
 
-    $stmt = $conn->prepare("INSERT INTO roles (name, datecreated) VALUES (:name, NOW())");
+    $stmt = $conn->prepare("INSERT INTO Roles (Name, DateCreated) VALUES (:name, NOW())");
     if ($stmt->execute([':name' => $roleName])) {
         header("Location: ../role.php?success=1");
         exit;
     }
-    
+
     die("Error adding role.");
 } catch (PDOException $e) {
     die("Database error: " . htmlspecialchars($e->getMessage()));
 }
-?>

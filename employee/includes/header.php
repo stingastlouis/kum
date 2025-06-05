@@ -16,7 +16,7 @@ if ($employeeName) {
     }
 }
 
-require_once './popupMessage.php';
+require_once 'popupMessage.php';
 ?>
 
 
