@@ -43,7 +43,7 @@
                     WHERE os_inner.OrderId = o.Id
                 ) OR os.Id IS NULL
             )
-            ORDER BY o.ScheduleDate DESC
+            ORDER BY o.Id DESC
             LIMIT :limit OFFSET :offset
         ");
                         $stmt->bindParam(':customerId', $_SESSION['customerId'], PDO::PARAM_INT);

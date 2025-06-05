@@ -1,6 +1,6 @@
 <?php
 require_once 'auth.php';
-requireEmployeeLogin();
+requireEmployeeLogin([ROLE_ADMIN, ROLE_COOK]);
 
 $employeeId = $_SESSION['employeeId'] ?? null;
 include 'includes/header.php';

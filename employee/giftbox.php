@@ -1,6 +1,6 @@
 <?php
 require_once 'auth.php';
-requireEmployeeLogin();
+requireEmployeeLogin([ROLE_ADMIN, ROLE_COOK]);
 
 include 'includes/header.php';
 include '../configs/db.php';

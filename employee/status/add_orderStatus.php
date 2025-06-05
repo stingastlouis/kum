@@ -3,6 +3,7 @@ include '../../configs/db.php';
 include '../../configs/timezoneConfigs.php';
 require_once '../utils/redirectMessage.php';
 
+$redirectUrl = $_SERVER['HTTP_REFERER'] ?? '../order.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusId = trim($_POST['status_id']);
     $orderId = trim($_POST['order_id']);
@@ -10,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = date('Y-m-d H:i:s');
 
     if (empty($statusId) || empty($orderId) || empty($employeeId)) {
-        redirectWithMessage("../order.php", "Missing required fields");
+        redirectWithMessage($redirectUrl, "Missing required fields");
     }
 
     try {
@@ -21,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$status) {
             $conn->rollBack();
-            redirectWithMessage("../order.php", "Invalid status selected");
+            redirectWithMessage($redirectUrl, "Invalid status selected");
         }
 
         $insertStmt = $conn->prepare("INSERT INTO OrderStatus (OrderId, StatusId, EmployeeId, Datecreated) 
@@ -33,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$insertStmt->execute()) {
             $conn->rollBack();
-            redirectWithMessage("../order.php", "Failed to update order status");
+            redirectWithMessage($redirectUrl, "Failed to update order status");
         }
 
         if (strtoupper($status['StatusName']) === 'CANCELLED') {
@@ -60,15 +61,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } else if (strtoupper($status['StatusName']) === 'COMPLETED') {
+            $paymentStmt = $conn->prepare("SELECT Id FROM Payment WHERE OrderId = ?");
+            $paymentStmt->execute([$orderId]);
+            $payment = $paymentStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($payment) {
+                $paymentId = $payment['Id'];
+                $checkCashPaymentStmt = $conn->prepare("SELECT Id FROM CashPayment WHERE PaymentId = ?");
+                $checkCashPaymentStmt->execute([$paymentId]);
+                $cashPayment = $checkCashPaymentStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($cashPayment) {
+                    $updatePaidStmt = $conn->prepare("UPDATE CashPayment SET DatePaid = :datePaid WHERE Id = :id");
+                    $updatePaidStmt->bindParam(':datePaid', $date);
+                    $updatePaidStmt->bindParam(':id', $cashPayment['Id']);
+                    $updatePaidStmt->execute();
+                }
+            }
         }
 
+
         $conn->commit();
-        redirectWithMessage("../order.php", "Order updated successfully!", true);
+        redirectWithMessage($redirectUrl, "Order updated successfully!", true);
     } catch (PDOException $e) {
         $conn->rollBack();
-        redirectWithMessage("../order.php", "Database error {$e}");
+        redirectWithMessage($redirectUrl, "Database error {$e}");
     }
 } else {
-    header("Location: ../order.php");
+    header("Location: $redirectUrl");
     exit;
 }

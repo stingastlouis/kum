@@ -11,6 +11,11 @@ if (strtolower($_SESSION['employee_role']) == ROLE_DELIVERY) {
     header("Location: ./delivery.php");
 }
 
+if (strtolower($_SESSION['employee_role']) == ROLE_COOK) {
+    header("Location: ./orderToBake.php");
+}
+
+
 include 'includes/header.php';
 ?>
 <div class="container-fluid">
@@ -29,8 +34,6 @@ include 'includes/header.php';
         <?php require_once 'statistics/annualIncomeCurve.php' ?>
         <?php require_once 'statistics/annualSourceIncome.php' ?>
     </div>
-
-
-
-
 </div>
+
+<?php include 'includes/footer.php'; ?>

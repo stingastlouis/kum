@@ -240,6 +240,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
             },
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
+                    const latLng = latInput.value && lngInput.value ? `${latInput.value},${lngInput.value}` : null;
                     fetch('./processcake-order.php', {
                             method: 'POST',
                             headers: {
@@ -251,7 +252,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 transactionId: details.id,
                                 amount: details.purchase_units[0].amount.value,
                                 deliveryIncluded: deliveryCheckbox.checked,
-                                location: `${latInput.value},${lngInput.value}`,
+                                location: latLng,
                                 paymentMethodId: selectedPaymentMethodInput.value,
                                 scheduleDate: scheduleDateInput.value
                             })
@@ -283,7 +284,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
-
+            const latLng = latInput.value && lngInput.value ? `${latInput.value},${lngInput.value}` : null;
             fetch('./processcake-order.php', {
                     method: 'POST',
                     headers: {
@@ -294,7 +295,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         cartItems: <?= json_encode($cartItems) ?>,
                         amount: finalAmountInput.value,
                         deliveryIncluded: deliveryCheckbox.checked,
-                        location: `${latInput.value},${lngInput.value}`,
+                        location: latLng,
                         paymentMethodId: selectedPaymentMethodInput.value,
                         scheduleDate: scheduleDateInput.value
                     })

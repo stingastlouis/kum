@@ -39,10 +39,14 @@ function isEmployeeLoggedIn(): bool
     return isset($_SESSION['employeeId']);
 }
 
-function requireEmployeeLogin()
+function requireEmployeeLogin(array $allowedRoles = [])
 {
     if (!isset($_SESSION['employeeId'])) {
         header("Location: ../unauthorised.php");
+        exit;
+    }
+    if (!empty($allowedRoles) && !isEmployeeInRoles($allowedRoles)) {
+        header("Location: ./index.php");
         exit;
     }
 }

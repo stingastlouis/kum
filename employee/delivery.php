@@ -1,8 +1,9 @@
 <?php
 require_once 'auth.php';
-requireRole([ROLE_DELIVERY]);
+requireEmployeeLogin([ROLE_DELIVERY]);
 include 'includes/header.php';
 include '../configs/db.php';
+require_once './utils/orderUtils.php';
 
 $employeeId = $_SESSION['employeeId'];
 
@@ -26,8 +27,10 @@ $sql = "
         )
     ) s ON s.DeliveryId = d.Id
     WHERE d.EmployeeId = :employeeId
-    ORDER BY o.ScheduleDate DESC
+      AND (s.StatusName IS NULL OR s.StatusName != 'DELIVERED')
+    ORDER BY o.Id DESC
 ";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(':employeeId', $employeeId, PDO::PARAM_INT);
@@ -74,15 +77,15 @@ $Deliverystatuses = $statusStmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td><?= htmlspecialchars($row['Status'] ?? 'Pending') ?></td>
                                     <td>
-                                        <?php if ($row['Location']): ?>
-                                            <form method="POST" action="status/add_deliveryStatusByRider.php" style="margin: 0;">
+                                        <?php if ($row['Location'] && $row['Status'] != 'DELIVERED'): ?>
+                                            <form method="POST" action="status/add_deliveryStatus.php" style="margin: 0;">
                                                 <input type="hidden" name="order_id" value="<?= $row['OrderId'] ?>">
                                                 <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
                                                 <select name="status_id" class="form-select form-select-sm"
                                                     style="width: 140px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;"
                                                     onchange="this.form.submit()">
                                                     <option value="" disabled selected>Change Delivery Status</option>
-                                                    <?php foreach ($Deliverystatuses as $deliveryStatus): ?>
+                                                    <?php foreach (getFilteredStatuses($Deliverystatuses, $row['Status']) as $deliveryStatus): ?>
                                                         <option value="<?= $deliveryStatus['Id'] ?>"><?= htmlspecialchars($deliveryStatus['StatusName']) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>

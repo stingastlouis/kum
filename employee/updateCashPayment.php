@@ -1,6 +1,6 @@
 <?php
 require_once 'auth.php';
-requireEmployeeLogin();
+requireEmployeeLogin([ROLE_ADMIN]);
 require_once '../configs/db.php';
 
 header('Content-Type: application/json');
