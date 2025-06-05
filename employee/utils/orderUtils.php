@@ -1,10 +1,11 @@
 <?php
 
-function getFilteredStatuses(array $statuses, string $latestStatus): array {
+function getFilteredStatuses(array $statuses, string $latestStatus): array
+{
     $filtered = [];
 
     foreach ($statuses as $status) {
-    
+
         $statusName = strtoupper($status['StatusName']);
 
         switch ($latestStatus) {
@@ -38,11 +39,9 @@ function getFilteredStatuses(array $statuses, string $latestStatus): array {
 }
 
 
-function isOrderAndDeliveCompletedStatus(string $status): bool {
+function isOrderAndDeliveCompletedStatus(string $status): bool
+{
     $finalStatuses = ['DELIVERED', 'COLLECTED', 'CANCELLED', 'COMPLETED'];
 
     return in_array(strtoupper($status), $finalStatuses);
 }
-
-
-?>

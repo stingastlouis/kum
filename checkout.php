@@ -300,6 +300,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     })
                 }).then(res => res.json())
                 .then(response => {
+                    localStorage.removeItem("cake-cart");
                     const modal = new bootstrap.Modal(document.getElementById('orderResponseModal'));
                     const messageEl = document.getElementById('orderResponseMessage');
                     const headerEl = document.getElementById('modalHeader');
@@ -312,7 +313,7 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         headerEl.classList.add("bg-success", "text-white");
                         successBtn.classList.remove("d-none");
                     } else {
-                        messageEl.textContent = "Something went wrong. Please try again.";
+                        messageEl.textContent = response.message || "Something went wrong. Please try again.";
                         headerEl.classList.remove("bg-success");
                         headerEl.classList.add("bg-danger", "text-white");
                         successBtn.classList.add("d-none");
@@ -320,6 +321,19 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     modal.show();
                 });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const myModal = document.getElementById('orderResponseModal');
+
+            if (myModal) {
+                myModal.addEventListener('shown.bs.modal', function() {
+                    setTimeout(function() {
+                        window.location.href = 'profile.php#order-history';
+                    }, 3000);
+                });
+            }
         });
     </script>
     <?php include './includes/footer.php' ?>

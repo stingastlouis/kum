@@ -21,6 +21,7 @@ try {
     $transactionId = $data['transactionId'] ?? null;
     $location = $data['location'] ?? null;
     $_SESSION['orderSuccess'] = true;
+    $deliveryIncluded = $data['deliveryIncluded'] ?? false;
     $totalAmount = $data['amount'];
     $scheduleDate = $data['scheduleDate'] ?? null;
 
@@ -79,7 +80,7 @@ try {
             ':subtotal' => $subtotal,
             ':type' => $itemType
         ]);
-
+        $orderItemId = $conn->lastInsertId();
         if ($itemType === 'cake') {
             $checkStockStmt = $conn->prepare("SELECT StockCount FROM `Cakes` WHERE Id = :productId FOR UPDATE");
             $checkStockStmt->execute([':productId' => $productId]);
@@ -108,7 +109,7 @@ try {
 
                 $giftBoxSelectionStmt = $conn->prepare("INSERT INTO `GiftBoxSelection` (OrderItemId, CakeId, Quantity) VALUES (:orderItemId, :cakeId, :quantity)");
                 $giftBoxSelectionStmt->execute([
-                    ':orderItemId' => $orderId,
+                    ':orderItemId' => $orderItemId,
                     ':cakeId' => $cakeId,
                     ':quantity' => $cakeQuantity
                 ]);
@@ -134,7 +135,7 @@ try {
     }
 
     $externalId = generateShortExternalId();
-    $pdfPath = createReceiptPDF($externalId, $orderId, $customerId, $totalAmount, $paymentMethodName, $conn);
+    $pdfPath = createReceiptPDF($externalId, $orderId, $customerId, $totalAmount, $paymentMethodName, $conn, $deliveryIncluded);
 
     $stmtReceipt = $conn->prepare("INSERT INTO Receipt (OrderId, ExternalId, FileName, DateCreated) VALUES (:orderId, :externalId, :path, :dateNow)");
     $stmtReceipt->execute([

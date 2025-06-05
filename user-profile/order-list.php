@@ -6,11 +6,12 @@
                 <tr>
                     <th>#</th>
                     <th>Order Date</th>
-                    <th>Items</th>
                     <th>Total</th>
                     <th>Status</th>
+                    <th>Receipt</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php
                 include './configs/db.php';
@@ -27,25 +28,24 @@
                         $totalPages = ceil($totalOrders / $limit);
 
                         $stmt = $conn->prepare("
-                            SELECT o.Id AS OrderId, o.Total, o.DateCreated AS OrderDate, 
-                                os.StatusId, s.StatusName, 
-                                oi.ProductId, p.Name AS ProductName, oi.Quantity, oi.Price, oi.Subtotal
-                            FROM Orders o
-                            LEFT JOIN OrderStatus os ON o.Id = os.OrderId 
-                            LEFT JOIN Status s ON os.StatusId = s.Id
-                            LEFT JOIN OrderItems oi ON o.Id = oi.OrderId
-                            LEFT JOIN Cakes p ON oi.ProductId = p.Id
-                            WHERE o.CustomerId = :customerId
-                            AND (
-                                os.Id = (
-                                    SELECT MAX(os_inner.Id) 
-                                    FROM OrderStatus os_inner 
-                                    WHERE os_inner.OrderId = o.Id
-                                ) OR os.Id IS NULL
-                            )
-                            ORDER BY o.DateCreated DESC
-                            LIMIT :limit OFFSET :offset
-                        ");
+            SELECT o.Id AS OrderId, o.Total, o.ScheduleDate AS OrderDate, 
+                os.StatusId, s.StatusName, 
+                r.FileName
+            FROM Orders o
+            LEFT JOIN OrderStatus os ON o.Id = os.OrderId 
+            LEFT JOIN Status s ON os.StatusId = s.Id
+            LEFT JOIN Receipt r ON o.Id = r.OrderId
+            WHERE o.CustomerId = :customerId
+            AND (
+                os.Id = (
+                    SELECT MAX(os_inner.Id) 
+                    FROM OrderStatus os_inner 
+                    WHERE os_inner.OrderId = o.Id
+                ) OR os.Id IS NULL
+            )
+            ORDER BY o.ScheduleDate DESC
+            LIMIT :limit OFFSET :offset
+        ");
                         $stmt->bindParam(':customerId', $_SESSION['customerId'], PDO::PARAM_INT);
                         $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
                         $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -54,39 +54,22 @@
                         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         if (!empty($orders)) {
-                            $orderItems = [];
-                            $orderStatuses = [];
-                            $orderDates = [];
-                            $orderTotals = [];
-
-                            foreach ($orders as $order) {
-                                $orderItems[$order['OrderId']][] = [
-                                    'productName' => $order['ProductName'],
-                                    'quantity' => $order['Quantity']
-                                ];
-                                $orderStatuses[$order['OrderId']] = $order['StatusName'] ?? 'Not Available';
-                                $orderDates[$order['OrderId']] = $order['OrderDate'];
-                                $orderTotals[$order['OrderId']] = $order['Total'];
-                            }
-
                             $index = $offset + 1;
-                            foreach ($orderItems as $orderId => $items) {
-                                $itemList = '<ul>';
-                                foreach ($items as $item) {
-                                    $itemList .= "<li>{$item['productName']} x {$item['quantity']}</li>";
-                                }
-                                $itemList .= '</ul>';
-                                $orderDate = (new DateTime($orderDates[$orderId]))->format('Y-m-d');
+                            foreach ($orders as $order) {
+                                $orderDate = (new DateTime($order['OrderDate']))->format('Y-m-d');
+                                $downloadBtn = $order['FileName']
+                                    ? "<a href='./{$order['FileName']}' target='_blank' class='btn btn-sm btn-primary'>Download Receipt</a>"
+                                    : 'Not Available';
 
                                 echo "
-                                    <tr>
-                                        <td>{$index}</td>
-                                        <td>{$orderDate}</td>
-                                        <td>{$itemList}</td>
-                                        <td>$ " . number_format($orderTotals[$orderId], 2) . "</td>
-                                        <td>{$orderStatuses[$orderId]}</td>
-                                    </tr>
-                                ";
+                    <tr>
+                        <td>{$index}</td>
+                        <td>{$orderDate}</td>
+                        <td>$ " . number_format($order['Total'], 2) . "</td>
+                        <td>{$order['StatusName']}</td>
+                        <td>{$downloadBtn}</td>
+                    </tr>
+                ";
                                 $index++;
                             }
                         } else {
@@ -97,6 +80,7 @@
                     }
                 }
                 ?>
+
             </tbody>
         </table>
 
