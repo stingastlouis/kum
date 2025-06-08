@@ -69,7 +69,7 @@ CREATE TABLE Cakes (
     ImagePath TEXT,
     Description TEXT,
     Price DOUBLE NOT NULL,
-    DiscountPrice DOUBLE,
+    DiscountPrice DOUBLE NULL,
     StockCount INT NOT NULL,
     DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CategoryId) REFERENCES Category(Id) ON DELETE CASCADE
@@ -228,7 +228,7 @@ CREATE TABLE Receipt (
 );
 
 
-CREATE TABLE messages (
+CREATE TABLE Messages (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     SenderType ENUM('guest', 'customer') NOT NULL,
     SenderId INT NULL,

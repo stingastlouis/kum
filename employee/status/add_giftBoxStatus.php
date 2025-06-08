@@ -8,12 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $giftboxId = trim($_POST['giftbox_id']);
     $date = date('Y-m-d H:i:s');
     if (empty($statusId) || empty($giftboxId)) {
-        redirectWithMessage("../employee.php", "Missing required fields");
+        redirectWithMessage("../giftbox.php", "Missing required fields");
     }
 
     try {
         $date = date('Y-m-d H:i:s');
-        $stmt = $conn->prepare("INSERT INTO GiftboxStatus (GiftBoxId, StatusId, DateCreated) VALUES (:giftboxId, :statusid, :datecreated)");
+        $stmt = $conn->prepare("INSERT INTO GiftBoxStatus (GiftBoxId, StatusId, DateCreated) VALUES (:giftboxId, :statusid, :datecreated)");
         $stmt->bindParam(':giftboxId', $giftboxId);
         $stmt->bindParam(':statusid', $statusId);
         $stmt->bindParam(':datecreated', $date);

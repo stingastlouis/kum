@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $categoryId = $_POST['cake_category_id'] ?? '';
     $description = $_POST['cake_description'] ?? '';
     $price = $_POST['cake_price'] ?? '';
-    $discount_price = $_POST['cake_discount'] ?? '';
+    $discount_price = $_POST['cake_discount'] ?? null;
     $stock = $_POST['cake_stock'] ?? '';
 
     if (empty($employeeId)) {

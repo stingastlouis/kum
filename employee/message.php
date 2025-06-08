@@ -8,7 +8,7 @@ $limit = 10;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-$totalStmt = $conn->query("SELECT COUNT(*) FROM messages");
+$totalStmt = $conn->query("SELECT COUNT(*) FROM Messages");
 $totalRows = $totalStmt->fetchColumn();
 $totalPages = ceil($totalRows / $limit);
 

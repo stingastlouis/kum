@@ -11,12 +11,12 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] 
 $offset = ($page - 1) * $limit;
 
 
-$totalStmt = $conn->prepare("SELECT COUNT(*) FROM roles");
+$totalStmt = $conn->prepare("SELECT COUNT(*) FROM Roles");
 $totalStmt->execute();
 $totalRows = $totalStmt->fetchColumn();
 $totalPages = ceil($totalRows / $limit);
 
-$stmt = $conn->prepare("SELECT * FROM roles ORDER BY Id DESC LIMIT :limit OFFSET :offset");
+$stmt = $conn->prepare("SELECT * FROM Roles ORDER BY Id DESC LIMIT :limit OFFSET :offset");
 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();

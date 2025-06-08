@@ -9,7 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $employeeId = $_POST['employee_id'] ?? null;
     $description = $_POST['cake_description'] ?? '';
     $price = $_POST['cake_price'] ?? '';
-    $discount = $_POST['cake_discount'] ?? '';
+    $discount = isset($_POST['cake_discount']) && is_numeric($_POST['cake_discount']) && (int)$_POST['cake_discount'] > 0
+        ? (int)$_POST['cake_discount']
+        : null;
+
     $stock = $_POST['cake_stock'] ?? '';
     $categoryId = $_POST['cake_category_id'] ?? '';
 

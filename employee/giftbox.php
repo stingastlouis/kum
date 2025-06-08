@@ -103,7 +103,7 @@ $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                                 Delete
                                             </button>
 
-                                            <form method="POST" action="status/add_giftboxStatus.php" class="d-flex align-items-center" style="margin: 0;">
+                                            <form method="POST" action="status/add_giftBoxStatus.php" class="d-flex align-items-center" style="margin: 0;">
                                                 <input type="hidden" name="giftbox_id" value="<?= $giftbox['Id'] ?>">
                                                 <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 160px;">
                                                     <option value="" disabled selected>Change Status</option>

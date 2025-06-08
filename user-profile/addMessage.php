@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once '../employee/utils/redirectMessage.php';
 include '../configs/db.php';
 
 $subject = $_POST['subject'] ?? '';
@@ -24,7 +25,7 @@ try {
         header("Location: ../profile.php#queries");
         exit;
     } else {
-        $stmt = $conn->prepare("INSERT INTO messages (SenderType, GuestName, GuestEmail, Subject, Content) VALUES (:senderType, :guestName, :guestEmail, :subject, :content)");
+        $stmt = $conn->prepare("INSERT INTO Messages (SenderType, GuestName, GuestEmail, Subject, Content) VALUES (:senderType, :guestName, :guestEmail, :subject, :content)");
         $stmt->execute([
             ':senderType' => $senderType,
             ':guestName' => $guestName,
@@ -37,10 +38,9 @@ try {
     }
 } catch (PDOException $e) {
     if ($senderType === 'customer') {
-        header("Location: ../profile.php#queries?error='{$e}");
-        exit;
+        redirectWithMessage("../profile.php", $e);
     } else {
-        header("Location: ../contact.php?success=0");
+        redirectWithMessage("../contact.php", $e);
         exit;
     }
 }

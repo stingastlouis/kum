@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $conn->beginTransaction();
                     $now = date('Y-m-d H:i:s');
-                    $insertGiftbox = $conn->prepare("INSERT INTO Giftbox (Name, Description, CategoryId, Price, MaxCakes, ImagePath, DateCreated) 
+                    $insertGiftbox = $conn->prepare("INSERT INTO GiftBox (Name, Description, CategoryId, Price, MaxCakes, ImagePath, DateCreated) 
                                                    VALUES (?, ?, ?, ?, ?, ?, ?)");
                     $insertGiftbox->execute([$giftboxName, $giftboxDescription, $categoryId, $giftboxPrice, $giftboxMaxCakes, $fileName, $now]);
 
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($status) {
                             $statusId = $status['Id'];
 
-                            $insertStatus = $conn->prepare("INSERT INTO Giftboxstatus (GiftBoxId, StatusId, DateCreated) 
+                            $insertStatus = $conn->prepare("INSERT INTO GiftBoxStatus (GiftBoxId, StatusId, DateCreated) 
                                                            VALUES (?, ?, ?)");
                             $insertStatus->execute([$giftboxId, $statusId, $now]);
 

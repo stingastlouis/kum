@@ -70,7 +70,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?= htmlspecialchars($customer['Email']) ?></td>
                                 <td><?= htmlspecialchars($customer['Phone']) ?></td>
                                 <td><?= htmlspecialchars($customer['Address']) ?></td>
-                                <td><?= htmlspecialchars($customer['LatestStatus']) ?: 'No Status' ?></td>
+                                <td><?= $customer['LatestStatus'] !== null ? htmlspecialchars($customer['LatestStatus']) : 'No Status' ?></td>
                                 <td><?= htmlspecialchars($customer['DateCreated']) ?></td>
                                 <?php if (isEmployeeInRole(ROLE_ADMIN)): ?>
                                     <td>
@@ -228,6 +228,7 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'includes/footer.php'; ?>
 
 <script>
+    // Set customer ID when clicking delete button
     document.querySelectorAll('.btn-del').forEach(function(button) {
         button.addEventListener('click', function() {
             var customerId = this.getAttribute('data-id');
@@ -235,42 +236,52 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
+    // Fill edit form and show modal
     document.querySelectorAll('.edit-customer-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const fullname = this.getAttribute('data-fullname');
             const email = this.getAttribute('data-email');
             const phone = this.getAttribute('data-phone');
-            const roleAddress = this.getAttribute('data-address');
+            const address = this.getAttribute('data-address');
 
             document.getElementById('editCustomerId').value = id;
             document.getElementById('editCustomerFullname').value = fullname;
             document.getElementById('editCustomerEmail').value = email;
             document.getElementById('editCustomerPhone').value = phone;
-            document.getElementById('editCustomerAddress').value = roleAddress;
+            document.getElementById('editCustomerAddress').value = address;
 
-            const modal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+            var modal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
             modal.show();
         });
     });
 
+    // Set customer ID in reset password modal
     document.querySelectorAll('.reset-password-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const customerId = this.getAttribute('data-id');
-            document.getElementById('resetPasswordCustomerId').value = customerId;
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            document.getElementById('resetPasswordCustomerId').value = id;
         });
     });
 
-    document.querySelector('#resetPasswordModal form').addEventListener('submit', function(e) {
-        const password = document.getElementById('newPassword').value;
-        const confirm = document.getElementById('confirmPassword').value;
-
-        if (password !== confirm) {
-            e.preventDefault();
-            alert('Passwords do not match!');
-        }
+    // Generate random password for reset
+    document.getElementById('generateNewPasswordBtn').addEventListener('click', function () {
+        const passwordField = document.getElementById('customerNewPassword');
+        const newPassword = generateRandomPassword(10);
+        passwordField.value = newPassword;
     });
+
+    // Password generator function
+    function generateRandomPassword(length) {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
+        let password = '';
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    }
 </script>
+
 
 <script>
     function generatePassword() {

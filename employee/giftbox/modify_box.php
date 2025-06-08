@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($imagePath)) {
-        $stmt = $conn->prepare("UPDATE Giftbox SET MaxCakes = :max, Name = :name, CategoryId = :cat_id, Description = :description, ImagePath = :image, Price = :price WHERE Id = :id");
+        $stmt = $conn->prepare("UPDATE GiftBox SET MaxCakes = :max, Name = :name, CategoryId = :cat_id, Description = :description, ImagePath = :image, Price = :price WHERE Id = :id");
         $stmt->bindParam(':image', $imageName, PDO::PARAM_STR);
     } else {
-        $stmt = $conn->prepare("UPDATE Giftbox SET MaxCakes = :max, Name = :name, CategoryId = :cat_id, Description = :description, Price = :price WHERE Id = :id");
+        $stmt = $conn->prepare("UPDATE GiftBox SET MaxCakes = :max, Name = :name, CategoryId = :cat_id, Description = :description, Price = :price WHERE Id = :id");
     }
 
     $stmt->bindParam(':name', $name, PDO::PARAM_STR);

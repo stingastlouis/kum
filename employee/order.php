@@ -336,10 +336,10 @@ $totalPages = ceil($totalOrders / $limit);
                             <?php echo $order['IsPaid']; ?>
                         <?php endif; ?>
                     </td>
-                    <td><?= htmlspecialchars($order['CookName']) ?: 'N/A' ?></td>
+                    <td><?= htmlspecialchars($order['CookName'] ?? '') ?: 'N/A' ?></td>
                     <td><?= htmlspecialchars($order['LatestOrderStatus']) ?: 'No Status' ?></td>
-                    <td><?= htmlspecialchars($order['DeliveryEmployeeName']) ?: 'N/A' ?></td>
-                    <td><?= htmlspecialchars($order['LatestDeliveryStatus']) ?: 'N/A' ?></td>
+                    <td><?= htmlspecialchars($order['DeliveryEmployeeName'] ?? '') ?: 'N/A' ?></td>
+                    <td><?= htmlspecialchars($order['LatestDeliveryStatus'] ?? '') ?: 'N/A' ?></td>
                     <td>
                         <a href="../<?= htmlspecialchars($order['ReceiptFileName']) ?>" target='_blank' class='btn btn-sm btn-primary'>View Receipt</a>
                     </td>

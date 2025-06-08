@@ -54,12 +54,14 @@ require_once 'popupMessage.php';
                             <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
                             <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
-                            <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
                             <li class="nav-item"><a class="nav-link" href="employee.php">Employees</a></li>
 
                             <li class="nav-item"><a class="nav-link" href="customer.php">Customers</a></li>
                             <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
+                        <?php endif; ?>
+                        <?php if (isEmployeeInRoles([ROLE_ADMIN,ROLE_COOK])): ?>
+                            <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
+                            <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
                         <?php endif; ?>
                         <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
                             <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
@@ -85,7 +87,10 @@ require_once 'popupMessage.php';
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="d-none d-lg-inline text-white small me-2"><?php echo $employeeName . " - " . $employeeRole ?></span> </a>
+                                <span class="text-white small me-2">
+                                    <?php echo $employeeName . " - " . $employeeRole ?>
+                                </span>
+                            </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="employee-logout.php">Logout</a></li>
                             </ul>

@@ -1,3 +1,9 @@
+<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <div class="tab-pane fade" id="order-history" role="tabpanel">
     <div class="card p-4">
         <h3>Order History</h3>
@@ -14,7 +20,7 @@
 
             <tbody>
                 <?php
-                include './configs/db.php';
+                include 'configs/db.php';
                 if (isset($_SESSION['customerId'])) {
                     try {
                         $limit = 5;
@@ -97,7 +103,6 @@
         <?php endif; ?>
     </div>
 </div>
-
 <style>
     .pagination .page-item.active .page-link {
         background-color: #ff69b4;
