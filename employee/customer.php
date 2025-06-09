@@ -228,7 +228,6 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    // Set customer ID when clicking delete button
     document.querySelectorAll('.btn-del').forEach(function(button) {
         button.addEventListener('click', function() {
             var customerId = this.getAttribute('data-id');
@@ -236,7 +235,6 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // Fill edit form and show modal
     document.querySelectorAll('.edit-customer-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
@@ -256,7 +254,6 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // Set customer ID in reset password modal
     document.querySelectorAll('.reset-password-btn').forEach(button => {
         button.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
@@ -264,14 +261,12 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // Generate random password for reset
     document.getElementById('generateNewPasswordBtn').addEventListener('click', function () {
         const passwordField = document.getElementById('customerNewPassword');
         const newPassword = generateRandomPassword(10);
         passwordField.value = newPassword;
     });
 
-    // Password generator function
     function generateRandomPassword(length) {
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
         let password = '';
