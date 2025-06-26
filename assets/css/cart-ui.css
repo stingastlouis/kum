@@ -1,0 +1,42 @@
+.text-pink {
+  color: #d63384;
+}
+.bg-pink {
+  background-color: #ff69b4 !important;
+}
+.btn-pink {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+}
+.btn-pink:hover {
+  background-color: #ff85c1;
+  color: white;
+}
+.btn-light-pink {
+  background-color: #ffe6f0;
+  border: 1px solid #ffb6c1;
+}
+.btn-close-custom {
+  background-color: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #d63384;
+  cursor: pointer;
+}
+
+.cake-cart {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  max-height: 440px;
+  background: #fff0f6;
+  border: 2px dashed #ff69b4;
+  border-radius: 15px;
+  padding: 20px;
+  z-index: 9999;
+  overflow-y: auto;
+  font-family: "Comic Sans MS", cursive, sans-serif;
+}

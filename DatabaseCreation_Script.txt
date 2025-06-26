@@ -1,0 +1,289 @@
+CREATE DATABASE delicious_cake;
+
+
+CREATE TABLE Roles (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Status (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    StatusName TEXT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Customer (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Fullname VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    Address TEXT,
+    Phone VARCHAR(50),
+    Password TEXT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Employee (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Fullname VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE,
+    Phone VARCHAR(50),
+    Password TEXT NOT NULL,
+    RoleId INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE CustomerStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerId INT NOT NULL,
+    StatusId INT NULL,
+    EmployeeId INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE EmployeeStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    EmployeeId INT NOT NULL,
+    StatusId INT NULL,
+    ModifyBy INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (ModifyBy) REFERENCES Employee(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Category (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Cakes (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    CategoryId INT NOT NULL,
+    ImagePath TEXT,
+    Description TEXT,
+    Price DOUBLE NOT NULL,
+    DiscountPrice DOUBLE NULL,
+    StockCount INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CategoryId) REFERENCES Category(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Orders (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerId INT NOT NULL,
+    Total DOUBLE NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ScheduleDate DATETIME NOT NULL,
+    FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE OrderStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    StatusId INT NULL,
+    EmployeeId INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE OrderItems (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    ProductId INT NOT NULL,
+    ProductType VARCHAR(30) NOT NULL,
+    Price DOUBLE NOT NULL,
+    Quantity INT NOT NULL,
+    SubTotal DOUBLE NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (ProductId) REFERENCES Cakes(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Delivery (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    EmployeeId INT NULL,
+    Location TEXT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE DeliveryStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    DeliveryId INT NOT NULL,
+    StatusId INT NULL,
+    EmployeeId INT,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (DeliveryId) REFERENCES Delivery(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE PaymentMethod (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Payment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerId INT NOT NULL,
+    PaymentMethodId INT NOT NULL,
+    OrderId INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CustomerId) REFERENCES Customer(Id) ON DELETE CASCADE,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (PaymentMethodId) REFERENCES PaymentMethod(Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE PaypalPayment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PaymentId INT NOT NULL,
+    TransactionId TEXT NULL, 
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE CashPayment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    PaymentId INT NOT NULL,
+    DatePaid DATETIME NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE GiftBox (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    CategoryId INT,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT NOT NULL,
+    Price DOUBLE NOT NULL,
+    MaxCakes INT NOT NULL,
+    ImagePath TEXT,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CategoryId) REFERENCES Category(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE GiftBoxStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    GiftBoxId INT NOT NULL,
+    StatusId INT NULL,
+    EmployeeId INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (GiftBoxId) REFERENCES GiftBox(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE CakeStatus (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    CakeId INT NOT NULL,
+    StatusId INT NULL,
+    EmployeeId INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StatusId) REFERENCES Status(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE GiftBoxSelection (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderItemId INT NOT NULL,
+    CakeId INT NOT NULL,
+    Quantity INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderItemId) REFERENCES OrderItems(Id) ON DELETE CASCADE,
+    FOREIGN KEY (CakeId) REFERENCES Cakes(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE OrderAssignment (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    CookId INT NOT NULL,
+    AssignedBy INT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id) ON DELETE CASCADE,
+    FOREIGN KEY (CookId) REFERENCES Employee(Id) ON DELETE CASCADE,
+    FOREIGN KEY (AssignedBy) REFERENCES Employee(Id) ON DELETE SET NULL
+);
+
+CREATE TABLE Receipt (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    OrderId INT NOT NULL,
+    FileName VARCHAR(100) NOT NULL,
+    ExternalId VARCHAR(100) NOT NULL UNIQUE,
+    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id)
+);
+
+
+CREATE TABLE Messages (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    SenderType ENUM('guest', 'customer') NOT NULL,
+    SenderId INT NULL,
+    GuestName VARCHAR(100),
+    GuestEmail VARCHAR(100),
+    RecipientId INT NULL,
+    Subject VARCHAR(255) NOT NULL,
+    Content TEXT NOT NULL,
+    `Read` BOOLEAN DEFAULT FALSE,
+    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    DateUpdated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (SenderId) REFERENCES Customer(Id),
+    FOREIGN KEY (RecipientId) REFERENCES Employee(Id)
+);
+
+-- Order Statuses
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PENDING', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CONFIRMED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('PROCESSING', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY FOR PICKUP', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY FOR DELIVERY', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('OUT FOR DELIVERY', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('DELIVERED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('COLLECTED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('COMPLETED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('BAKED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('CANCELLED', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('READY TO BAKE', NOW());
+
+
+
+-- General Status
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('ACTIVE', NOW());
+INSERT INTO `Status`(`StatusName`, `DateCreated`) VALUES ('INACTIVE', NOW());
+
+
+-- insert paymentmethod
+INSERT INTO `PaymentMethod` (`Name`, `Description`, `DateCreated`) VALUES ('Cash', 'Pay at shop or at Door', current_timestamp());
+INSERT INTO `PaymentMethod` (`Name`, `Description`, `DateCreated`) VALUES ('Paypal', 'Process online payment', current_timestamp());
+
+-- insert Role
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Manager', current_timestamp());
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Cook', current_timestamp());
+INSERT INTO `Roles` (`Name`, `DateCreated`) VALUES ('Rider', current_timestamp());
+
+
+-- insert first Admin
+INSERT INTO `Employee` (`Fullname`, `Email`, `Phone`, `Password`, `RoleId`, `DateCreated`) VALUES ('kum', 'admin@gmail.com', '54344441', '$2y$10$ZDHq2Ss7NbYnoMcdtSoS0OcPORKzLVNqXSFlcJgkUarmyVDa3WYJ2', (SELECT Id FROM Roles WHERE Name = "Manager"), current_timestamp());
+
+-- insert Status for employee kum
+INSERT INTO `EmployeeStatus` (`EmployeeId`, `StatusId`, `DateCreated`) 
+VALUES (
+    (SELECT `Id` FROM `Employee` WHERE Email = "admin@gmail.com"), 
+    (SELECT Id FROM `Status` WHERE StatusName = "ACTIVE"), 
+    current_timestamp()
+);
+-- code  : Admin123$
+-- email : admin@gmail.com

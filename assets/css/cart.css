@@ -1,0 +1,17 @@
+#cart-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: none; /* Hide cart initially */
+}
+
+#close-cart-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: red;
+}
+
+#close-cart-button:hover {
+  color: darkred;
+}

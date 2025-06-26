@@ -1,0 +1,45 @@
+.giftbox-list-page {
+        background-color: #fff0f6;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .giftbox-list-page .giftbox-card {
+        cursor: pointer;
+        background-color: #fff;
+        border-radius: 20px;
+        border: 2px solid #ffc8dd;
+        box-shadow: 0 5px 15px rgba(255, 192, 203, 0.3);
+        overflow: hidden;
+        transition: transform 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .giftbox-list-page .giftbox-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
+    }
+
+    .giftbox-list-page .giftbox-card img {
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+    }
+
+    .giftbox-list-page .card-body {
+        padding: 15px;
+    }
+
+    .giftbox-list-page .card-title {
+        color: #d63384;
+        font-weight: bold;
+        font-size: 1.2rem;
+        font-family: 'Pacifico', cursive;
+        margin-bottom: 0.5rem;
+    }
+
+    .giftbox-list-page .card-text {
+        font-size: 0.95rem;
+        color: #333;
+    }

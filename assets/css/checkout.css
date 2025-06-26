@@ -1,0 +1,91 @@
+#checkout-page {
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  background-color: #fce0f1;
+  color: #d63384;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#location-label {
+  display: none;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #007bff;
+  text-align: center;
+}
+
+#checkout-page h1 {
+  color: #ff69b4;
+  font-family: "Pacifico", cursive;
+  font-size: 2.5rem;
+}
+
+#checkout-page table {
+  width: 100%;
+  margin-top: 20px;
+  border: 2px solid #ff69b4;
+  border-radius: 10px;
+  background-color: #ffe6f0;
+}
+
+#checkout-page th,
+#checkout-page td {
+  padding: 12px 15px;
+  text-align: center;
+}
+
+#checkout-page th {
+  background-color: #ff85c1;
+  color: white;
+}
+
+#checkout-page .table-bordered {
+  border-radius: 8px;
+  border: 2px solid #ff69b4;
+}
+
+#checkout-page .table td {
+  background-color: #fff0f6;
+  color: #d63384;
+  font-weight: bold;
+}
+
+#checkout-page .alert-warning {
+  background-color: #fff0f6;
+  color: #ff69b4;
+  font-weight: bold;
+}
+
+#checkout-page button {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+#checkout-page button:hover {
+  background-color: #ff85c1;
+}
+
+#checkout-page .container {
+  background: #fff0f6;
+  border-radius: 15px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+#paypal-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#paypal-button-container button {
+  background-color: #ff69b4;
+  padding: 10px 20px;
+  border-radius: 30px;
+}

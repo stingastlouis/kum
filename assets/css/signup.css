@@ -1,0 +1,55 @@
+body {
+  background: #fff0f5; /* light pink */
+  font-family: "Poppins", sans-serif;
+}
+
+.register-container {
+  max-width: 500px;
+  margin: 60px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 2px dashed #ffb6c1;
+}
+
+.register-container h2 {
+  color: #d63384;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.form-label {
+  color: #c71585;
+  font-weight: 500;
+}
+
+.form-control {
+  border-radius: 12px;
+  border: 1px solid #ffc0cb;
+  padding: 12px;
+}
+
+.form-control:focus {
+  border-color: #ff69b4;
+  box-shadow: 0 0 5px #ffc0cb;
+}
+
+.btn-pink {
+  background-color: #ff69b4;
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  border: none;
+}
+
+.btn-pink:hover {
+  background-color: #ff85c1;
+}
+
+.text-muted {
+  font-size: 0.85em;
+}
