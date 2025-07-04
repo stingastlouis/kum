@@ -1,9 +1,10 @@
 <?php
-include './includes/header.php';
-include './configs/db.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+include './includes/header.php';
+include './configs/db.php';
+
 if (!isset($_SESSION['customerId'])) {
     header("Location: signin.php");
     exit();
@@ -28,102 +29,121 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <link rel="stylesheet" href="./assets/css/checkout.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-<div class="container mt-5" id="checkout-page">
-    <h1 class="mb-4 text-center">Checkout</h1>
-    <?php if (!empty($cartItems)): ?>
-        <table class="table table-bordered table-striped" id="summary-table">
-            <thead>
-                <tr>
-                    <th>Cake Name</th>
-                    <th>Type</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($cartItems as $cartItem): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($cartItem['name']) ?></td>
-                        <td><?= htmlspecialchars($cartItem['type']) ?></td>
-                        <td><?= intval($cartItem['quantity']) ?></td>
-                        <td>$ <?= number_format($cartItem['price'], 2) ?></td>
-                        <td>$ <?= number_format($cartItem['price'] * $cartItem['quantity'], 2) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <tfoot>
-                <tr id="delivery-row" style="display: none;">
-                    <th colspan="3" class="text-end">Delivery Fee</th>
-                    <th colspan="2" id="delivery-amount">$ <?= number_format($deliveryFee, 2) ?></th>
-                </tr>
-                <tr>
-                    <th colspan="3" class="text-end">Total</th>
-                    <th colspan="2" id="total-amount">$ <?= number_format($grandTotal, 2) ?></th>
-                </tr>
-            </tfoot>
-        </table>
-
-        <div class="mb-3">
-            <label for="scheduleDate" class="form-label">Choose Schedule Date</label>
-            <input type="date" class="form-control" id="scheduleDate" name="scheduleDate" required>
+<div class="container my-5" id="checkout-page">
+    <div class="card shadow">
+        <div class="card-header text-center bg-white text-primary">
+            <h2 class="mb-0">Checkout</h2>
         </div>
 
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" value="" id="deliveryCheckbox">
-            <label class="form-check-label" for="deliveryCheckbox">
-                Add delivery ($ <?= number_format($deliveryFee, 2) ?>)
-            </label>
+        <div class="card-body">
+            <?php if (!empty($cartItems)): ?>
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered table-hover align-middle" id="summary-table">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Cake Name</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($cartItems as $cartItem): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($cartItem['name']) ?></td>
+                                    <td><?= htmlspecialchars($cartItem['type']) ?></td>
+                                    <td><?= intval($cartItem['quantity']) ?></td>
+                                    <td>$ <?= number_format($cartItem['price'], 2) ?></td>
+                                    <td>$ <?= number_format($cartItem['price'] * $cartItem['quantity'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr id="delivery-row" class="table-info" style="display: none;">
+                                <th colspan="4" class="text-end">Delivery Fee</th>
+                                <th id="delivery-amount">$ <?= number_format($deliveryFee, 2) ?></th>
+                            </tr>
+                            <tr class="table-success fw-bold">
+                                <th colspan="4" class="text-end">Total</th>
+                                <th id="total-amount">$ <?= number_format($grandTotal, 2) ?></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <form id="checkout-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="scheduleDate" class="form-label">Choose Schedule Date</label>
+                            <input type="date" class="form-control" id="scheduleDate" name="scheduleDate" required>
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" value="" id="deliveryCheckbox">
+                                <label class="form-check-label" for="deliveryCheckbox">
+                                    Add delivery ($ <?= number_format($deliveryFee, 2) ?>)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="location-label" class="text-primary fw-bold text-center mb-2"></div>
+                            <div id="map" class="rounded border" style="height: 300px; display: none;"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="payment-method" class="form-label">Select Payment Method</label>
+                            <select class="form-select" id="payment-method" name="paymentMethodId" required>
+                                <option value="">-- Choose Payment Method --</option>
+                                <?php foreach ($paymentMethods as $method): ?>
+                                    <option value="<?= $method['Id'] ?>"><?= htmlspecialchars($method['Name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Fields -->
+                    <input type="hidden" name="customerId" value="<?= $customerId ?>">
+                    <input type="hidden" name="cartItems" value='<?= json_encode($cartItems) ?>'>
+                    <input type="hidden" id="finalAmount" name="finalAmount" value="<?= number_format($grandTotal, 2, '.', '') ?>">
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    <input type="hidden" id="selectedPaymentMethod" name="paymentMethodId">
+
+                    <div id="paypal-button-container" class="my-4" style="display:none;"></div>
+                    <button type="submit" class="btn btn-success w-100 mt-3" id="proceed-button" style="display:none;">Proceed to Pay</button>
+                </form>
+            <?php else: ?>
+                <div class="alert alert-warning text-center">
+                    Your cart is empty!
+                </div>
+            <?php endif; ?>
         </div>
-
-        <div id="location-label" class="mb-2 text-primary fw-bold text-center"></div>
-        <div id="map" style="height: 300px; display: none;" class="mb-3"></div>
-
-        <div class="mb-3">
-            <label for="payment-method" class="form-label">Select Payment Method</label>
-            <select class="form-select" id="payment-method" name="paymentMethodId" required>
-                <option value="">-- Choose Payment Method --</option>
-                <?php foreach ($paymentMethods as $method): ?>
-                    <option value="<?= $method['Id'] ?>"><?= htmlspecialchars($method['Name']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <form id="checkout-form">
-            <input type="hidden" name="customerId" value="<?= $customerId ?>">
-            <input type="hidden" name="cartItems" value='<?= json_encode($cartItems) ?>'>
-            <input type="hidden" id="finalAmount" name="finalAmount" value="<?= number_format($grandTotal, 2, '.', '') ?>">
-            <input type="hidden" id="latitude" name="latitude">
-            <input type="hidden" id="longitude" name="longitude">
-            <input type="hidden" id="selectedPaymentMethod" name="paymentMethodId">
-
-            <div id="paypal-button-container" style="display:none;"></div>
-            <button type="submit" class="btn btn-success w-100" id="proceed-button" style="display:none;">Proceed</button>
-        </form>
-    <?php else: ?>
-        <p class="alert alert-warning text-center" style="background-color: #fff0f6; color: #ff69b4; font-weight: bold;">Your cart is empty! </p>
-    <?php endif; ?>
+    </div>
 </div>
 
+<!-- Modal -->
 <div class="modal fade" id="orderResponseModal" tabindex="-1" aria-labelledby="orderResponseLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white" id="modalHeader">
                 <h5 class="modal-title" id="orderResponseLabel">Order Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="orderResponseMessage">
-            </div>
-            <div class="modal-footer" id="modalFooter">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-body text-center" id="orderResponseMessage"></div>
+            <div class="modal-footer justify-content-center" id="modalFooter">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 <a id="successRedirectBtn" href="profile.php#order-history" class="btn btn-success d-none">Go to Order History</a>
-
             </div>
         </div>
     </div>
 </div>
 
 
-<script src="https://www.paypal.com/sdk/js?client-id=AYDMJVEgkRqU66bGWK-uzYtGKsJsLzVfx5OSKIn2j6y_tISbzHdvhEbyDXFU5dngERPjuoT1AUvRVygB&currency=USD"></script>
+
+<script src="https://www.paypal.com/sdk/js?client-id=AXH2LzHpBAYT6jVv2iLrxwCNitKOjG7UWgCQtEa0mQCe_Eh2kmUcSIYnngbKFvtbTUtRsMFZ1OuwDsaE&currency=USD"></script>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -132,9 +152,6 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
     today.setDate(today.getDate() + 2);
     const minDate = today.toISOString().split('T')[0];
     scheduleDateInput.min = minDate;
-
-
-
     const deliveryCheckbox = document.getElementById('deliveryCheckbox');
     const deliveryRow = document.getElementById('delivery-row');
     const deliveryAmount = <?= $deliveryFee ?>;
@@ -256,13 +273,14 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         })
                     }).then(res => res.json())
                     .then(response => {
-                        localStorage.removeItem("cake-cart");
+
                         const modal = new bootstrap.Modal(document.getElementById('orderResponseModal'));
                         const messageEl = document.getElementById('orderResponseMessage');
                         const headerEl = document.getElementById('modalHeader');
                         const successBtn = document.getElementById('successRedirectBtn');
 
                         if (response.success) {
+                            localStorage.removeItem("cake-cart");
                             messageEl.textContent = "Order placed successfully!";
                             headerEl.classList.remove("bg-danger");
                             headerEl.classList.add("bg-success", "text-white");
@@ -299,7 +317,6 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 })
             }).then(res => res.json())
             .then(response => {
-                localStorage.removeItem("cake-cart");
                 const modal = new bootstrap.Modal(document.getElementById('orderResponseModal'));
                 const messageEl = document.getElementById('orderResponseMessage');
                 const headerEl = document.getElementById('modalHeader');
@@ -335,5 +352,5 @@ $paymentMethods = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     });
 </script>
-<br/>
+<br />
 <?php include './includes/footer.php' ?>

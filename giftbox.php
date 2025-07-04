@@ -26,7 +26,7 @@ try {
                         <img src="./assets/uploads/giftboxes/<?= htmlspecialchars($giftbox['ImagePath']) ?>" class="w-100" alt="<?= htmlspecialchars($giftbox['Name']) ?>">
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($giftbox['Name']) ?></h5>
-                            <p class="card-text">Max Cakes: <?= $giftbox['MaxCakes'] ?></p>
+                            <p class="card-text"><?= $giftbox['MaxCakes'] ?> Selection</p>
                             <p class="card-text">Price: $ <?= $giftbox['Price'] ?></p>
                         </div>
                     </a>

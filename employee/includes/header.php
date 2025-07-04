@@ -27,21 +27,19 @@ require_once 'popupMessage.php';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Dashboard - Delicious Cake</title>
-    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/spotlight.png">
     <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/Nunito.css">
     <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
     <link rel="stylesheet" href="../assets/css/dropdown.css">
     <link rel="stylesheet" href="../assets/css/board-image.css">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png">
-</head>
 
-<body id="page-top">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+<body id="page-top" style="background-color:rgb(233, 211, 222);">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:rgb(236, 12, 120);">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="index.php">
-                <i class="fas fa-laugh-wink me-2 rotate-n-15"></i>
-                <span>Delicious Cake</span>
+                <img src="../assets/img/cake.png" width="40" height="40">
+                <span style="margin-left: 20px">Delicious Cake</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -51,23 +49,23 @@ require_once 'popupMessage.php';
                 <?php if (isEmployeeLoggedIn()): ?>
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <?php if (isEmployeeInRoles([ROLE_ADMIN])): ?>
-                            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" href="category.php">Categories</a></li>
-                            <li class="nav-item"><a class="nav-link" href="role.php">Roles</a></li>
-                            <li class="nav-item"><a class="nav-link" href="employee.php">Employees</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="index.php">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="category.php">Categories</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="role.php">Roles</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="employee.php">Employees</a></li>
 
-                            <li class="nav-item"><a class="nav-link" href="customer.php">Customers</a></li>
-                            <li class="nav-item"><a class="nav-link" href="order.php">Orders</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="customer.php">Customers</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="order.php">Orders</a></li>
                         <?php endif; ?>
-                        <?php if (isEmployeeInRoles([ROLE_ADMIN,ROLE_COOK])): ?>
-                            <li class="nav-item"><a class="nav-link" href="giftbox.php">Giftboxes</a></li>
-                            <li class="nav-item"><a class="nav-link" href="cake.php">Cakes</a></li>
+                        <?php if (isEmployeeInRoles([ROLE_ADMIN, ROLE_COOK])): ?>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="giftbox.php">Giftboxes</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="cake.php">Cakes</a></li>
                         <?php endif; ?>
                         <?php if (isEmployeeInRoles([ROLE_DELIVERY])): ?>
-                            <li class="nav-item"><a class="nav-link" href="delivery.php">Deliveries</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="delivery.php">Deliveries</a></li>
                         <?php endif; ?>
                         <?php if (isEmployeeInRoles([ROLE_COOK])): ?>
-                            <li class="nav-item"><a class="nav-link" href="orderToBake.php">Orders</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-dark" href="orderToBake.php">Orders</a></li>
                         <?php endif; ?>
                     </ul>
 
@@ -77,7 +75,7 @@ require_once 'popupMessage.php';
                                 <a class="nav-link position-relative" href="message.php" title="Go to messages">
                                     <i class="fas fa-envelope"></i>
                                     <?php if ($unreadCount > 0): ?>
-                                        <span class="badge bg-danger position-absolute top-1 start-100 translate-middle badge-counter">
+                                        <span class="badge bg-secondary position-absolute top-1 start-100 translate-middle badge-counter">
                                             <?= $unreadCount ?>
                                         </span>
                                     <?php endif; ?>

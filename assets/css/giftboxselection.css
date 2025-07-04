@@ -1,0 +1,68 @@
+.giftbox-selection-page {
+  background-color: #fff0f6;
+  font-family: "Poppins", sans-serif;
+}
+
+.giftbox-selection-page .cake-title {
+  color: #d63384;
+  font-weight: bold;
+  font-family: "Pacifico", cursive;
+}
+
+.giftbox-selection-page .cake-card {
+  background-color: #fff;
+  border-radius: 20px;
+  border: 2px solid #ffc8dd;
+  box-shadow: 0 5px 15px rgba(255, 192, 203, 0.3);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.giftbox-selection-page .cake-card:hover {
+  transform: scale(1.03);
+}
+
+.giftbox-selection-page .card-title {
+  color: #ff69b4;
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-family: "Poppins", cursive;
+}
+
+.giftbox-selection-page .card-body p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.giftbox-selection-page .card-img-top {
+  height: 180px;
+  object-fit: cover;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.giftbox-selection-page input.cake-quantity {
+  border-radius: 10px;
+  border: 1px solid #ffc8dd;
+  padding: 5px;
+}
+
+.giftbox-selection-page .btn-primary {
+  background-color: #ff69b4;
+  border-color: #ff69b4;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-family: "Poppins", sans-serif;
+}
+
+.giftbox-selection-page .btn-primary:hover {
+  background-color: #ff85c1;
+  border-color: #ff85c1;
+}
+
+.giftbox-selection-page #cake-count-info {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #d63384;
+}

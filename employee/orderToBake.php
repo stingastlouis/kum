@@ -76,7 +76,7 @@ $statusBakedId = $statusBaked["Id"] ?? null;
     max-height: 80px;
   }
 </style>
-<div class="container mt-5">
+<div class="container mt-5" style="height: 90vh;">
   <h2 class="mb-4">Customer Orders</h2>
   <table class="table table-bordered table-hover">
     <thead class="table-light">

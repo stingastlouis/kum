@@ -39,7 +39,7 @@ $stmt3->execute();
 $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="container-fluid">
+<div class="container-fluid" style="height: 90vh;">
     <h3 class="text-dark mb-4">Customer Management</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -258,14 +258,14 @@ $statuses = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
     // Set customer ID in reset password modal
     document.querySelectorAll('.reset-password-btn').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             document.getElementById('resetPasswordCustomerId').value = id;
         });
     });
 
     // Generate random password for reset
-    document.getElementById('generateNewPasswordBtn').addEventListener('click', function () {
+    document.getElementById('generateNewPasswordBtn').addEventListener('click', function() {
         const passwordField = document.getElementById('customerNewPassword');
         const newPassword = generateRandomPassword(10);
         passwordField.value = newPassword;

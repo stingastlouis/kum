@@ -41,7 +41,7 @@ $stmt3->execute();
 $categories = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="container-fluid">
+<div class="container-fluid" style="height: 90vh;">
     <h3 class="text-dark mb-4">Giftboxes</h3>
     <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">

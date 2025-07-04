@@ -3,6 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+unset($_SESSION['cart']);
 ?>
 <div class="tab-pane fade" id="order-history" role="tabpanel">
     <div class="card p-4">

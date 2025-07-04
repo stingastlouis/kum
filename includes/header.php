@@ -23,7 +23,7 @@
     ?>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/kum">Delicious Cake</a>
+            <a class="navbar-brand fw-bold" href="index.php">Delicious Cake</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -36,14 +36,14 @@
                     <li class="nav-item"><a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? ' active' : ''; ?>" href="contact.php">Contact</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                        <a href="#" id="cart-icon" class="btn btn-light-pink text-dark position-relative rounded-pill shadow-sm">
-                            My Cart
-                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-pink text-white">
-                                0
-                            </span>
-                        </a>
+                    <a href="#" id="cart-icon" class="btn btn-light-pink text-dark position-relative rounded-pill shadow-sm">
+                        My Cart
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-pink text-white">
+                            0
+                        </span>
+                    </a>
                     <?php if ($isLoggedIn): ?>
-                       
+
 
                         <a href="profile.php" class="text-primary text-decoration-none fw-semibold <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? ' active' : ''; ?>" style="cursor: pointer;">
                             Profile

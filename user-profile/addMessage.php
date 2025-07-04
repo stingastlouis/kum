@@ -11,11 +11,11 @@ $customerId = $_SESSION['customerId'] ?? null;
 
 $senderType = $customerId ? 'customer' : 'guest';
 $guestName = $_POST['name'] ?? 'Anonymous';
-$guestEmail = $_POST['email'] ?? 'guest@example.com';
+$guestEmail = $_POST['email'] ?? '-';
 
 try {
     if ($senderType === 'customer') {
-        $stmt = $conn->prepare("INSERT INTO messages (SenderType, SenderId, Subject, Content) VALUES (:senderType, :senderId, :subject, :content)");
+        $stmt = $conn->prepare("INSERT INTO Messages (SenderType, SenderId, Subject, Content) VALUES (:senderType, :senderId, :subject, :content)");
         $stmt->execute([
             ':senderType' => $senderType,
             ':senderId' => $customerId,

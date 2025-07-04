@@ -9,12 +9,21 @@ function saveCart(cart) {
   localStorage.setItem(cartKey, JSON.stringify(cart));
 }
 
-function addToCart(id, name, price, quantity, type) {
+function addToCart(id, name, price, quantity, type, stock) {
   const cart = loadCart();
   const existingItem = cart.find(
     (item) =>
       String(item.id) === String(id) && String(item.type) === String(type)
   );
+
+  const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
+  const newQuantity = currentQuantityInCart + quantity;
+  if (newQuantity > stock) {
+    alert(
+      `Only ${stock} item(s) available in stock. You already have ${currentQuantityInCart} in your cart.`
+    );
+    return;
+  }
 
   if (existingItem) {
     existingItem.quantity += quantity;
@@ -29,8 +38,7 @@ function addToCart(id, name, price, quantity, type) {
 function removeFromCart(id, type) {
   let cart = loadCart();
   cart = cart.filter((item) => {
-    const match = !(String(item.id) === String(id) && item.type === type);
-    return match;
+    return !(String(item.id) === String(id) && item.type === type);
   });
 
   saveCart(cart);
@@ -112,12 +120,12 @@ function initCart() {
       const stock = parseInt(button.getAttribute("data-stock"));
       const quantityInput = button
         .closest(".d-flex")
-        .querySelector(".quantity-input");
-      const quantity = parseInt(quantityInput.value);
+        ?.querySelector(".quantity-input");
+      const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
 
-      if (quantity > 0 && quantity <= stock) {
-        addToCart(id, name, price, quantity, type);
-        quantityInput.value = 1;
+      if (quantity > 0) {
+        addToCart(id, name, price, quantity, type, stock);
+        if (quantityInput) quantityInput.value = 1;
       } else {
         alert("Invalid quantity!");
       }
@@ -146,12 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
       floatingCart.style.display = "block";
     });
   }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("close-cart");
-  const floatingCart = document.getElementById("cart-container");
-
   if (closeBtn && floatingCart) {
     closeBtn.addEventListener("click", () => {
       floatingCart.style.display = "none";
