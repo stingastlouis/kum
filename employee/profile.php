@@ -11,7 +11,7 @@ include '../configs/db.php';
     <div class="card p-4">
         <?php
         try {
-            $stmt = $conn->prepare("SELECT e.*, r.RoleName 
+            $stmt = $conn->prepare("SELECT e.*, r.Name AS RoleName 
                                     FROM Employee e 
                                     JOIN Roles r ON e.RoleId = r.Id 
                                     WHERE e.Id = :employeeId");

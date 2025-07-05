@@ -1,11 +1,11 @@
 <?php
 require_once 'auth.php';
-
 include '../configs/db.php';
 
 $employeeName = $_SESSION['employee_fullname'] ?? null;
 $employeeRole = $_SESSION['employee_role'] ?? null;
 $unreadCount = 0;
+
 if ($employeeName) {
     try {
         $stmt = $conn->prepare("SELECT COUNT(*) FROM `Messages` WHERE `Read` = 0");
@@ -19,10 +19,8 @@ if ($employeeName) {
 require_once 'popupMessage.php';
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -33,6 +31,7 @@ require_once 'popupMessage.php';
     <link rel="stylesheet" href="../assets/css/dropdown.css">
     <link rel="stylesheet" href="../assets/css/board-image.css">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+</head>
 
 <body id="page-top" style="background-color:rgb(233, 211, 222);">
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:rgb(236, 12, 120);">
@@ -53,7 +52,6 @@ require_once 'popupMessage.php';
                             <li class="nav-item"><a class="nav-link fw-bold text-dark" href="category.php">Categories</a></li>
                             <li class="nav-item"><a class="nav-link fw-bold text-dark" href="role.php">Roles</a></li>
                             <li class="nav-item"><a class="nav-link fw-bold text-dark" href="employee.php">Employees</a></li>
-
                             <li class="nav-item"><a class="nav-link fw-bold text-dark" href="customer.php">Customers</a></li>
                             <li class="nav-item"><a class="nav-link fw-bold text-dark" href="order.php">Orders</a></li>
                         <?php endif; ?>
@@ -91,12 +89,13 @@ require_once 'popupMessage.php';
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="employee-logout.php">Logout</a></li>
+                                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
                             </ul>
                         </li>
                         </ul>
                     <?php endif; ?>
             </div>
-
         </div>
     </nav>
     <br>
+    <div class="d-flex flex-column min-vh-100">

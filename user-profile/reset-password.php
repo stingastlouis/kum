@@ -1,6 +1,6 @@
 <?php
 session_start();
-include './configs/db.php';
+include '../configs/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $customerId = $_POST['customerId'];
@@ -20,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bindParam(':customerId', $customerId, PDO::PARAM_INT);
         $stmt->execute();
 
-        echo "<script>alert('Password successfully updated.'); window.location.href='your-profile-page.php';</script>";
+
+        echo "<script>alert('Password successfully updated.'); window.location.href='../profile.php';</script>";
     } catch (PDOException $e) {
         echo "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
     }

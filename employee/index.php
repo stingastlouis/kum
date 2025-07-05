@@ -18,7 +18,7 @@ if (strtolower($_SESSION['employee_role']) == ROLE_COOK) {
 
 include 'includes/header.php';
 ?>
-<div class="container-fluid" style="height: 90vh;">
+<div class="container-fluid"  ">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 class="text-dark mb-0">Dashboard</h3>
     </div>

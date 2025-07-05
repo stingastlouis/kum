@@ -34,7 +34,7 @@
 <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="POST" action="./reset_password.php">
+      <form method="POST" action="user-profile/reset-password.php">
         <div class="modal-header">
           <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

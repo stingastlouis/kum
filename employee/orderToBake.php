@@ -68,100 +68,119 @@ $statusBakedId = $statusBaked["Id"] ?? null;
 
 
 <style>
-  .order-items-row {
-    background-color: #f9f9f9;
-  }
+ .bg-pink {
+  background-color: #f78fb3 !important;
+}
+.table-pink {
+  background-color: #ffe3ed !important;
+}
+.bg-light-pink {
+  background-color: #fff0f5 !important;
+}
 
-  .order-items-container img {
-    max-height: 80px;
-  }
 </style>
-<div class="container mt-5" style="height: 90vh;">
-  <h2 class="mb-4">Customer Orders</h2>
-  <table class="table table-bordered table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>Order ID</th>
-        <th>Customer ID</th>
-        <th>Total ($)</th>
-        <th>Order Date</th>
-        <th>Schedule Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($orders as $order): ?>
-        <tr>
-          <td><?= htmlspecialchars($order['OrderId']) ?></td>
-          <td><?= htmlspecialchars($order['CustomerId']) ?></td>
-          <td><?= htmlspecialchars(number_format($order['Total'], 2)) ?></td>
-          <td><?= htmlspecialchars($order['OrderDate']) ?></td>
-          <td><?= htmlspecialchars($order['ScheduleDate']) ?></td>
-          <td><?= htmlspecialchars($order['StatusName']) ?></td>
-          <td>
-            <button class="btn btn-primary btn-sm view-items-btn" data-order-id="<?= $order['OrderId'] ?>">
-              View Items
-            </button>
-            <form method="POST" action="status/add_orderStatus.php" style="margin: 0;">
-              <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
-              <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
-              <input type="hidden" name="status_id" value="<?= $statusBakedId ?>">
-              <button type="submit">Baked</button>
-            </form>
-          </td>
-        </tr>
-        <tr class="order-items-row d-none" id="items-row-<?= $order['OrderId'] ?>">
-          <td colspan="7">
-            <div class="order-items-container p-2">
-              <?php
-              if (!empty($itemsByOrder[$order['OrderId']])) {
-                echo "<div class='list-group'>";
-                foreach ($itemsByOrder[$order['OrderId']] as $item) {
-                  echo "<div class='list-group-item'>";
-                  echo "<strong>Product Type:</strong> " . htmlspecialchars($item['ProductType']) . "<br>";
-                  echo "<strong>Quantity:</strong> " . htmlspecialchars($item['Quantity']) . "<br>";
-                  echo "<strong>Price:</strong> $" . number_format($item['Price'], 2) . "<br>";
+<div class="container mt-5">
+  <div class="card shadow rounded-4 border-0">
+    <div class="card-header bg-pink text-white text-center rounded-top-4" style="background-color: #f78fb3;">
+      <h2 class="mb-0 fw-bold">Customer Orders</h2>
+    </div>
+    <div class="card-body p-4">
+      <table class="table table-hover align-middle table-bordered border-light rounded-4 overflow-hidden">
+        <thead class="table-pink text-center text-dark" style="background-color: #ffe3ed;">
+          <tr>
+            <th>Order ID</th>
+            <th>Customer ID</th>
+            <th>Total ($)</th>
+            <th>Order Date</th>
+            <th>Schedule Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($orders as $order): ?>
+            <tr class="text-center">
+              <td><?= htmlspecialchars($order['OrderId']) ?></td>
+              <td><?= htmlspecialchars($order['CustomerId']) ?></td>
+              <td><span class="badge bg-light text-dark">$<?= number_format($order['Total'], 2) ?></span></td>
+              <td><?= htmlspecialchars($order['OrderDate']) ?></td>
+              <td><?= htmlspecialchars($order['ScheduleDate']) ?></td>
+              <td>
+                <span class="badge rounded-pill bg-info text-dark px-3">
+                  <?= htmlspecialchars($order['StatusName']) ?>
+                </span>
+              </td>
+              <td>
+                <div class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-sm btn-outline-primary view-items-btn" data-order-id="<?= $order['OrderId'] ?>">
+                    <i class="fas fa-eye me-1"></i> View Items
+                  </button>
+                  <form method="POST" action="status/add_orderStatus.php" class="d-inline">
+                    <input type="hidden" name="order_id" value="<?= $order['OrderId'] ?>">
+                    <input type="hidden" name="employee_id" value="<?= $employeeId ?>">
+                    <input type="hidden" name="status_id" value="<?= $statusBakedId ?>">
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="fas fa-birthday-cake me-1"></i> Baked
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr class="order-items-row d-none bg-light-pink" id="items-row-<?= $order['OrderId'] ?>" style="background-color: #fff0f5;">
+              <td colspan="7">
+                <div class="order-items-container p-3 rounded-3 shadow-sm bg-white">
+                  <?php if (!empty($itemsByOrder[$order['OrderId']])): ?>
+                    <div class="list-group">
+                      <?php foreach ($itemsByOrder[$order['OrderId']] as $item): ?>
+                        <div class="list-group-item border-0 border-bottom mb-2 rounded-3 shadow-sm">
+                          <strong>Product Type:</strong> <?= htmlspecialchars($item['ProductType']) ?><br>
+                          <strong>Quantity:</strong> <?= htmlspecialchars($item['Quantity']) ?><br>
+                          <strong>Price:</strong> $<?= number_format($item['Price'], 2) ?><br>
 
-                  if ($item['ProductType'] === 'cake') {
-                    echo "<div class='mt-2'>";
-                    echo "<strong>Cake Name:</strong> " . htmlspecialchars($item['CakeName']) . "<br>";
-                    if ($item['CakeImage']) {
-                      echo "<img src='../assets/uploads/cakes/" . htmlspecialchars($item['CakeImage']) . "' alt='Cake Image' class='mt-2'><br>";
-                    }
-                    echo "<em>" . nl2br(htmlspecialchars($item['CakeDescription'])) . "</em>";
-                    echo "</div>";
-                  } elseif ($item['ProductType'] === 'giftbox') {
-                    $giftItems = $giftboxCakes[$item['Id']] ?? [];
-                    if (!empty($giftItems)) {
-                      echo "<div class='mt-2'><strong>Giftbox contains:</strong><ul>";
-                      foreach ($giftItems as $gbCake) {
-                        echo "<li>";
-                        echo htmlspecialchars($gbCake['Name']) . " (Qty: " . $gbCake['Quantity'] . ")";
-                        if ($gbCake['ImagePath']) {
-                          echo "<br><img src='../assets/uploads/cakes/" . htmlspecialchars($gbCake['ImagePath']) . "' alt='Cake Image' style='max-height:60px;' class='mt-1'>";
-                        }
-                        echo "</li>";
-                      }
-                      echo "</ul></div>";
-                    } else {
-                      echo "<em>No cakes selected for this giftbox.</em>";
-                    }
-                  }
-                  echo "</div>";
-                }
-                echo "</div>";
-              } else {
-                echo "<p>No items found for this order.</p>";
-              }
-              ?>
-            </div>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+                          <?php if ($item['ProductType'] === 'cake'): ?>
+                            <div class="mt-2">
+                              <strong>Cake Name:</strong> <?= htmlspecialchars($item['CakeName']) ?><br>
+                              <?php if ($item['CakeImage']): ?>
+                                <img src="../assets/uploads/cakes/<?= htmlspecialchars($item['CakeImage']) ?>" alt="Cake Image" class="img-thumbnail mt-2" style="max-height: 100px;">
+                              <?php endif; ?>
+                              <p class="mt-2 text-muted fst-italic"><?= nl2br(htmlspecialchars($item['CakeDescription'])) ?></p>
+                            </div>
+                          <?php elseif ($item['ProductType'] === 'giftbox'): ?>
+                            <div class="mt-2">
+                              <strong>Giftbox contains:</strong>
+                              <?php $giftItems = $giftboxCakes[$item['Id']] ?? []; ?>
+                              <?php if (!empty($giftItems)): ?>
+                                <ul class="list-unstyled ms-3">
+                                  <?php foreach ($giftItems as $gbCake): ?>
+                                    <li class="mb-2">
+                                      <?= htmlspecialchars($gbCake['Name']) ?> (Qty: <?= $gbCake['Quantity'] ?>)
+                                      <?php if ($gbCake['ImagePath']): ?>
+                                        <br><img src="../assets/uploads/cakes/<?= htmlspecialchars($gbCake['ImagePath']) ?>" alt="Cake Image" class="img-thumbnail mt-1" style="max-height: 60px;">
+                                      <?php endif; ?>
+                                    </li>
+                                  <?php endforeach; ?>
+                                </ul>
+                              <?php else: ?>
+                                <p class="text-muted fst-italic">No cakes selected for this giftbox.</p>
+                              <?php endif; ?>
+                            </div>
+                          <?php endif; ?>
+                        </div>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php else: ?>
+                    <p class="text-muted">No items found for this order.</p>
+                  <?php endif; ?>
+                </div>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
+
 <?php include 'includes/footer.php'; ?>
 <script>
   document.querySelectorAll('.view-items-btn').forEach(button => {
